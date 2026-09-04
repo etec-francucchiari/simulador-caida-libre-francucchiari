@@ -3,9 +3,13 @@
 
 [versions]
 guava = "33.5.0-jre"
+javafx = "21.0.2"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
+javafx-controls = { module = "org.openjfx:javafx-controls", version.ref = "javafx" }
+javafx-fxml = { module = "org.openjfx:javafx-fxml", version.ref = "javafx" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.3.0" }
+openjfx = { id = "org.openjfx.javafxplugin", version = "0.1.0" }
