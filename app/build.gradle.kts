@@ -45,3 +45,12 @@ kotlin {
 application {
     mainClass.set("org.example.AppKt")
 }
+
+// La tarea :app:run de JavaFX no es compatible con la configuration cache
+// de Gradle (el plugin org.openjfx.javafxplugin accede a Task.extensions en
+// tiempo de ejecución). Se excluye para poder lanzar la aplicación.
+tasks.named<JavaExec>("run") {
+    notCompatibleWithConfigurationCache(
+        "La tarea run de JavaFX no es compatible con la configuration cache"
+    )
+}
