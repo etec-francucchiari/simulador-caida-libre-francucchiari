@@ -1,0 +1,15 @@
+/* Estilos base del Simulador de Caída Libre */
+
+.root {
+    -fx-font-family: "System";
+    -fx-font-size: 14px;
+}
+
+.button:hover {
+    -fx-cursor: hand;
+    -fx-opacity: 0.9;
+}
+
+.button:pressed {
+    -fx-opacity: 0.7;
+}
