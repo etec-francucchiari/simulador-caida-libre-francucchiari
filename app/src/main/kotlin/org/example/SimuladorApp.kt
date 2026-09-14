@@ -5,18 +5,22 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.Button
+import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
+import javafx.scene.layout.VBox
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.stage.Stage
 
 /**
- * Clase principal de la interfaz gráfica del Simulador de Caída Libre.
- * Extiende [Application] de JavaFX y es responsable únicamente
- * de construir y mostrar la pantalla principal.
+ * Vista principal de la interfaz gráfica del Simulador de Caída Libre.
+ *
+ * Construye la pantalla principal sin conocer la lógica del simulador:
+ * delega el estado reactivo en [GestorEstadoSimulacion] y se suscribe
+ * a sus propiedades para refrescar la UI automáticamente.
  */
 class SimuladorApp : Application() {
 
@@ -26,6 +30,8 @@ class SimuladorApp : Application() {
         private const val ALTO_VENTANA = 600.0
         private const val TITULO_ENCABEZADO = "Simulador Interactivo de Caída Libre"
     }
+
+    private val gestorEstado = GestorEstadoSimulacion()
 
     override fun start(stage: Stage) {
         stage.title = TITULO_VENTANA
@@ -67,15 +73,53 @@ class SimuladorApp : Application() {
         areaCentral.padding = Insets(20.0)
         areaCentral.style = "-fx-background-color: #ffffff;"
 
-        val placeholder = Label("Área de simulación\n(Se agregará en las siguientes issues)")
-        placeholder.font = Font.font("System", 14.0)
-        placeholder.style = "-fx-text-fill: #95a5a6; -fx-text-alignment: center;"
-        placeholder.alignment = Pos.CENTER
+        val contenedor = VBox(20.0)
 
-        areaCentral.children.add(placeholder)
-        StackPane.setAlignment(placeholder, Pos.CENTER)
+        val etiquetaSelector = Label("Seleccione el planeta:")
+        etiquetaSelector.font = Font.font("System", FontWeight.BOLD, 16.0)
+        etiquetaSelector.style = "-fx-text-fill: #2c3e50;"
+
+        val selectorPlaneta = ComboBox<Planeta>()
+        selectorPlaneta.items.addAll(Planeta.entries)
+        // El valor del selector queda vinculado de forma bidireccional/reflexiva
+        // con la gravedad del gestor: al cambiar el selector se actualiza la
+        // simulación y viceversa.
+        selectorPlaneta.valueProperty().addListener { _, _, nuevoPlaneta ->
+            if (nuevoPlaneta != null) {
+                gestorEstado.establecerPlaneta(nuevoPlaneta)
+            }
+        }
+        selectorPlaneta.value = gestorEstado.obtenerPlaneta()
+
+        val etiquetaInfoPlaneta = Label()
+        etiquetaInfoPlaneta.font = Font.font("System", 14.0)
+        etiquetaInfoPlaneta.style =
+            "-fx-text-fill: #34495e; -fx-wrap-text: true; -fx-text-alignment: center;"
+
+        // Suscripción reactiva: cuando el planeta cambia en el gestor de estado,
+        // se actualiza automáticamente el texto descriptivo y la gravedad.
+        gestorEstado.planetaActivoProperty.addListener { _, _, planeta ->
+            etiquetaInfoPlaneta.text = construirTextoInfo(planeta)
+        }
+        etiquetaInfoPlaneta.text = construirTextoInfo(gestorEstado.obtenerPlaneta())
+
+        contenedor.children.addAll(etiquetaSelector, selectorPlaneta, etiquetaInfoPlaneta)
+        contenedor.alignment = Pos.CENTER
+
+        areaCentral.children.add(contenedor)
+        StackPane.setAlignment(contenedor, Pos.CENTER)
 
         return areaCentral
+    }
+
+    /**
+     * Construye el texto descriptivo del planeta seleccionado,
+     * incluyendo su nombre, gravedad y descripción.
+     */
+    private fun construirTextoInfo(planeta: Planeta): String {
+        return "Planeta: ${planeta.nombre}\n" +
+               "Gravedad: ${planeta.gravedad} m/s²\n" +
+               planeta.descripcion
     }
 
     private fun construirBarraInferior(): HBox {
