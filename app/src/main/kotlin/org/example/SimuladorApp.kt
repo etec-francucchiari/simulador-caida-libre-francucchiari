@@ -7,6 +7,7 @@ import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
+import javafx.scene.control.Separator
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
@@ -26,8 +27,8 @@ class SimuladorApp : Application() {
 
     companion object {
         private const val TITULO_VENTANA = "Simulador de Caída Libre"
-        private const val ANCHO_VENTANA = 800.0
-        private const val ALTO_VENTANA = 600.0
+        private const val ANCHO_VENTANA = 1000.0
+        private const val ALTO_VENTANA = 720.0
         private const val TITULO_ENCABEZADO = "Simulador Interactivo de Caída Libre"
     }
 
@@ -73,7 +74,9 @@ class SimuladorApp : Application() {
         areaCentral.padding = Insets(20.0)
         areaCentral.style = "-fx-background-color: #ffffff;"
 
-        val contenedor = VBox(20.0)
+        val contenedor = VBox(16.0)
+        contenedor.alignment = Pos.TOP_CENTER
+        contenedor.maxWidth = 880.0
 
         val etiquetaSelector = Label("Seleccione el planeta:")
         etiquetaSelector.font = Font.font("System", FontWeight.BOLD, 16.0)
@@ -81,9 +84,9 @@ class SimuladorApp : Application() {
 
         val selectorPlaneta = ComboBox<Planeta>()
         selectorPlaneta.items.addAll(Planeta.entries)
-        // El valor del selector queda vinculado de forma bidireccional/reflexiva
-        // con la gravedad del gestor: al cambiar el selector se actualiza la
-        // simulación y viceversa.
+        selectorPlaneta.maxWidth = 320.0
+        // El valor del selector queda vinculado con la gravedad del gestor:
+        // al cambiar el selector se actualiza la simulación y viceversa.
         selectorPlaneta.valueProperty().addListener { _, _, nuevoPlaneta ->
             if (nuevoPlaneta != null) {
                 gestorEstado.establecerPlaneta(nuevoPlaneta)
@@ -103,8 +106,19 @@ class SimuladorApp : Application() {
         }
         etiquetaInfoPlaneta.text = construirTextoInfo(gestorEstado.obtenerPlaneta())
 
-        contenedor.children.addAll(etiquetaSelector, selectorPlaneta, etiquetaInfoPlaneta)
-        contenedor.alignment = Pos.CENTER
+        // Paneles de la Issue #3: configuración de parámetros iniciales
+        // y fórmulas físicas reactivas.
+        val panelParametros = PanelParametrosIniciales(gestorEstado)
+        val panelIndicadores = PanelIndicadoresFisicos(gestorEstado)
+
+        contenedor.children.addAll(
+            etiquetaSelector,
+            selectorPlaneta,
+            etiquetaInfoPlaneta,
+            Separator(),
+            panelParametros,
+            panelIndicadores
+        )
 
         areaCentral.children.add(contenedor)
         StackPane.setAlignment(contenedor, Pos.CENTER)
