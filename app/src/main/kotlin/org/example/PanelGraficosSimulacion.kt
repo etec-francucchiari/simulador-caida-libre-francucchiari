@@ -133,10 +133,21 @@ class PanelGraficosSimulacion(
         val y = gestorEstado.obtenerAlturaActual()
         val v = gestorEstado.obtenerVelocidadActual()
 
-        serieActualPosicion.data =
-            FXCollections.observableArrayList(XYChart.Data<Number, Number>(t, y))
-        serieActualVelocidad.data =
-            FXCollections.observableArrayList(XYChart.Data<Number, Number>(t, v))
+        if (serieActualPosicion.data.isEmpty()) {
+            serieActualPosicion.data.add(XYChart.Data(t, y))
+        } else {
+            val puntoY = serieActualPosicion.data[0]
+            puntoY.xValue = t
+            puntoY.yValue = y
+        }
+
+        if (serieActualVelocidad.data.isEmpty()) {
+            serieActualVelocidad.data.add(XYChart.Data(t, v))
+        } else {
+            val puntoV = serieActualVelocidad.data[0]
+            puntoV.xValue = t
+            puntoV.yValue = v
+        }
     }
 
     private fun configurarEje(eje: NumberAxis, etiqueta: String) {

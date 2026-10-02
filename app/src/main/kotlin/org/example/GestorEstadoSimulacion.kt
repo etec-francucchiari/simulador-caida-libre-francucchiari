@@ -129,9 +129,27 @@ class GestorEstadoSimulacion {
      */
     fun estaEnEjecucion(): Boolean = enEjecucionProperty.get()
 
+    companion object {
+        private const val UMBRAL_PRECISION_TIEMPO: Double = 1e-6
+        private const val UMBRAL_ALTURA_SUELO: Double = 1e-5
+    }
+
+    /**
+     * Determina si el cuerpo se encuentra actualmente detenido en el suelo
+     * (altura y <= 0 o tiempo transcurrido alcanzando el tiempo total de caída).
+     */
+    fun haLlegadoAlSuelo(): Boolean {
+        val h0 = obtenerAlturaInicial()
+        val v0 = obtenerVelocidadInicial()
+        val g = obtenerPlaneta().gravedad
+        val tiempoCaida = CalculoCaidaLibre.calcularTiempoCaida(h0, v0, g) ?: 0.0
+        return obtenerAlturaActual() <= UMBRAL_ALTURA_SUELO ||
+                (tiempoCaida > 0.0 && (tiempoCaida - obtenerTiempoActual()) <= UMBRAL_PRECISION_TIEMPO)
+    }
+
     /**
      * Inicia o reanuda la simulación en tiempo real.
-     * Si el cuerpo ya se encuentra en el suelo, se reinicia primero.
+     * Si el cuerpo ya se encuentra en el suelo, se reinicia primero automáticamente.
      */
     fun iniciarSimulacion() {
         val h0 = obtenerAlturaInicial()
@@ -139,9 +157,15 @@ class GestorEstadoSimulacion {
         val g = obtenerPlaneta().gravedad
         val tiempoCaida = CalculoCaidaLibre.calcularTiempoCaida(h0, v0, g) ?: 0.0
 
-        if (obtenerTiempoActual() >= tiempoCaida) {
+        if (haLlegadoAlSuelo() || obtenerTiempoActual() >= tiempoCaida) {
             reiniciarSimulacion()
         }
+
+        if (obtenerAlturaInicial() <= 0.0) {
+            enEjecucionProperty.set(false)
+            return
+        }
+
         enEjecucionProperty.set(true)
     }
 
@@ -166,6 +190,9 @@ class GestorEstadoSimulacion {
      * Establece manualmente el tiempo instantáneo de simulación y recalcula
      * de forma reactiva la altura y velocidad asociadas.
      *
+     * Detecta la colisión o detención cuando el objeto llega al suelo (y <= 0)
+     * y finaliza la simulación en dicho instante.
+     *
      * @param nuevoTiempo tiempo en segundos (t ≥ 0).
      */
     fun establecerTiempoActual(nuevoTiempo: Double) {
@@ -175,16 +202,24 @@ class GestorEstadoSimulacion {
         val tiempoCaida = CalculoCaidaLibre.calcularTiempoCaida(h0, v0, g) ?: 0.0
 
         val tiempoLimitado = nuevoTiempo.coerceIn(0.0, tiempoCaida)
-        tiempoActualProperty.set(tiempoLimitado)
+        val tiempoEfectivo = if (tiempoCaida > 0.0 && (tiempoCaida - tiempoLimitado) <= UMBRAL_PRECISION_TIEMPO) {
+            tiempoCaida
+        } else {
+            tiempoLimitado
+        }
+        tiempoActualProperty.set(tiempoEfectivo)
 
-        val posicion = CalculoCaidaLibre.calcularPosicion(h0, v0, g, tiempoLimitado) ?: 0.0
-        val velocidad = CalculoCaidaLibre.calcularVelocidad(h0, v0, g, tiempoLimitado) ?: 0.0
+        val posicion = CalculoCaidaLibre.calcularPosicion(h0, v0, g, tiempoEfectivo) ?: 0.0
+        val velocidad = CalculoCaidaLibre.calcularVelocidad(h0, v0, g, tiempoEfectivo) ?: 0.0
 
-        alturaActualProperty.set(posicion)
-        velocidadActualProperty.set(velocidad)
-
-        if (tiempoLimitado >= tiempoCaida) {
+        if (posicion <= UMBRAL_ALTURA_SUELO || tiempoEfectivo >= tiempoCaida) {
+            alturaActualProperty.set(0.0)
+            val velocidadImpacto = CalculoCaidaLibre.calcularVelocidadImpacto(h0, v0, g) ?: velocidad
+            velocidadActualProperty.set(velocidadImpacto)
             enEjecucionProperty.set(false)
+        } else {
+            alturaActualProperty.set(posicion)
+            velocidadActualProperty.set(velocidad)
         }
     }
 
@@ -192,13 +227,17 @@ class GestorEstadoSimulacion {
      * Avanza el tiempo transcurrido en un diferencial deltaSegundos.
      *
      * @param deltaSegundos tiempo transcurrido en el frame en segundos.
-     * @return `true` si la simulación continúa en el aire, o `false` si ha tocado el suelo.
+     * @return `true` si la simulación continúa en el aire, o `false` si ha tocado el suelo (y <= 0).
      */
     fun avanzarTiempo(deltaSegundos: Double): Boolean {
         if (!estaEnEjecucion() || deltaSegundos <= 0.0) return false
 
         val tiempoDestino = obtenerTiempoActual() + deltaSegundos
         establecerTiempoActual(tiempoDestino)
+
+        if (obtenerAlturaActual() <= 0.0 || haLlegadoAlSuelo()) {
+            enEjecucionProperty.set(false)
+        }
 
         return estaEnEjecucion()
     }

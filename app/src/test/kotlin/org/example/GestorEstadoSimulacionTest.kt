@@ -118,5 +118,39 @@ class GestorEstadoSimulacionTest {
         assertEquals(1.0, gestor.obtenerTiempoActual(), 1e-6)
         assertEquals(0.0, gestor.obtenerAlturaActual(), 1e-6)
         assertEquals(9.8, gestor.obtenerVelocidadActual(), 1e-6)
+        assertTrue(gestor.haLlegadoAlSuelo())
+    }
+
+    @Test
+    fun iniciarSimulacionConAlturaCeroNoSeEjecuta() {
+        val gestor = GestorEstadoSimulacion()
+        gestor.establecerAlturaInicial(0.0)
+
+        gestor.iniciarSimulacion()
+
+        assertFalse(gestor.estaEnEjecucion())
+        assertEquals(0.0, gestor.obtenerAlturaActual())
+        assertTrue(gestor.haLlegadoAlSuelo())
+    }
+
+    @Test
+    fun haLlegadoAlSueloEsFalsoDuranteVueloYVerdaderoAlFinalizar() {
+        val gestor = GestorEstadoSimulacion()
+        gestor.establecerAlturaInicial(100.0)
+        gestor.establecerVelocidadInicial(0.0)
+
+        // En reposo arriba
+        assertFalse(gestor.haLlegadoAlSuelo())
+
+        gestor.iniciarSimulacion()
+        gestor.establecerTiempoActual(2.0)
+        assertFalse(gestor.haLlegadoAlSuelo())
+
+        // Calculamos tiempo de caída y avanzamos hasta el final
+        val tCaida = CalculoCaidaLibre.calcularTiempoCaida(100.0, 0.0, 9.8)!!
+        gestor.establecerTiempoActual(tCaida)
+        assertTrue(gestor.haLlegadoAlSuelo())
+        assertEquals(0.0, gestor.obtenerAlturaActual())
+        assertFalse(gestor.estaEnEjecucion())
     }
 }

@@ -3,6 +3,7 @@ package org.example
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.geometry.Insets
+import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.Button
@@ -115,6 +116,7 @@ class SimuladorApp : Application() {
         val selectorPlaneta = ComboBox<Planeta>()
         selectorPlaneta.items.addAll(Planeta.entries)
         selectorPlaneta.maxWidth = Double.MAX_VALUE
+        selectorPlaneta.disableProperty().bind(gestorEstado.enEjecucionProperty)
         selectorPlaneta.valueProperty().addListener { _, _, nuevoPlaneta ->
             if (nuevoPlaneta != null) {
                 gestorEstado.establecerPlaneta(nuevoPlaneta)
@@ -172,13 +174,29 @@ class SimuladorApp : Application() {
         val botonIniciar = Button("Iniciar Simulación")
         botonIniciar.style = botonesEstiloPrimario()
 
+        val etiquetaEstado = Label("Estado: Listo para iniciar")
+        etiquetaEstado.font = Font.font("System", FontWeight.BOLD, 13.0)
+        etiquetaEstado.style = "-fx-text-fill: #475569;"
+
         gestorEstado.enEjecucionProperty.addListener { _, _, enEjecucion ->
             if (enEjecucion) {
                 botonIniciar.text = "Pausar Simulación"
                 botonIniciar.style = botonesEstiloPausar()
+                etiquetaEstado.text = "Estado: Simulación en curso..."
+                etiquetaEstado.style = "-fx-text-fill: #2563eb;"
             } else {
                 botonIniciar.text = "Iniciar Simulación"
                 botonIniciar.style = botonesEstiloPrimario()
+                if (gestorEstado.haLlegadoAlSuelo()) {
+                    etiquetaEstado.text = "Estado: ¡Impacto contra el suelo alcanzado (y = 0 m)!"
+                    etiquetaEstado.style = "-fx-text-fill: #16a34a;"
+                } else if (gestorEstado.obtenerTiempoActual() > 0.0) {
+                    etiquetaEstado.text = "Estado: Simulación pausada"
+                    etiquetaEstado.style = "-fx-text-fill: #d97706;"
+                } else {
+                    etiquetaEstado.text = "Estado: Listo para iniciar"
+                    etiquetaEstado.style = "-fx-text-fill: #475569;"
+                }
             }
         }
 
@@ -190,13 +208,17 @@ class SimuladorApp : Application() {
         botonReiniciar.style = botonesEstiloReinicio()
         botonReiniciar.setOnAction {
             controladorSimulacion.reiniciar()
+            etiquetaEstado.text = "Estado: Listo para iniciar"
+            etiquetaEstado.style = "-fx-text-fill: #475569;"
         }
 
         val botonSalir = Button("Salir")
         botonSalir.style = botonesEstiloSecundario()
         botonSalir.setOnAction { Platform.exit() }
 
-        val barraBotones = HBox(15.0, botonIniciar, botonReiniciar, botonSalir)
+        val separador = Separator(Orientation.VERTICAL)
+
+        val barraBotones = HBox(15.0, botonIniciar, botonReiniciar, botonSalir, separador, etiquetaEstado)
         barraBotones.alignment = Pos.CENTER
         barraBotones.padding = Insets(16.0)
         barraBotones.style = "-fx-background-color: #ecf0f1;"

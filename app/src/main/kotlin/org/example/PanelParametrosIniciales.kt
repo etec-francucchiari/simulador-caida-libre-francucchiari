@@ -73,6 +73,9 @@ class PanelParametrosIniciales(
         configurarCampo(campoAltura, esCampoAltura = true)
         configurarCampo(campoVelocidad, esCampoAltura = false)
 
+        campoAltura.disableProperty().bind(gestorEstado.enEjecucionProperty)
+        campoVelocidad.disableProperty().bind(gestorEstado.enEjecucionProperty)
+
         // Indicadores del valor aplicado: se refrescan solos al cambiar el estado.
         gestorEstado.alturaInicialProperty.addListener { _, _, nuevoValor ->
             etiquetaValorAltura.text = "→ aplicado: ${formatear(nuevoValor.toDouble())} m"
