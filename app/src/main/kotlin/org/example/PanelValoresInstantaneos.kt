@@ -24,7 +24,7 @@ import java.util.Locale
  * como al avanzar la simulación en el tiempo.
  */
 class PanelValoresInstantaneos(
-    private val gestorEstado: GestorEstadoSimulacion
+    private val estado: EstadoSimulacion
 ) : HBox(12.0) {
 
     private val etiquetaValorTiempo: Label = crearEtiquetaValor()
@@ -65,14 +65,14 @@ class PanelValoresInstantaneos(
 
         children.addAll(tarjetaTiempo, tarjetaAltura, tarjetaVelocidad)
 
-        // Suscripciones reactivas al gestor de estado:
-        gestorEstado.tiempoActualProperty.addListener { _, _, nuevoTiempo ->
+        // Suscripciones reactivas al estado (solo lectura, vía abstracción):
+        estado.tiempoActualObservable().addListener { _, _, nuevoTiempo ->
             etiquetaValorTiempo.text = "${formatear(nuevoTiempo.toDouble())} s"
         }
-        gestorEstado.alturaActualProperty.addListener { _, _, nuevaAltura ->
+        estado.alturaActualObservable().addListener { _, _, nuevaAltura ->
             etiquetaValorAltura.text = "${formatear(nuevaAltura.toDouble())} m"
         }
-        gestorEstado.velocidadActualProperty.addListener { _, _, nuevaVelocidad ->
+        estado.velocidadActualObservable().addListener { _, _, nuevaVelocidad ->
             etiquetaValorVelocidad.text = "${formatear(nuevaVelocidad.toDouble())} m/s"
         }
 
@@ -84,9 +84,9 @@ class PanelValoresInstantaneos(
      * Actualiza manualmente las etiquetas con los valores presentes en el gestor.
      */
     fun actualizarTodosLosValores() {
-        etiquetaValorTiempo.text = "${formatear(gestorEstado.obtenerTiempoActual())} s"
-        etiquetaValorAltura.text = "${formatear(gestorEstado.obtenerAlturaActual())} m"
-        etiquetaValorVelocidad.text = "${formatear(gestorEstado.obtenerVelocidadActual())} m/s"
+        etiquetaValorTiempo.text = "${formatear(estado.obtenerTiempoActual())} s"
+        etiquetaValorAltura.text = "${formatear(estado.obtenerAlturaActual())} m"
+        etiquetaValorVelocidad.text = "${formatear(estado.obtenerVelocidadActual())} m/s"
     }
 
     /**

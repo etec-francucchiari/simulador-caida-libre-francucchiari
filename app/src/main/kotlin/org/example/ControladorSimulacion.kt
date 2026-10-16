@@ -5,45 +5,27 @@ import javafx.animation.AnimationTimer
 /**
  * Controlador del bucle temporal de la simulación de caída libre.
  *
- * Desacopla la gestión del tiempo de animación de la interfaz gráfica y
- * del cálculo físico:
- * - Utiliza un [AnimationTimer] de JavaFX sincronizado con la tasa de refresco
- *   de la pantalla (aproximadamente 60 fps).
- * - Calcula el delta de tiempo real transcurrido entre frames consecutivos.
- * - Invoca a [GestorEstadoSimulacion.avanzarTiempo] para avanzar el estado
- *   físico reactivo.
- * - Detiene el temporizador automáticamente cuando el cuerpo impacta en el suelo
- *   o cuando el usuario pausa la simulación.
+ * Es instanciable y depende de la abstracción [ContextoSimulacion] inyectada
+ * por constructor (DIP). Implementa [ControlReproduccion] para desacoplar la
+ * barra de controles de UI.
+ *
+ * Usa un [AnimationTimer] sincronizado con la tasa de refresco de pantalla,
+ * limita el delta máximo por fotograma y detiene el bucle al tocar el suelo.
  */
 class ControladorSimulacion(
-    private val gestorEstado: GestorEstadoSimulacion
-) {
+    private val contexto: ContextoSimulacion
+) : ControlReproduccion {
+
+    private val deltaMaximoSegundos: Double = 0.1
+    private val nanoASegundos: Double = 1_000_000_000.0
 
     private var ultimoTimestampNano: Long = 0L
 
-    private val temporizador: AnimationTimer = object : AnimationTimer() {
-        override fun handle(ahoraNano: Long) {
-            if (ultimoTimestampNano == 0L) {
-                ultimoTimestampNano = ahoraNano
-                return
-            }
-
-            val deltaSegundos = (ahoraNano - ultimoTimestampNano) / 1_000_000_000.0
-            ultimoTimestampNano = ahoraNano
-
-            // Se limita el delta máximo por frame para evitar saltos bruscos si hay demoras
-            val deltaSeguro = deltaSegundos.coerceAtMost(0.1)
-            val sigueEnElAire = gestorEstado.avanzarTiempo(deltaSeguro)
-
-            if (!sigueEnElAire) {
-                detenerTemporizador()
-            }
-        }
-    }
+    private val temporizador: AnimationTimer = TemporizadorAnimacion()
 
     init {
-        // Se sincroniza el timer con el estado reactivo del gestor
-        gestorEstado.enEjecucionProperty.addListener { _, _, enEjecucion ->
+        // Se sincroniza el timer con el estado reactivo del contexto.
+        contexto.enEjecucionObservable().addListener { _, _, enEjecucion ->
             if (enEjecucion) {
                 iniciarTemporizador()
             } else {
@@ -53,35 +35,74 @@ class ControladorSimulacion(
     }
 
     /**
-     * Alterna entre iniciar y pausar la simulación.
+     * Implementación privada del bucle de animación que delega cada fotograma en
+     * [procesarFrame]. Se modela como clase interna para no recurrir a objetos
+     * anónimos ni a utilidades estáticas.
      */
-    fun alternarEjecucion() {
-        if (gestorEstado.estaEnEjecucion()) {
+    private inner class TemporizadorAnimacion : AnimationTimer() {
+        override fun handle(ahoraNano: Long) {
+            procesarFrame(ahoraNano)
+        }
+    }
+
+    /**
+     * Límite máximo de delta de tiempo por fotograma en segundos.
+     */
+    fun deltaMaximoSegundos(): Double = deltaMaximoSegundos
+
+    /**
+     * Procesa un fotograma del bucle de animación.
+     *
+     * @return `true` si la simulación continúa en el aire, o `false` si concluyó.
+     */
+    fun procesarFrame(ahoraNano: Long): Boolean {
+        if (!contexto.estaEnEjecucion()) {
+            detenerTemporizador()
+            return false
+        }
+
+        if (ultimoTimestampNano == 0L) {
+            ultimoTimestampNano = ahoraNano
+            return true
+        }
+
+        val deltaSegundos = (ahoraNano - ultimoTimestampNano) / nanoASegundos
+        ultimoTimestampNano = ahoraNano
+
+        if (deltaSegundos <= 0.0) {
+            return contexto.estaEnEjecucion()
+        }
+
+        val deltaSeguro = deltaSegundos.coerceAtMost(deltaMaximoSegundos)
+        val sigueEnElAire = contexto.avanzarTiempo(deltaSeguro)
+
+        if (!sigueEnElAire || contexto.haLlegadoAlSuelo() || contexto.obtenerAlturaActual() <= 0.0) {
+            detenerTemporizador()
+            return false
+        }
+
+        return true
+    }
+
+    override fun alternarEjecucion() {
+        if (contexto.estaEnEjecucion()) {
             pausar()
         } else {
             iniciar()
         }
     }
 
-    /**
-     * Inicia o reanuda la simulación.
-     */
-    fun iniciar() {
-        gestorEstado.iniciarSimulacion()
+    override fun iniciar() {
+        contexto.iniciarSimulacion()
     }
 
-    /**
-     * Pausa la simulación en el instante actual.
-     */
-    fun pausar() {
-        gestorEstado.pausarSimulacion()
+    override fun pausar() {
+        contexto.pausarSimulacion()
     }
 
-    /**
-     * Reinicia la simulación volviendo al tiempo t = 0.
-     */
-    fun reiniciar() {
-        gestorEstado.reiniciarSimulacion()
+    override fun reiniciar() {
+        detenerTemporizador()
+        contexto.reiniciarSimulacion()
     }
 
     private fun iniciarTemporizador() {

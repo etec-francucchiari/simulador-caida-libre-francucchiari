@@ -11,29 +11,20 @@ import javafx.scene.text.FontWeight
 import java.util.Locale
 
 /**
- * Panel de configuración de los parámetros iniciales (altura h₀ y
- * velocidad v₀) del simulador de caída libre.
+ * Panel de configuración de los parámetros iniciales (altura h₀ y velocidad v₀).
  *
- * Encapsula los campos de entrada, su validación en vivo y la conexión
- * con el gestor de estado reactivo:
- * - Cuando el texto es válido, el valor se publica en
- *   [GestorEstadoSimulacion] y las fórmulas físicas se actualizan solas.
- * - Cuando el texto es inválido, se muestra el error en la interfaz sin
- *   romper la aplicación y se conserva el último valor válido aplicado.
- *
- * No conoce física: delega la validación a [ValidadorParametrosIniciales]
- * y el estado a [GestorEstadoSimulacion].
+ * Recibe por constructor las abstracciones [EstadoSimulacion] y
+ * [ComandosSimulacion] (DIP), además del [ValidadorParametrosIniciales].
+ * No conoce la implementación concreta del gestor.
  */
 class PanelParametrosIniciales(
-    private val gestorEstado: GestorEstadoSimulacion
+    private val estado: EstadoSimulacion,
+    private val comandos: ComandosSimulacion,
+    private val validador: ValidadorParametrosIniciales = ValidadorParametrosIniciales()
 ) : VBox(12.0) {
 
-    private val validador = ValidadorParametrosIniciales()
-
-    private val campoAltura: TextField =
-        crearCampo(gestorEstado.obtenerAlturaInicial())
-    private val campoVelocidad: TextField =
-        crearCampo(gestorEstado.obtenerVelocidadInicial())
+    private val campoAltura: TextField = crearCampo(estado.obtenerAlturaInicial())
+    private val campoVelocidad: TextField = crearCampo(estado.obtenerVelocidadInicial())
 
     private val etiquetaValorAltura: Label = crearEtiquetaValorAceptado()
     private val etiquetaValorVelocidad: Label = crearEtiquetaValorAceptado()
@@ -68,28 +59,22 @@ class PanelParametrosIniciales(
 
         children.addAll(titulo, grilla, etiquetaError)
 
-        // Conexión reactiva: cada campo valida su texto y, si es válido,
-        // publica el valor en el gestor de estado (dispara las suscripciones).
         configurarCampo(campoAltura, esCampoAltura = true)
         configurarCampo(campoVelocidad, esCampoAltura = false)
 
-        // Indicadores del valor aplicado: se refrescan solos al cambiar el estado.
-        gestorEstado.alturaInicialProperty.addListener { _, _, nuevoValor ->
+        campoAltura.disableProperty().bind(estado.enEjecucionObservable())
+        campoVelocidad.disableProperty().bind(estado.enEjecucionObservable())
+
+        estado.alturaInicialObservable().addListener { _, _, nuevoValor ->
             etiquetaValorAltura.text = "→ aplicado: ${formatear(nuevoValor.toDouble())} m"
         }
-        gestorEstado.velocidadInicialProperty.addListener { _, _, nuevoValor ->
+        estado.velocidadInicialObservable().addListener { _, _, nuevoValor ->
             etiquetaValorVelocidad.text = "→ aplicado: ${formatear(nuevoValor.toDouble())} m/s"
         }
-        etiquetaValorAltura.text =
-            "→ aplicado: ${formatear(gestorEstado.obtenerAlturaInicial())} m"
-        etiquetaValorVelocidad.text =
-            "→ aplicado: ${formatear(gestorEstado.obtenerVelocidadInicial())} m/s"
+        etiquetaValorAltura.text = "→ aplicado: ${formatear(estado.obtenerAlturaInicial())} m"
+        etiquetaValorVelocidad.text = "→ aplicado: ${formatear(estado.obtenerVelocidadInicial())} m/s"
     }
 
-    /**
-     * Configura la reacción de un campo ante cambios de texto:
-     * valida, resalta el borde y publica el valor en el estado si es válido.
-     */
     private fun configurarCampo(campo: TextField, esCampoAltura: Boolean) {
         campo.textProperty().addListener { _, _, nuevoTexto ->
             val texto = nuevoTexto ?: ""
@@ -104,9 +89,9 @@ class PanelParametrosIniciales(
             if (error == null) {
                 val valor = parsearNumero(texto)
                 if (esCampoAltura) {
-                    gestorEstado.establecerAlturaInicial(valor)
+                    comandos.establecerAlturaInicial(valor)
                 } else {
-                    gestorEstado.establecerVelocidadInicial(valor)
+                    comandos.establecerVelocidadInicial(valor)
                 }
             }
 
@@ -114,10 +99,6 @@ class PanelParametrosIniciales(
         }
     }
 
-    /**
-     * Recalcula y muestra los errores de ambos campos en la interfaz.
-     * Verifica cada campo por separado para indicar cuál tiene el problema.
-     */
     private fun actualizarEtiquetaError() {
         val errores = mutableListOf<String>()
 
@@ -134,9 +115,6 @@ class PanelParametrosIniciales(
         etiquetaError.text = errores.joinToString("\n")
     }
 
-    /**
-     * Resalta el borde del campo en rojo cuando el valor es inválido.
-     */
     private fun actualizarBordeCampo(campo: TextField, valido: Boolean) {
         campo.style = if (valido) {
             ""
@@ -166,28 +144,18 @@ class PanelParametrosIniciales(
         return etiqueta
     }
 
-    /**
-     * Etiqueta de errores: se reserva espacio para evitar saltos de layout.
-     */
     private fun crearEtiquetaError(): Label {
         val etiqueta = Label()
-        etiqueta.wrapTextProperty().set(true)
-        etiqueta.minHeight = RESERVIDO_PARA_ERRORES
+        etiqueta.isWrapText = true
+        etiqueta.minHeight = 30.0
         etiqueta.font = Font.font("System", 13.0)
         etiqueta.style = "-fx-text-fill: #e74c3c;"
         return etiqueta
     }
 
-    /**
-     * Convierte un texto ya validado en su valor numérico.
-     */
     private fun parsearNumero(texto: String): Double =
         texto.trim().replace(',', '.').toDouble()
 
     private fun formatear(valor: Double): String =
         String.format(Locale.ROOT, "%.2f", valor)
-
-    companion object {
-        private const val RESERVIDO_PARA_ERRORES = 30.0
-    }
 }

@@ -27,7 +27,8 @@ import javafx.scene.text.FontWeight
  * 2. Mover el marcador de punto instantáneo a medida que la simulación avanza.
  */
 class PanelGraficosSimulacion(
-    private val gestorEstado: GestorEstadoSimulacion
+    private val estado: EstadoSimulacion,
+    private val calculo: CalculoCaidaLibre
 ) : VBox(8.0) {
 
     private val ejeXPosicion = NumberAxis()
@@ -89,12 +90,12 @@ class PanelGraficosSimulacion(
         children.addAll(encabezado, tabPane)
 
         // Suscripción reactiva a cambios en los parámetros del modelo
-        gestorEstado.alturaInicialProperty.addListener { _, _, _ -> actualizarGraficosCompletos() }
-        gestorEstado.velocidadInicialProperty.addListener { _, _, _ -> actualizarGraficosCompletos() }
-        gestorEstado.planetaActivoProperty.addListener { _, _, _ -> actualizarGraficosCompletos() }
+        estado.alturaInicialObservable().addListener { _, _, _ -> actualizarGraficosCompletos() }
+        estado.velocidadInicialObservable().addListener { _, _, _ -> actualizarGraficosCompletos() }
+        estado.planetaObservable().addListener { _, _, _ -> actualizarGraficosCompletos() }
 
         // Suscripción reactiva al avance del tiempo de la simulación
-        gestorEstado.tiempoActualProperty.addListener { _, _, _ -> actualizarMarcadoresActuales() }
+        estado.tiempoActualObservable().addListener { _, _, _ -> actualizarMarcadoresActuales() }
 
         // Renderizado inicial
         actualizarGraficosCompletos()
@@ -105,18 +106,18 @@ class PanelGraficosSimulacion(
      * a partir de los parámetros vigentes en el gestor de estado.
      */
     fun actualizarGraficosCompletos() {
-        val h0 = gestorEstado.obtenerAlturaInicial()
-        val v0 = gestorEstado.obtenerVelocidadInicial()
-        val g = gestorEstado.obtenerPlaneta().gravedad
+        val h0 = estado.obtenerAlturaInicial()
+        val v0 = estado.obtenerVelocidadInicial()
+        val g = estado.obtenerPlaneta().gravedad()
 
-        val puntosTrayectoria = CalculoCaidaLibre.generarPuntosTrayectoria(h0, v0, g)
+        val puntosTrayectoria = calculo.generarPuntosTrayectoria(h0, v0, g)
 
         val datosPosicion = FXCollections.observableArrayList<XYChart.Data<Number, Number>>()
         val datosVelocidad = FXCollections.observableArrayList<XYChart.Data<Number, Number>>()
 
         for (punto in puntosTrayectoria) {
-            datosPosicion.add(XYChart.Data(punto.tiempo, punto.posicion))
-            datosVelocidad.add(XYChart.Data(punto.tiempo, punto.velocidad))
+            datosPosicion.add(XYChart.Data(punto.tiempo(), punto.posicion()))
+            datosVelocidad.add(XYChart.Data(punto.tiempo(), punto.velocidad()))
         }
 
         serieTeoricaPosicion.data = datosPosicion
@@ -129,14 +130,25 @@ class PanelGraficosSimulacion(
      * Actualiza el marcador dinámico que indica la posición instantánea en ambos gráficos.
      */
     private fun actualizarMarcadoresActuales() {
-        val t = gestorEstado.obtenerTiempoActual()
-        val y = gestorEstado.obtenerAlturaActual()
-        val v = gestorEstado.obtenerVelocidadActual()
+        val t = estado.obtenerTiempoActual()
+        val y = estado.obtenerAlturaActual()
+        val v = estado.obtenerVelocidadActual()
 
-        serieActualPosicion.data =
-            FXCollections.observableArrayList(XYChart.Data<Number, Number>(t, y))
-        serieActualVelocidad.data =
-            FXCollections.observableArrayList(XYChart.Data<Number, Number>(t, v))
+        if (serieActualPosicion.data.isEmpty()) {
+            serieActualPosicion.data.add(XYChart.Data(t, y))
+        } else {
+            val puntoY = serieActualPosicion.data[0]
+            puntoY.xValue = t
+            puntoY.yValue = y
+        }
+
+        if (serieActualVelocidad.data.isEmpty()) {
+            serieActualVelocidad.data.add(XYChart.Data(t, v))
+        } else {
+            val puntoV = serieActualVelocidad.data[0]
+            puntoV.xValue = t
+            puntoV.yValue = v
+        }
     }
 
     private fun configurarEje(eje: NumberAxis, etiqueta: String) {

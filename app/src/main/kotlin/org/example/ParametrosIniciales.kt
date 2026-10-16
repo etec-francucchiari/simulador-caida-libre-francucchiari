@@ -3,30 +3,60 @@ package org.example
 /**
  * Parámetros iniciales de la simulación de caída libre.
  *
- * Representa de forma inmutable los valores de entrada del usuario:
- * la altura inicial (h₀) desde la que parte el cuerpo y la velocidad
- * inicial (v₀) con la que comienza su movimiento.
+ * Modelo de dominio con campos [private] (encapsulación estricta) que expone
+ * comportamiento relevante del problema físico: validación de rangos y
+ * construcción inmutable de nuevas configuraciones.
  *
- * Al ser una clase de datos inmutable, puede compartirse de forma segura
- * entre el gestor de estado reactivo, los validadores y la interfaz,
- * sin riesgo de mutación accidental.
+ * @property alturaInicialInterna altura inicial (y₀) en metros.
+ * @property velocidadInicialInterna velocidad inicial (v₀) en m/s.
  */
-data class ParametrosIniciales(
-    val alturaInicial: Double,
-    val velocidadInicial: Double
+class ParametrosIniciales(
+    private val alturaInicialInterna: Double,
+    private val velocidadInicialInterna: Double
 ) {
 
-    companion object {
-        /** Altura inicial por defecto en metros. */
-        const val ALTURA_DEFECTO = 100.0
+    /** Altura inicial (y₀) en metros. */
+    fun alturaInicial(): Double = alturaInicialInterna
 
-        /** Velocidad inicial por defecto en m/s. */
-        const val VELOCIDAD_DEFECTO = 0.0
+    /** Velocidad inicial (v₀) en m/s. */
+    fun velocidadInicial(): Double = velocidadInicialInterna
 
-        /** Valor mínimo admitido para la altura (no negativa). */
-        const val ALTURA_MINIMA = 0.0
+    /** Comportamiento de dominio: la altura es físicamente admisible. */
+    fun esAlturaValida(): Boolean = alturaInicialInterna.isFinite() && alturaInicialInterna >= 0.0
 
-        /** Valor mínimo admitido para la velocidad (no negativa). */
-        const val VELOCIDAD_MINIMA = 0.0
+    /** Comportamiento de dominio: la velocidad es físicamente admisible. */
+    fun esVelocidadValida(): Boolean =
+        velocidadInicialInterna.isFinite() && velocidadInicialInterna >= 0.0
+
+    /** Comportamiento de dominio: existe una caída efectiva (altura > 0). */
+    fun esCaidaPosible(): Boolean = alturaInicialInterna > 0.0
+
+    /** Comportamiento de dominio: el cuerpo parte del reposo. */
+    fun parteDelReposo(): Boolean = velocidadInicialInterna == 0.0
+
+    /** Construye nuevos parámetros con otra altura (inmutabilidad). */
+    fun conAltura(nuevaAltura: Double): ParametrosIniciales =
+        ParametrosIniciales(nuevaAltura, velocidadInicialInterna)
+
+    /** Construye nuevos parámetros con otra velocidad (inmutabilidad). */
+    fun conVelocidad(nuevaVelocidad: Double): ParametrosIniciales =
+        ParametrosIniciales(alturaInicialInterna, nuevaVelocidad)
+
+    /** Comportamiento de dominio: resumen legible. */
+    fun resumen(): String = "y₀ = $alturaInicialInterna m, v₀ = $velocidadInicialInterna m/s"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ParametrosIniciales) return false
+        return alturaInicialInterna == other.alturaInicialInterna &&
+                velocidadInicialInterna == other.velocidadInicialInterna
     }
+
+    override fun hashCode(): Int {
+        var resultado = alturaInicialInterna.hashCode()
+        resultado = 31 * resultado + velocidadInicialInterna.hashCode()
+        return resultado
+    }
+
+    override fun toString(): String = resumen()
 }

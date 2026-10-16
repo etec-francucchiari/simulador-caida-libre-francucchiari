@@ -18,7 +18,8 @@ import java.util.Locale
  * gravedad, utilizando [CalculoCaidaLibre] (lógica física desacoplada).
  */
 class PanelIndicadoresFisicos(
-    private val gestorEstado: GestorEstadoSimulacion
+    private val estado: EstadoSimulacion,
+    private val calculo: CalculoCaidaLibre
 ) : VBox(12.0) {
 
     private val etiquetaAltura: Label = crearEtiquetaValor()
@@ -69,9 +70,9 @@ class PanelIndicadoresFisicos(
         children.addAll(titulo, grilla)
 
         // Suscripciones reactivas: cualquier cambio de estado recalcula las fórmulas.
-        gestorEstado.alturaInicialProperty.addListener { _, _, _ -> actualizarIndicadores() }
-        gestorEstado.velocidadInicialProperty.addListener { _, _, _ -> actualizarIndicadores() }
-        gestorEstado.planetaActivoProperty.addListener { _, _, _ -> actualizarIndicadores() }
+        estado.alturaInicialObservable().addListener { _, _, _ -> actualizarIndicadores() }
+        estado.velocidadInicialObservable().addListener { _, _, _ -> actualizarIndicadores() }
+        estado.planetaObservable().addListener { _, _, _ -> actualizarIndicadores() }
         actualizarIndicadores()
     }
 
@@ -80,20 +81,20 @@ class PanelIndicadoresFisicos(
      * y de las fórmulas físicas de [CalculoCaidaLibre].
      */
     private fun actualizarIndicadores() {
-        val altura = gestorEstado.obtenerAlturaInicial()
-        val velocidad = gestorEstado.obtenerVelocidadInicial()
-        val gravedad = gestorEstado.obtenerPlaneta().gravedad
-        val nombrePlaneta = gestorEstado.obtenerPlaneta().nombre
+        val altura = estado.obtenerAlturaInicial()
+        val velocidad = estado.obtenerVelocidadInicial()
+        val gravedad = estado.obtenerPlaneta().gravedad()
+        val nombrePlaneta = estado.obtenerPlaneta().nombre()
 
         etiquetaAltura.text = "${formatear(altura)} m"
         etiquetaVelocidad.text = "${formatear(velocidad)} m/s"
         etiquetaGravedad.text = "$nombrePlaneta → ${formatear(gravedad)} m/s²"
 
-        val tiempo = CalculoCaidaLibre.calcularTiempoCaida(altura, velocidad, gravedad)
+        val tiempo = calculo.calcularTiempoCaida(altura, velocidad, gravedad)
         etiquetaTiempoCaida.text = tiempo?.let { "${formatear(it)} s" } ?: "No disponible"
 
         val velocidadImpacto =
-            CalculoCaidaLibre.calcularVelocidadImpacto(altura, velocidad, gravedad)
+            calculo.calcularVelocidadImpacto(altura, velocidad, gravedad)
         etiquetaVelocidadImpacto.text =
             velocidadImpacto?.let { "${formatear(it)} m/s" } ?: "No disponible"
     }

@@ -3,202 +3,180 @@ package org.example
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.value.ObservableValue
 
 /**
  * Gestor de estado reactivo del simulador de caída libre.
  *
- * Centraliza tanto la configuración inicial (planeta, altura y velocidad inicial)
- * como las variables de estado dinámicas instantáneas durante la simulación
- * (tiempo transcurrido, altura actual y velocidad actual).
+ * Implementa los contratos [EstadoSimulacion] y [ComandosSimulacion] para que
+ * las vistas dependan de abstracciones (DIP).
  *
- * Expone propiedades JavaFX observables para que la interfaz gráfica y los
- * componentes de visualización gráfica se actualicen automáticamente ante
- * cualquier cambio de estado.
+ * Encapsulación estricta: todas las propiedades observables son campos
+ * [private]; solo se exponen como [ObservableValue] de solo lectura mediante
+ * métodos, además de los métodos de consulta y comando.
  *
- * Principios aplicados:
- * - **Encapsulamiento**: el estado interno es privado; se accede mediante getters
- *   y propiedades observables.
- * - **Reactividad**: los componentes visuales observan las propiedades sin polling.
- * - **Desacoplamiento**: la lógica de cálculo físico se delega a [CalculoCaidaLibre].
+ * @property configuracion valores por defecto y límites físicos.
+ * @property calculo servicio de fórmulas físicas inyectado.
  */
-class GestorEstadoSimulacion {
+class GestorEstadoSimulacion(
+    private val configuracion: ConfiguracionFisica = ConfiguracionFisica(),
+    planetaInicial: EntornoGravitatorio = Planeta.TIERRA,
+    private val calculo: CalculoCaidaLibre = CalculoCaidaLibre()
+) : ContextoSimulacion {
 
-    /**
-     * Propiedad observable con el planeta activo de la simulación.
-     */
-    val planetaActivoProperty: SimpleObjectProperty<Planeta> =
-        SimpleObjectProperty(Planeta.TIERRA)
-
-    /**
-     * Propiedad observable con la altura inicial (h₀) en metros.
-     */
-    val alturaInicialProperty: SimpleDoubleProperty =
-        SimpleDoubleProperty(ParametrosIniciales.ALTURA_DEFECTO)
-
-    /**
-     * Propiedad observable con la velocidad inicial (v₀) en m/s.
-     */
-    val velocidadInicialProperty: SimpleDoubleProperty =
-        SimpleDoubleProperty(ParametrosIniciales.VELOCIDAD_DEFECTO)
-
-    /**
-     * Propiedad observable con el tiempo transcurrido (t) en segundos.
-     */
-    val tiempoActualProperty: SimpleDoubleProperty =
-        SimpleDoubleProperty(0.0)
-
-    /**
-     * Propiedad observable con la altura instantánea y(t) en metros.
-     */
-    val alturaActualProperty: SimpleDoubleProperty =
-        SimpleDoubleProperty(ParametrosIniciales.ALTURA_DEFECTO)
-
-    /**
-     * Propiedad observable con la velocidad instantánea v(t) en m/s.
-     */
-    val velocidadActualProperty: SimpleDoubleProperty =
-        SimpleDoubleProperty(ParametrosIniciales.VELOCIDAD_DEFECTO)
-
-    /**
-     * Propiedad observable que indica si la simulación está actualmente en ejecución.
-     */
-    val enEjecucionProperty: SimpleBooleanProperty =
-        SimpleBooleanProperty(false)
+    private val planetaActivo = SimpleObjectProperty<EntornoGravitatorio>(planetaInicial)
+    private val alturaInicial = SimpleDoubleProperty(configuracion.alturaPorDefecto())
+    private val velocidadInicial = SimpleDoubleProperty(configuracion.velocidadPorDefecto())
+    private val tiempoActual = SimpleDoubleProperty(0.0)
+    private val alturaActual = SimpleDoubleProperty(configuracion.alturaPorDefecto())
+    private val velocidadActual = SimpleDoubleProperty(configuracion.velocidadPorDefecto())
+    private val enEjecucion = SimpleBooleanProperty(false)
 
     init {
         // Al modificar cualquier parámetro inicial o el planeta, se reinicia
         // el estado instantáneo a t = 0 con los nuevos valores de partida.
-        alturaInicialProperty.addListener { _, _, _ -> reiniciarSimulacion() }
-        velocidadInicialProperty.addListener { _, _, _ -> reiniciarSimulacion() }
-        planetaActivoProperty.addListener { _, _, _ -> reiniciarSimulacion() }
+        alturaInicial.addListener { _, _, _ -> reiniciarSimulacion() }
+        velocidadInicial.addListener { _, _, _ -> reiniciarSimulacion() }
+        planetaActivo.addListener { _, _, _ -> reiniciarSimulacion() }
     }
 
-    /**
-     * Obtiene el planeta actualmente seleccionado.
-     */
-    fun obtenerPlaneta(): Planeta = planetaActivoProperty.get()
+    // ------------------------------------------------------------------
+    // EstadoSimulacion: consultas
+    // ------------------------------------------------------------------
 
-    /**
-     * Establece el planeta activo de la simulación.
-     */
-    fun establecerPlaneta(planeta: Planeta) {
-        planetaActivoProperty.set(planeta)
+    override fun obtenerPlaneta(): EntornoGravitatorio = planetaActivo.get()
+
+    override fun obtenerAlturaInicial(): Double = alturaInicial.get()
+
+    override fun obtenerVelocidadInicial(): Double = velocidadInicial.get()
+
+    override fun obtenerTiempoActual(): Double = tiempoActual.get()
+
+    override fun obtenerAlturaActual(): Double = alturaActual.get()
+
+    override fun obtenerVelocidadActual(): Double = velocidadActual.get()
+
+    override fun estaEnEjecucion(): Boolean = enEjecucion.get()
+
+    // ------------------------------------------------------------------
+    // EstadoSimulacion: observables de solo lectura
+    // ------------------------------------------------------------------
+
+    override fun planetaObservable(): ObservableValue<EntornoGravitatorio> = planetaActivo
+
+    override fun alturaInicialObservable(): ObservableValue<Number> = alturaInicial
+
+    override fun velocidadInicialObservable(): ObservableValue<Number> = velocidadInicial
+
+    override fun tiempoActualObservable(): ObservableValue<Number> = tiempoActual
+
+    override fun alturaActualObservable(): ObservableValue<Number> = alturaActual
+
+    override fun velocidadActualObservable(): ObservableValue<Number> = velocidadActual
+
+    override fun enEjecucionObservable(): ObservableValue<Boolean> = enEjecucion
+
+    // ------------------------------------------------------------------
+    // ComandosSimulacion
+    // ------------------------------------------------------------------
+
+    override fun establecerPlaneta(planeta: EntornoGravitatorio) {
+        planetaActivo.set(planeta)
     }
 
-    /**
-     * Obtiene la altura inicial configurada en metros.
-     */
-    fun obtenerAlturaInicial(): Double = alturaInicialProperty.get()
-
-    /**
-     * Establece la altura inicial de la simulación.
-     */
-    fun establecerAlturaInicial(altura: Double) {
-        alturaInicialProperty.set(altura)
+    override fun establecerAlturaInicial(altura: Double) {
+        alturaInicial.set(altura)
     }
 
-    /**
-     * Obtiene la velocidad inicial configurada en m/s.
-     */
-    fun obtenerVelocidadInicial(): Double = velocidadInicialProperty.get()
-
-    /**
-     * Establece la velocidad inicial de la simulación.
-     */
-    fun establecerVelocidadInicial(velocidad: Double) {
-        velocidadInicialProperty.set(velocidad)
+    override fun establecerVelocidadInicial(velocidad: Double) {
+        velocidadInicial.set(velocidad)
     }
 
-    /**
-     * Obtiene el tiempo transcurrido actual en segundos.
-     */
-    fun obtenerTiempoActual(): Double = tiempoActualProperty.get()
+    private val umbralPrecisionTiempo: Double = 1e-6
+    private val umbralAlturaSuelo: Double = 1e-5
 
     /**
-     * Obtiene la altura actual sobre el suelo en metros.
+     * Determina si el cuerpo se encuentra detenido en el suelo.
      */
-    fun obtenerAlturaActual(): Double = alturaActualProperty.get()
-
-    /**
-     * Obtiene la velocidad actual del cuerpo en m/s.
-     */
-    fun obtenerVelocidadActual(): Double = velocidadActualProperty.get()
-
-    /**
-     * Indica si la simulación se encuentra corriendo.
-     */
-    fun estaEnEjecucion(): Boolean = enEjecucionProperty.get()
-
-    /**
-     * Inicia o reanuda la simulación en tiempo real.
-     * Si el cuerpo ya se encuentra en el suelo, se reinicia primero.
-     */
-    fun iniciarSimulacion() {
+    override fun haLlegadoAlSuelo(): Boolean {
         val h0 = obtenerAlturaInicial()
         val v0 = obtenerVelocidadInicial()
-        val g = obtenerPlaneta().gravedad
-        val tiempoCaida = CalculoCaidaLibre.calcularTiempoCaida(h0, v0, g) ?: 0.0
+        val g = obtenerPlaneta().gravedad()
+        val tiempoCaida = calculo.calcularTiempoCaida(h0, v0, g) ?: 0.0
+        return obtenerAlturaActual() <= umbralAlturaSuelo ||
+                (tiempoCaida > 0.0 && (tiempoCaida - obtenerTiempoActual()) <= umbralPrecisionTiempo)
+    }
 
-        if (obtenerTiempoActual() >= tiempoCaida) {
+    override fun iniciarSimulacion() {
+        val h0 = obtenerAlturaInicial()
+        val v0 = obtenerVelocidadInicial()
+        val g = obtenerPlaneta().gravedad()
+        val tiempoCaida = calculo.calcularTiempoCaida(h0, v0, g) ?: 0.0
+
+        if (haLlegadoAlSuelo() || obtenerTiempoActual() >= tiempoCaida) {
             reiniciarSimulacion()
         }
-        enEjecucionProperty.set(true)
+
+        if (obtenerAlturaInicial() <= 0.0) {
+            enEjecucion.set(false)
+            return
+        }
+
+        enEjecucion.set(true)
+    }
+
+    override fun pausarSimulacion() {
+        enEjecucion.set(false)
+    }
+
+    override fun reiniciarSimulacion() {
+        enEjecucion.set(false)
+        tiempoActual.set(0.0)
+        alturaActual.set(obtenerAlturaInicial())
+        velocidadActual.set(obtenerVelocidadInicial())
     }
 
     /**
-     * Pausa la ejecución de la simulación.
-     */
-    fun pausarSimulacion() {
-        enEjecucionProperty.set(false)
-    }
-
-    /**
-     * Reinicia el tiempo y los valores instantáneos a las condiciones de inicio.
-     */
-    fun reiniciarSimulacion() {
-        enEjecucionProperty.set(false)
-        tiempoActualProperty.set(0.0)
-        alturaActualProperty.set(obtenerAlturaInicial())
-        velocidadActualProperty.set(obtenerVelocidadInicial())
-    }
-
-    /**
-     * Establece manualmente el tiempo instantáneo de simulación y recalcula
-     * de forma reactiva la altura y velocidad asociadas.
-     *
-     * @param nuevoTiempo tiempo en segundos (t ≥ 0).
+     * Establece el tiempo instantáneo y recalcula altura y velocidad.
      */
     fun establecerTiempoActual(nuevoTiempo: Double) {
         val h0 = obtenerAlturaInicial()
         val v0 = obtenerVelocidadInicial()
-        val g = obtenerPlaneta().gravedad
-        val tiempoCaida = CalculoCaidaLibre.calcularTiempoCaida(h0, v0, g) ?: 0.0
+        val g = obtenerPlaneta().gravedad()
+        val tiempoCaida = calculo.calcularTiempoCaida(h0, v0, g) ?: 0.0
 
         val tiempoLimitado = nuevoTiempo.coerceIn(0.0, tiempoCaida)
-        tiempoActualProperty.set(tiempoLimitado)
+        val tiempoEfectivo =
+            if (tiempoCaida > 0.0 && (tiempoCaida - tiempoLimitado) <= umbralPrecisionTiempo) {
+                tiempoCaida
+            } else {
+                tiempoLimitado
+            }
+        tiempoActual.set(tiempoEfectivo)
 
-        val posicion = CalculoCaidaLibre.calcularPosicion(h0, v0, g, tiempoLimitado) ?: 0.0
-        val velocidad = CalculoCaidaLibre.calcularVelocidad(h0, v0, g, tiempoLimitado) ?: 0.0
+        val posicion = calculo.calcularPosicion(h0, v0, g, tiempoEfectivo) ?: 0.0
+        val velocidad = calculo.calcularVelocidad(h0, v0, g, tiempoEfectivo) ?: 0.0
 
-        alturaActualProperty.set(posicion)
-        velocidadActualProperty.set(velocidad)
-
-        if (tiempoLimitado >= tiempoCaida) {
-            enEjecucionProperty.set(false)
+        if (posicion <= umbralAlturaSuelo || tiempoEfectivo >= tiempoCaida) {
+            alturaActual.set(0.0)
+            val velocidadImpacto = calculo.calcularVelocidadImpacto(h0, v0, g) ?: velocidad
+            velocidadActual.set(velocidadImpacto)
+            enEjecucion.set(false)
+        } else {
+            alturaActual.set(posicion)
+            velocidadActual.set(velocidad)
         }
     }
 
-    /**
-     * Avanza el tiempo transcurrido en un diferencial deltaSegundos.
-     *
-     * @param deltaSegundos tiempo transcurrido en el frame en segundos.
-     * @return `true` si la simulación continúa en el aire, o `false` si ha tocado el suelo.
-     */
-    fun avanzarTiempo(deltaSegundos: Double): Boolean {
+    override fun avanzarTiempo(deltaSegundos: Double): Boolean {
         if (!estaEnEjecucion() || deltaSegundos <= 0.0) return false
 
         val tiempoDestino = obtenerTiempoActual() + deltaSegundos
         establecerTiempoActual(tiempoDestino)
+
+        if (obtenerAlturaActual() <= 0.0 || haLlegadoAlSuelo()) {
+            enEjecucion.set(false)
+        }
 
         return estaEnEjecucion()
     }

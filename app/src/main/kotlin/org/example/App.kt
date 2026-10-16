@@ -4,8 +4,24 @@ import javafx.application.Application
 
 /**
  * Punto de entrada de la aplicación.
- * Su única responsabilidad es lanzar la interfaz gráfica JavaFX.
+ *
+ * [main] es el único punto estático exigido por la JVM y delega en un lanzador
+ * instanciable ([LanzadorAplicacion]), evitando clases compuestas únicamente
+ * por métodos estáticos.
  */
 fun main() {
-    Application.launch(SimuladorApp::class.java)
+    LanzadorAplicacion().iniciar()
+}
+
+/**
+ * Servicio instanciable que arranca la interfaz gráfica JavaFX.
+ */
+class LanzadorAplicacion {
+
+    /**
+     * Inicia la aplicación JavaFX.
+     */
+    fun iniciar() {
+        Application.launch(SimuladorApp::class.java)
+    }
 }

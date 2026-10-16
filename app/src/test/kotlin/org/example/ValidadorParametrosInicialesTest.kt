@@ -68,8 +68,8 @@ class ValidadorParametrosInicialesTest {
 
         assertTrue(resultado.esValido())
         val exitoso = resultado as ValidadorParametrosIniciales.ResultadoValidacion.Exitoso
-        assertEquals(100.0, exitoso.parametros.alturaInicial)
-        assertEquals(5.5, exitoso.parametros.velocidadInicial)
+        assertEquals(100.0, exitoso.parametros().alturaInicial())
+        assertEquals(5.5, exitoso.parametros().velocidadInicial())
     }
 
     @Test
@@ -78,7 +78,7 @@ class ValidadorParametrosInicialesTest {
 
         assertFalse(resultado.esValido())
         val fallido = resultado as ValidadorParametrosIniciales.ResultadoValidacion.Fallido
-        assertEquals(1, fallido.errores.size)
-        assertNotNull(fallido.errores.firstOrNull { it.contains("altura", ignoreCase = true) })
+        assertEquals(1, fallido.errores().size)
+        assertNotNull(fallido.errores().firstOrNull { it.contains("altura", ignoreCase = true) })
     }
 }
