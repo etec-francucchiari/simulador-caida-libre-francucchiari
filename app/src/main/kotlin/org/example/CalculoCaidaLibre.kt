@@ -4,28 +4,23 @@ import kotlin.math.max
 import kotlin.math.sqrt
 
 /**
- * Fórmulas físicas de la caída libre, desacopladas de la interfaz gráfica.
+ * Servicio de dominio con las fórmulas físicas de la caída libre.
  *
- * Proporciona cálculos derivados a partir de los parámetros iniciales
- * (altura h₀, velocidad v₀) y de la gravedad del planeta seleccionado.
+ * Es una clase instanciable (no una utilidad `object`) que se inyecta en los
+ * componentes que necesitan calcular tiempo, posición, velocidad o trayectoria.
  *
- * Convención de signos: la altura se mide desde el suelo hacia arriba
- * y el cuerpo cae en dirección del suelo, con velocidad inicial no
- * negativa (se suelta o se lanza hacia abajo).
+ * Convención de signos: la altura se mide desde el suelo hacia arriba y el
+ * cuerpo cae en dirección del suelo, con velocidad inicial no negativa.
  */
-object CalculoCaidaLibre {
+class CalculoCaidaLibre {
 
     /**
      * Calcula el tiempo que tarda el cuerpo en llegar al suelo.
      *
-     * Aplica la ecuación de movimiento h₀ = v₀·t + ½·g·t², despejando `t`:
+     * Aplica h₀ = v₀·t + ½·g·t², despejando `t`:
      * t = (−v₀ + √(v₀² + 2·g·h₀)) / g
      *
-     * @param h0 altura inicial en metros.
-     * @param v0 velocidad inicial en m/s.
-     * @param g aceleración de la gravedad en m/s².
-     * @return tiempo en segundos, o `null` si los valores no son
-     *         físicamente válidos (gravedad ≤ 0 o parámetros negativos).
+     * @return tiempo en segundos, o `null` si los valores no son físicamente válidos.
      */
     fun calcularTiempoCaida(h0: Double, v0: Double, g: Double): Double? {
         if (h0 < 0.0 || v0 < 0.0 || g <= 0.0) return null
@@ -33,14 +28,8 @@ object CalculoCaidaLibre {
     }
 
     /**
-     * Calcula la velocidad con la que el cuerpo impacta el suelo,
-     * por conservación de la energía mecánica: v² = v₀² + 2·g·h₀.
-     *
-     * @param h0 altura inicial en metros.
-     * @param v0 velocidad inicial en m/s.
-     * @param g aceleración de la gravedad en m/s².
-     * @return velocidad en m/s, o `null` si los valores no son
-     *         físicamente válidos.
+     * Calcula la velocidad de impacto por conservación de la energía:
+     * v² = v₀² + 2·g·h₀.
      */
     fun calcularVelocidadImpacto(h0: Double, v0: Double, g: Double): Double? {
         if (h0 < 0.0 || v0 < 0.0 || g <= 0.0) return null
@@ -48,17 +37,7 @@ object CalculoCaidaLibre {
     }
 
     /**
-     * Calcula la altura instantánea y(t) sobre el suelo en el tiempo t.
-     *
-     * Aplica la ecuación horaria de posición: y(t) = h₀ − (v₀·t + ½·g·t²).
-     * Si el tiempo excede el tiempo total de caída, el cuerpo permanece
-     * en el suelo (y = 0).
-     *
-     * @param h0 altura inicial en metros (h₀ ≥ 0).
-     * @param v0 velocidad inicial en m/s (v₀ ≥ 0).
-     * @param g aceleración de la gravedad en m/s² (g > 0).
-     * @param t tiempo transcurrido en segundos (t ≥ 0).
-     * @return altura en metros, o `null` si alguno de los parámetros es físicamente inválido.
+     * Calcula la altura instantánea y(t) = h₀ − (v₀·t + ½·g·t²).
      */
     fun calcularPosicion(h0: Double, v0: Double, g: Double, t: Double): Double? {
         if (h0 < 0.0 || v0 < 0.0 || g <= 0.0 || t < 0.0) return null
@@ -69,17 +48,7 @@ object CalculoCaidaLibre {
     }
 
     /**
-     * Calcula la velocidad instantánea v(t) del cuerpo en el tiempo t.
-     *
-     * Aplica la ecuación horaria de velocidad: v(t) = v₀ + g·t.
-     * Si el tiempo excede el tiempo de caída, la velocidad es la velocidad
-     * con la que impactó el suelo.
-     *
-     * @param h0 altura inicial en metros (h₀ ≥ 0).
-     * @param v0 velocidad inicial en m/s (v₀ ≥ 0).
-     * @param g aceleración de la gravedad en m/s² (g > 0).
-     * @param t tiempo transcurrido en segundos (t ≥ 0).
-     * @return velocidad en m/s, o `null` si alguno de los parámetros es físicamente inválido.
+     * Calcula la velocidad instantánea v(t) = v₀ + g·t.
      */
     fun calcularVelocidad(h0: Double, v0: Double, g: Double, t: Double): Double? {
         if (h0 < 0.0 || v0 < 0.0 || g <= 0.0 || t < 0.0) return null
@@ -89,14 +58,7 @@ object CalculoCaidaLibre {
     }
 
     /**
-     * Genera una secuencia de puntos discretos de la trayectoria completa
-     * desde t = 0 hasta el impacto en el suelo (t = t_caída).
-     *
-     * @param h0 altura inicial en metros.
-     * @param v0 velocidad inicial en m/s.
-     * @param g aceleración de la gravedad en m/s².
-     * @param cantidadPuntos número de muestras a generar a lo largo del intervalo.
-     * @return lista de [PuntoTrayectoria] calculados, o lista vacía si los parámetros son inválidos.
+     * Genera una secuencia de [PuntoTrayectoria] desde t = 0 hasta el impacto.
      */
     fun generarPuntosTrayectoria(
         h0: Double,
@@ -108,7 +70,7 @@ object CalculoCaidaLibre {
         val velocidadImpacto = calcularVelocidadImpacto(h0, v0, g) ?: return emptyList()
 
         if (tiempoCaida == 0.0) {
-            return listOf(PuntoTrayectoria(tiempo = 0.0, posicion = h0, velocidad = v0))
+            return listOf(PuntoTrayectoria(0.0, h0, v0))
         }
 
         val puntosDeseados = max(2, cantidadPuntos)
@@ -119,18 +81,11 @@ object CalculoCaidaLibre {
             val t = i * pasoTiempo
             val y = calcularPosicion(h0, v0, g, t) ?: 0.0
             val v = calcularVelocidad(h0, v0, g, t) ?: 0.0
-            puntos.add(PuntoTrayectoria(tiempo = t, posicion = y, velocidad = v))
+            puntos.add(PuntoTrayectoria(t, y, v))
         }
 
         // El punto final coincide con el impacto exacto
-        puntos.add(
-            PuntoTrayectoria(
-                tiempo = tiempoCaida,
-                posicion = 0.0,
-                velocidad = velocidadImpacto
-            )
-        )
-
+        puntos.add(PuntoTrayectoria(tiempoCaida, 0.0, velocidadImpacto))
         return puntos
     }
 }

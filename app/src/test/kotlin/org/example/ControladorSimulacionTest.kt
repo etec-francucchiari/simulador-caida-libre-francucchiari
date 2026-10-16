@@ -16,6 +16,8 @@ import kotlin.test.assertTrue
  */
 class ControladorSimulacionTest {
 
+    private val calculo = CalculoCaidaLibre()
+
     @Test
     fun instanciarControlador() {
         val gestor = GestorEstadoSimulacion()
@@ -103,7 +105,7 @@ class ControladorSimulacionTest {
         val gestor = GestorEstadoSimulacion()
         val controlador = ControladorSimulacion(gestor)
 
-        // h0 = 100 m, v0 = 0 m/s, Tierra g = 9.8 m/s²
+        // h0 = 100 m, v0 = 0 m/s, Tierra g = 9.81 m/s²
         gestor.establecerAlturaInicial(100.0)
         gestor.establecerVelocidadInicial(0.0)
         gestor.establecerPlaneta(Planeta.TIERRA)
@@ -118,10 +120,11 @@ class ControladorSimulacionTest {
         assertTrue(sigue)
         assertEquals(0.05, gestor.obtenerTiempoActual(), 1e-6)
 
-        // Posición teórica: 100 - 0.5 * 9.8 * 0.05^2 = 100 - 0.01225 = 99.98775 m
-        assertEquals(99.98775, gestor.obtenerAlturaActual(), 1e-5)
-        // Velocidad teórica: 9.8 * 0.05 = 0.49 m/s
-        assertEquals(0.49, gestor.obtenerVelocidadActual(), 1e-5)
+        // Posición teórica: 100 - 0.5 * g * 0.05²
+        val g = Planeta.TIERRA.gravedad()
+        assertEquals(100.0 - 0.5 * g * 0.05 * 0.05, gestor.obtenerAlturaActual(), 1e-5)
+        // Velocidad teórica: g * 0.05
+        assertEquals(g * 0.05, gestor.obtenerVelocidadActual(), 1e-5)
     }
 
     @Test
@@ -139,7 +142,7 @@ class ControladorSimulacionTest {
 
         // Debe haberse acotado a DELTA_MAXIMO_SEGUNDOS (0.1 s)
         assertEquals(
-            ControladorSimulacion.DELTA_MAXIMO_SEGUNDOS,
+            controlador.deltaMaximoSegundos(),
             gestor.obtenerTiempoActual(),
             1e-6
         )
@@ -150,7 +153,7 @@ class ControladorSimulacionTest {
         val gestor = GestorEstadoSimulacion()
         val controlador = ControladorSimulacion(gestor)
 
-        // h0 = 4.9 m, v0 = 0 m/s, g = 9.8 m/s² -> t_caida = 1.0 s
+        // h0 = 4.9 m, v0 = 0 m/s, Tierra g = 9.81 m/s² -> t_caida ≈ 0.999 s
         gestor.establecerAlturaInicial(4.9)
         gestor.establecerVelocidadInicial(0.0)
 
@@ -168,15 +171,19 @@ class ControladorSimulacionTest {
             assertTrue(gestor.estaEnEjecucion())
         }
 
-        // Paso 10: alcanza exactamente t = 1.0 s -> colisión con el suelo
+        // Paso 10: alcanza el tiempo de caída -> colisión con el suelo
         tiempoNano += 100_000_000L
         val sigueFinal = controlador.procesarFrame(tiempoNano)
+
+        val g = Planeta.TIERRA.gravedad()
+        val tiempoCaida = calculo.calcularTiempoCaida(4.9, 0.0, g)!!
+        val velocidadImpacto = calculo.calcularVelocidadImpacto(4.9, 0.0, g)!!
 
         assertFalse(sigueFinal, "Debe finalizar al tocar el suelo")
         assertFalse(gestor.estaEnEjecucion(), "La simulación debe detenerse automáticamente")
         assertEquals(0.0, gestor.obtenerAlturaActual(), 1e-6)
-        assertEquals(1.0, gestor.obtenerTiempoActual(), 1e-6)
-        assertEquals(9.8, gestor.obtenerVelocidadActual(), 1e-6)
+        assertEquals(tiempoCaida, gestor.obtenerTiempoActual(), 1e-6)
+        assertEquals(velocidadImpacto, gestor.obtenerVelocidadActual(), 1e-6)
         assertTrue(gestor.haLlegadoAlSuelo())
     }
 
