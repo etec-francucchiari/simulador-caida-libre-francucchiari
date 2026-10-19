@@ -4,13 +4,13 @@ package org.example
  * Valida los textos ingresados por el usuario en los campos de parámetros
  * iniciales (altura y velocidad).
  *
- * Es una clase instanciable que recibe por constructor la [ConfiguracionFisica]
- * (inversión de dependencias) y expone su resultado mediante un contrato
- * [ResultadoValidacion] con implementaciones encapsuladas.
+ * Implementa el contrato [ValidadorParametros] y recibe por constructor la
+ * abstracción [ConfiguracionSimulacion] (DIP), de modo que no depende de la
+ * implementación concreta de la configuración.
  */
 class ValidadorParametrosIniciales(
-    private val configuracion: ConfiguracionFisica = ConfiguracionFisica()
-) {
+    private val configuracion: ConfiguracionSimulacion
+) : ValidadorParametros {
 
     private val mensajeFormatoNumerico =
         "Ingrese un número válido (por ejemplo: 10,5)."
@@ -19,58 +19,17 @@ class ValidadorParametrosIniciales(
     private val mensajeVelocidadNegativa =
         "La velocidad inicial no puede ser negativa."
 
-    /**
-     * Resultado de la validación. Contrato común con dos implementaciones
-     * encapsuladas: [Exitoso] y [Fallido].
-     */
-    sealed interface ResultadoValidacion {
-
-        /** Devuelve verdadero si los valores ingresados son válidos. */
-        fun esValido(): Boolean
-
-        /** Resultado exitoso con los [ParametrosIniciales] obtenidos. */
-        class Exitoso(
-            private val parametrosInternos: ParametrosIniciales
-        ) : ResultadoValidacion {
-            /** Parámetros válidos resultantes. */
-            fun parametros(): ParametrosIniciales = parametrosInternos
-            override fun esValido(): Boolean = true
-        }
-
-        /** Resultado fallido con los mensajes de error legibles. */
-        class Fallido(
-            private val erroresInternos: List<String>
-        ) : ResultadoValidacion {
-            /** Errores encontrados durante la validación. */
-            fun errores(): List<String> = erroresInternos
-            override fun esValido(): Boolean = false
-        }
-    }
-
-    /**
-     * Valida el texto de la altura inicial.
-     *
-     * @return mensaje de error, o `null` si el valor es válido.
-     */
-    fun validarAltura(texto: String): String? {
+    override fun validarAltura(texto: String): String? {
         val altura = parsearNumero(texto) ?: return mensajeFormatoNumerico
         return if (!configuracion.esAlturaValida(altura)) mensajeAlturaNegativa else null
     }
 
-    /**
-     * Valida el texto de la velocidad inicial.
-     *
-     * @return mensaje de error, o `null` si el valor es válido.
-     */
-    fun validarVelocidad(texto: String): String? {
+    override fun validarVelocidad(texto: String): String? {
         val velocidad = parsearNumero(texto) ?: return mensajeFormatoNumerico
         return if (!configuracion.esVelocidadValida(velocidad)) mensajeVelocidadNegativa else null
     }
 
-    /**
-     * Valida ambos parámetros en conjunto.
-     */
-    fun validar(textoAltura: String, textoVelocidad: String): ResultadoValidacion {
+    override fun validar(textoAltura: String, textoVelocidad: String): ResultadoValidacion {
         val errores = mutableListOf<String>()
 
         val altura = parsearNumero(textoAltura)
@@ -89,9 +48,9 @@ class ValidadorParametrosIniciales(
         }
 
         return if (errores.isEmpty()) {
-            ResultadoValidacion.Exitoso(ParametrosIniciales(altura!!, velocidad!!))
+            ValidacionExitosa(ParametrosIniciales(altura!!, velocidad!!))
         } else {
-            ResultadoValidacion.Fallido(errores)
+            ValidacionFallida(errores)
         }
     }
 

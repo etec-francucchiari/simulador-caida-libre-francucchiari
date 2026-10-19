@@ -19,5 +19,7 @@ class PlanetaPersonalizado(
 
     override fun descripcion(): String = "Entorno con gravedad definida por el usuario."
 
+    override fun esPersonalizado(): Boolean = true
+
     override fun toString(): String = "Personalizado (${gravedadFormateada()} m/s²)"
 }

@@ -25,9 +25,10 @@ class PrincipianteSimulationScreen(
     private val estado: EstadoSimulacion,
     private val comandos: ComandosSimulacion,
     private val control: ControlReproduccion,
-    private val calculo: CalculoCaidaLibre,
-    private val explicador: ExplicadorFisicaPasoAPaso,
-    private val validador: ValidadorParametrosIniciales,
+    private val series: SeriesCinematica,
+    private val explicador: ExplicadorFisica,
+    private val validador: ValidadorParametros,
+    private val renderizadorAnimacion: RenderizadorAnimacionCaida,
     private val onCambiarPlaneta: () -> Unit,
     private val onCambiarModo: () -> Unit
 ) : BorderPane() {
@@ -78,11 +79,11 @@ class PrincipianteSimulationScreen(
 
         val panelValores = PanelValoresInstantaneos(estado)
 
-        val panelAnimacion = PanelAnimacionCaida(estado)
+        val panelAnimacion = PanelAnimacionCaida(estado, renderizadorAnimacion)
         panelAnimacion.prefWidth = 300.0
         panelAnimacion.minWidth = 280.0
 
-        val panelGraficos = PanelGraficosSimulacion(estado, calculo)
+        val panelGraficos = PanelGraficosSimulacion(estado, series)
         HBox.setHgrow(panelGraficos, Priority.ALWAYS)
 
         val filaVisualizacion = HBox(12.0, panelAnimacion, panelGraficos)

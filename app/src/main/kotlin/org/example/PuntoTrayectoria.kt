@@ -35,20 +35,14 @@ class PuntoTrayectoria(
     fun estaMasAltoQue(otro: PuntoTrayectoria): Boolean =
         posicionInterna > otro.posicionInterna
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is PuntoTrayectoria) return false
-        return tiempoInterno == other.tiempoInterno &&
-                posicionInterna == other.posicionInterna &&
-                velocidadInterna == other.velocidadInterna
-    }
-
-    override fun hashCode(): Int {
-        var resultado = tiempoInterno.hashCode()
-        resultado = 31 * resultado + posicionInterna.hashCode()
-        resultado = 31 * resultado + velocidadInterna.hashCode()
-        return resultado
-    }
+    /**
+     * Comportamiento de dominio: compara los tres valores cinemáticos con
+     * otro punto sin recurrir a comprobaciones de tipo.
+     */
+    fun mismoPuntoQue(otro: PuntoTrayectoria): Boolean =
+        tiempoInterno == otro.tiempoInterno &&
+            posicionInterna == otro.posicionInterna &&
+            velocidadInterna == otro.velocidadInterna
 
     override fun toString(): String =
         "t = $tiempoInterno s, y = $posicionInterna m, v = $velocidadInterna m/s"

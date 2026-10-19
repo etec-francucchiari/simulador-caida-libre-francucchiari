@@ -21,7 +21,8 @@ class ControladorSimulacion(
 
     private var ultimoTimestampNano: Long = 0L
 
-    private val temporizador: AnimationTimer = TemporizadorAnimacion()
+    private val temporizador: AnimationTimer =
+        TemporizadorAnimacion { ahoraNano -> procesarFrame(ahoraNano) }
 
     init {
         // Se sincroniza el timer con el estado reactivo del contexto.
@@ -31,17 +32,6 @@ class ControladorSimulacion(
             } else {
                 detenerTemporizador()
             }
-        }
-    }
-
-    /**
-     * Implementación privada del bucle de animación que delega cada fotograma en
-     * [procesarFrame]. Se modela como clase interna para no recurrir a objetos
-     * anónimos ni a utilidades estáticas.
-     */
-    private inner class TemporizadorAnimacion : AnimationTimer() {
-        override fun handle(ahoraNano: Long) {
-            procesarFrame(ahoraNano)
         }
     }
 

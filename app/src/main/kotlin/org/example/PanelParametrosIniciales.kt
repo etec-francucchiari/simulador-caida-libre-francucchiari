@@ -20,7 +20,7 @@ import java.util.Locale
 class PanelParametrosIniciales(
     private val estado: EstadoSimulacion,
     private val comandos: ComandosSimulacion,
-    private val validador: ValidadorParametrosIniciales = ValidadorParametrosIniciales()
+    private val validador: ValidadorParametros
 ) : VBox(12.0) {
 
     private val campoAltura: TextField = crearCampo(estado.obtenerAlturaInicial())

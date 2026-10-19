@@ -3,18 +3,10 @@ package org.example
 import javafx.application.Application
 
 /**
- * Punto de entrada de la aplicación.
- *
- * [main] es el único punto estático exigido por la JVM y delega en un lanzador
- * instanciable ([LanzadorAplicacion]), evitando clases compuestas únicamente
- * por métodos estáticos.
- */
-fun main() {
-    LanzadorAplicacion().iniciar()
-}
-
-/**
  * Servicio instanciable que arranca la interfaz gráfica JavaFX.
+ *
+ * Se separa del adaptador de entrada [PuntoEntrada] para que la lógica de
+ * arranque viva en una clase instanciable y no en una utilidad estática.
  */
 class LanzadorAplicacion {
 

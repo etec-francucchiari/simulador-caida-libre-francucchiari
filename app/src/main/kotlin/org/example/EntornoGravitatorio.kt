@@ -35,4 +35,10 @@ interface EntornoGravitatorio {
      * terrestre estándar (9.81 m/s²).
      */
     fun esGravedadTerrestre(): Boolean = abs(gravedad() - 9.81) < 1e-9
+
+    /**
+     * Comportamiento de dominio: indica si el entorno fue definido por el
+     * usuario con una gravedad arbitraria.
+     */
+    fun esPersonalizado(): Boolean = false
 }

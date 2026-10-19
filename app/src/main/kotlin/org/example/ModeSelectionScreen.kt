@@ -13,7 +13,7 @@ import javafx.scene.text.FontWeight
  *
  * Presentación de bienvenida limpia con dos opciones claras:
  * - [Modo Principiante]: Guiado con fórmulas paso a paso.
- * - [Modo Avanzado]: Simulación directa (reservado para Issue #6).
+ * - [Modo Avanzado]: Desafío interactivo de cálculo manual y exportación.
  *
  * Responsabilidad Única (SRP): Solo gestiona la selección inicial del modo.
  * No conoce la lógica de simulación ni el estado físico.
@@ -51,12 +51,11 @@ class ModeSelectionScreen(
         // Tarjeta Modo Avanzado
         val tarjetaAvanzado = crearTarjetaModo(
             titulo = "Modo Avanzado",
-            descripcion = "Simulación directa con gráficos cinemáticos\ny análisis de datos avanzado.\n(Disponible próximamente - Issue #6)",
-            colorBorde = "#64748b",
-            colorFondo = "#f1f5f9",
+            descripcion = "Desafío interactivo: elige la fórmula correcta,\nsustituye los valores, resuelve el cálculo manual\ny exporta los resultados en CSV o JSON.",
+            colorBorde = "#7c3aed",
+            colorFondo = "#f5f3ff",
             icono = "🔬",
-            accion = { onModoSeleccionado(ModoSimulacion.ESTANDAR) },
-            deshabilitado = true
+            accion = { onModoSeleccionado(ModoSimulacion.ESTANDAR) }
         )
 
         val nota = Label("Selecciona un modo para continuar →")

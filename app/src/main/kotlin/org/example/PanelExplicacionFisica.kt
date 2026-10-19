@@ -15,36 +15,29 @@ import java.util.Locale
  * Modo Principiante.
  *
  * Recibe por constructor la abstracción [EstadoSimulacion] (DIP) y el servicio
- * [ExplicadorFisicaPasoAPaso]. Muestra las tres ecuaciones del MRUV con el
- * reemplazo numérico y el cálculo en tiempo real.
+ * [ExplicadorFisica]. Delega cada tarjeta en [TarjetaFormulaDidactica] (SRP).
  */
 class PanelExplicacionFisica(
     private val estado: EstadoSimulacion,
-    private val explicador: ExplicadorFisicaPasoAPaso
+    private val explicador: ExplicadorFisica
 ) : VBox(10.0) {
 
-    // Componentes de la tarjeta de Posición
-    private val etiquetaPosicionValores = Label()
-    private val etiquetaPosicionSustitucion = Label()
-    private val etiquetaPosicionIntermedia = Label()
-    private val etiquetaPosicionResultado = Label()
-    private val etiquetaPosicionAclaracion = Label()
-
-    // Componentes de la tarjeta de Velocidad
-    private val etiquetaVelocidadValores = Label()
-    private val etiquetaVelocidadSustitucion = Label()
-    private val etiquetaVelocidadIntermedia = Label()
-    private val etiquetaVelocidadResultado = Label()
-    private val etiquetaVelocidadAclaracion = Label()
-
-    // Componentes de la tarjeta de Tiempo de Caída
-    private val etiquetaTiempoValores = Label()
-    private val etiquetaTiempoSustitucion = Label()
-    private val etiquetaTiempoIntermedia = Label()
-    private val etiquetaTiempoResultado = Label()
-    private val etiquetaTiempoAclaracion = Label()
-
     private val etiquetaTiempoCabecera = Label()
+
+    private val tarjetaPosicion = TarjetaFormulaDidactica(
+        titulo = "1. Posición: y(t) = y₀ + v₀·t - ½·g·t²",
+        colorBorde = "#3b82f6"
+    )
+
+    private val tarjetaVelocidad = TarjetaFormulaDidactica(
+        titulo = "2. Velocidad: v(t) = v₀ - g·t",
+        colorBorde = "#f59e0b"
+    )
+
+    private val tarjetaTiempoCaida = TarjetaFormulaDidactica(
+        titulo = "3. Tiempo de caída esperado: t_final = √(2·y₀ / g)",
+        colorBorde = "#8b5cf6"
+    )
 
     init {
         padding = Insets(12.0)
@@ -54,39 +47,12 @@ class PanelExplicacionFisica(
                 "-fx-border-radius: 8; " +
                 "-fx-border-width: 1;"
 
-        val encabezado = construirEncabezado()
-
-        val tarjetaPosicion = construirTarjetaFormula(
-            titulo = "1. Posición: y(t) = y₀ + v₀·t - ½·g·t²",
-            colorBorde = "#3b82f6",
-            etiquetaValores = etiquetaPosicionValores,
-            etiquetaSustitucion = etiquetaPosicionSustitucion,
-            etiquetaIntermedia = etiquetaPosicionIntermedia,
-            etiquetaResultado = etiquetaPosicionResultado,
-            etiquetaAclaracion = etiquetaPosicionAclaracion
+        children.addAll(
+            construirEncabezado(),
+            tarjetaPosicion.nodo(),
+            tarjetaVelocidad.nodo(),
+            tarjetaTiempoCaida.nodo()
         )
-
-        val tarjetaVelocidad = construirTarjetaFormula(
-            titulo = "2. Velocidad: v(t) = v₀ - g·t",
-            colorBorde = "#f59e0b",
-            etiquetaValores = etiquetaVelocidadValores,
-            etiquetaSustitucion = etiquetaVelocidadSustitucion,
-            etiquetaIntermedia = etiquetaVelocidadIntermedia,
-            etiquetaResultado = etiquetaVelocidadResultado,
-            etiquetaAclaracion = etiquetaVelocidadAclaracion
-        )
-
-        val tarjetaTiempoCaida = construirTarjetaFormula(
-            titulo = "3. Tiempo de caída esperado: t_final = √(2·y₀ / g)",
-            colorBorde = "#8b5cf6",
-            etiquetaValores = etiquetaTiempoValores,
-            etiquetaSustitucion = etiquetaTiempoSustitucion,
-            etiquetaIntermedia = etiquetaTiempoIntermedia,
-            etiquetaResultado = etiquetaTiempoResultado,
-            etiquetaAclaracion = etiquetaTiempoAclaracion
-        )
-
-        children.addAll(encabezado, tarjetaPosicion, tarjetaVelocidad, tarjetaTiempoCaida)
 
         estado.tiempoActualObservable().addListener { _, _, _ -> actualizarExplicaciones() }
         estado.alturaInicialObservable().addListener { _, _, _ -> actualizarExplicaciones() }
@@ -122,71 +88,6 @@ class PanelExplicacionFisica(
         return VBox(4.0, filaSuperior, subtitulo, etiquetaTiempoCabecera)
     }
 
-    private fun construirTarjetaFormula(
-        titulo: String,
-        colorBorde: String,
-        etiquetaValores: Label,
-        etiquetaSustitucion: Label,
-        etiquetaIntermedia: Label,
-        etiquetaResultado: Label,
-        etiquetaAclaracion: Label
-    ): VBox {
-        val tarjeta = VBox(5.0)
-        tarjeta.padding = Insets(8.0, 10.0, 8.0, 12.0)
-        tarjeta.style = "-fx-background-color: #f8fafc; " +
-                "-fx-background-radius: 6; " +
-                "-fx-border-color: $colorBorde; " +
-                "-fx-border-width: 0 0 0 4; " +
-                "-fx-border-radius: 0 6 6 0;"
-
-        val labelTitulo = Label(titulo)
-        labelTitulo.font = Font.font("System", FontWeight.BOLD, 13.0)
-        labelTitulo.style = "-fx-text-fill: #0f172a;"
-
-        val contenedorValores = VBox(2.0)
-        val etiquetaPrefijoValores = Label("• Reemplazo con tus parámetros:")
-        etiquetaPrefijoValores.font = Font.font("System", FontWeight.BOLD, 11.0)
-        etiquetaPrefijoValores.style = "-fx-text-fill: #475569;"
-
-        etiquetaValores.font = Font.font("Monospaced", 11.5)
-        etiquetaValores.style = "-fx-text-fill: #0369a1; -fx-padding: 0 0 0 10;"
-
-        contenedorValores.children.addAll(etiquetaPrefijoValores, etiquetaValores)
-
-        val contenedorCalculo = VBox(2.0)
-        val etiquetaPrefijoCalculo = Label("• Cálculo numérico en el instante actual:")
-        etiquetaPrefijoCalculo.font = Font.font("System", FontWeight.BOLD, 11.0)
-        etiquetaPrefijoCalculo.style = "-fx-text-fill: #475569;"
-
-        etiquetaSustitucion.font = Font.font("Monospaced", 11.0)
-        etiquetaSustitucion.style = "-fx-text-fill: #334155; -fx-padding: 0 0 0 10;"
-
-        etiquetaIntermedia.font = Font.font("Monospaced", 11.0)
-        etiquetaIntermedia.style = "-fx-text-fill: #334155; -fx-padding: 0 0 0 10;"
-
-        etiquetaResultado.font = Font.font("System", FontWeight.BOLD, 12.0)
-        etiquetaResultado.style = "-fx-text-fill: #166534; -fx-padding: 0 0 0 10;"
-
-        contenedorCalculo.children.addAll(
-            etiquetaPrefijoCalculo,
-            etiquetaSustitucion,
-            etiquetaIntermedia,
-            etiquetaResultado
-        )
-
-        etiquetaAclaracion.font = Font.font("System", 10.5)
-        etiquetaAclaracion.style = "-fx-text-fill: #64748b; -fx-wrap-text: true;"
-
-        tarjeta.children.addAll(
-            labelTitulo,
-            contenedorValores,
-            contenedorCalculo,
-            etiquetaAclaracion
-        )
-
-        return tarjeta
-    }
-
     /**
      * Recalcula y actualiza reactivamente todos los textos y cálculos.
      */
@@ -198,29 +99,9 @@ class PanelExplicacionFisica(
 
         etiquetaTiempoCabecera.text = "⏱ Instante actual: t = ${formatear(t)} s"
 
-        // 1. Posición
-        val detallePos = explicador.explicarPosicion(h0, v0, g, t)
-        etiquetaPosicionValores.text = detallePos.formulaConValores()
-        etiquetaPosicionSustitucion.text = "Paso 1: ${detallePos.sustitucionInstante()}"
-        etiquetaPosicionIntermedia.text = "Paso 2: ${detallePos.evaluacionIntermedia()}"
-        etiquetaPosicionResultado.text = "Resultado: ${detallePos.resultadoFinal()}"
-        etiquetaPosicionAclaracion.text = "💡 ${detallePos.aclaracionDidactica()}"
-
-        // 2. Velocidad
-        val detalleVel = explicador.explicarVelocidad(h0, v0, g, t)
-        etiquetaVelocidadValores.text = detalleVel.formulaConValores()
-        etiquetaVelocidadSustitucion.text = "Paso 1: ${detalleVel.sustitucionInstante()}"
-        etiquetaVelocidadIntermedia.text = "Paso 2: ${detalleVel.evaluacionIntermedia()}"
-        etiquetaVelocidadResultado.text = "Resultado: ${detalleVel.resultadoFinal()}"
-        etiquetaVelocidadAclaracion.text = "💡 ${detalleVel.aclaracionDidactica()}"
-
-        // 3. Tiempo de caída esperado
-        val detalleTiempo = explicador.explicarTiempoCaida(h0, v0, g)
-        etiquetaTiempoValores.text = detalleTiempo.formulaConValores()
-        etiquetaTiempoSustitucion.text = "Paso 1: ${detalleTiempo.sustitucionInstante()}"
-        etiquetaTiempoIntermedia.text = "Paso 2: ${detalleTiempo.evaluacionIntermedia()}"
-        etiquetaTiempoResultado.text = "Resultado: ${detalleTiempo.resultadoFinal()}"
-        etiquetaTiempoAclaracion.text = "💡 ${detalleTiempo.aclaracionDidactica()}"
+        tarjetaPosicion.actualizar(explicador.explicarPosicion(h0, v0, g, t))
+        tarjetaVelocidad.actualizar(explicador.explicarVelocidad(h0, v0, g, t))
+        tarjetaTiempoCaida.actualizar(explicador.explicarTiempoCaida(h0, v0, g))
     }
 
     private fun formatear(valor: Double): String =
