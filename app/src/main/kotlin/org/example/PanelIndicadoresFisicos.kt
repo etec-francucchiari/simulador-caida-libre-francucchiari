@@ -19,7 +19,7 @@ import java.util.Locale
  */
 class PanelIndicadoresFisicos(
     private val estado: EstadoSimulacion,
-    private val calculo: CalculoCaidaLibre
+    private val calculo: CalculadoraCaidaLibre
 ) : VBox(12.0) {
 
     private val etiquetaAltura: Label = crearEtiquetaValor()

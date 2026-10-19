@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
  */
 class ValidadorParametrosInicialesTest {
 
-    private val validador = ValidadorParametrosIniciales()
+    private val validador = ValidadorParametrosIniciales(ConfiguracionFisica())
 
     @Test
     fun alturaConPuntoDecimalEsValida() {
@@ -67,9 +67,10 @@ class ValidadorParametrosInicialesTest {
         val resultado = validador.validar("100", "5.5")
 
         assertTrue(resultado.esValido())
-        val exitoso = resultado as ValidadorParametrosIniciales.ResultadoValidacion.Exitoso
-        assertEquals(100.0, exitoso.parametros().alturaInicial())
-        assertEquals(5.5, exitoso.parametros().velocidadInicial())
+        val parametros = resultado.parametros()
+        assertNotNull(parametros)
+        assertEquals(100.0, parametros.alturaInicial())
+        assertEquals(5.5, parametros.velocidadInicial())
     }
 
     @Test
@@ -77,8 +78,8 @@ class ValidadorParametrosInicialesTest {
         val resultado = validador.validar("-2", "5")
 
         assertFalse(resultado.esValido())
-        val fallido = resultado as ValidadorParametrosIniciales.ResultadoValidacion.Fallido
-        assertEquals(1, fallido.errores().size)
-        assertNotNull(fallido.errores().firstOrNull { it.contains("altura", ignoreCase = true) })
+        val errores = resultado.errores()
+        assertEquals(1, errores.size)
+        assertNotNull(errores.firstOrNull { it.contains("altura", ignoreCase = true) })
     }
 }

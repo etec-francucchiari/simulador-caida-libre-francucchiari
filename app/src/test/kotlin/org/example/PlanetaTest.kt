@@ -38,7 +38,7 @@ class PlanetaTest {
         val personalizado = catalogo.personalizado(5.5)
         assertEquals(5.5, personalizado.gravedad(), 1e-9)
         assertEquals("Personalizado", personalizado.nombre())
-        assertTrue(personalizado is PlanetaPersonalizado)
+        assertTrue(personalizado.esPersonalizado())
     }
 
     @Test

@@ -13,14 +13,14 @@ import kotlin.math.sqrt
  * (y₀, v₀, g) y la evaluación numérica instantánea.
  */
 class ExplicadorFisicaPasoAPaso(
-    private val calculo: CalculoCaidaLibre
-) {
+    private val calculo: CalculadoraCaidaLibre
+) : ExplicadorFisica {
 
     /**
      * Explicación paso a paso de la fórmula de posición:
      * `y(t) = y₀ + v₀·t - ½·g·t²`.
      */
-    fun explicarPosicion(h0: Double, v0: Double, g: Double, t: Double): DetallePasoFormula {
+    override fun explicarPosicion(h0: Double, v0: Double, g: Double, t: Double): DetallePasoFormula {
         val h0Segura = max(0.0, h0)
         val v0Segura = max(0.0, v0)
         val gSegura = if (g > 0.0) g else 9.8
@@ -76,7 +76,7 @@ class ExplicadorFisicaPasoAPaso(
      * Explicación paso a paso de la fórmula de velocidad:
      * `v(t) = v₀ - g·t`.
      */
-    fun explicarVelocidad(h0: Double, v0: Double, g: Double, t: Double): DetallePasoFormula {
+    override fun explicarVelocidad(h0: Double, v0: Double, g: Double, t: Double): DetallePasoFormula {
         val h0Segura = max(0.0, h0)
         val v0Segura = max(0.0, v0)
         val gSegura = if (g > 0.0) g else 9.8
@@ -129,7 +129,7 @@ class ExplicadorFisicaPasoAPaso(
      * Explicación paso a paso del tiempo total de caída:
      * `t_final = √(2·y₀ / g)`.
      */
-    fun explicarTiempoCaida(h0: Double, v0: Double, g: Double): DetallePasoFormula {
+    override fun explicarTiempoCaida(h0: Double, v0: Double, g: Double): DetallePasoFormula {
         val h0Segura = max(0.0, h0)
         val v0Segura = max(0.0, v0)
         val gSegura = if (g > 0.0) g else 9.8

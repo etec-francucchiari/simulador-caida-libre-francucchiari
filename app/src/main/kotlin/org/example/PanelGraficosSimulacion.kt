@@ -1,6 +1,5 @@
 package org.example
 
-import javafx.collections.FXCollections
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.chart.LineChart
@@ -28,7 +27,7 @@ import javafx.scene.text.FontWeight
  */
 class PanelGraficosSimulacion(
     private val estado: EstadoSimulacion,
-    private val calculo: CalculoCaidaLibre
+    private val series: SeriesCinematica
 ) : VBox(8.0) {
 
     private val ejeXPosicion = NumberAxis()
@@ -110,18 +109,8 @@ class PanelGraficosSimulacion(
         val v0 = estado.obtenerVelocidadInicial()
         val g = estado.obtenerPlaneta().gravedad()
 
-        val puntosTrayectoria = calculo.generarPuntosTrayectoria(h0, v0, g)
-
-        val datosPosicion = FXCollections.observableArrayList<XYChart.Data<Number, Number>>()
-        val datosVelocidad = FXCollections.observableArrayList<XYChart.Data<Number, Number>>()
-
-        for (punto in puntosTrayectoria) {
-            datosPosicion.add(XYChart.Data(punto.tiempo(), punto.posicion()))
-            datosVelocidad.add(XYChart.Data(punto.tiempo(), punto.velocidad()))
-        }
-
-        serieTeoricaPosicion.data = datosPosicion
-        serieTeoricaVelocidad.data = datosVelocidad
+        serieTeoricaPosicion.data = series.posicion(h0, v0, g)
+        serieTeoricaVelocidad.data = series.velocidad(h0, v0, g)
 
         actualizarMarcadoresActuales()
     }

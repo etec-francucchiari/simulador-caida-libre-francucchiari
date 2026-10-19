@@ -4,25 +4,24 @@ import kotlin.math.max
 import kotlin.math.sqrt
 
 /**
- * Servicio de dominio con las fórmulas físicas de la caída libre.
+ * Implementación del servicio de física de la caída libre.
  *
- * Es una clase instanciable (no una utilidad `object`) que se inyecta en los
- * componentes que necesitan calcular tiempo, posición, velocidad o trayectoria.
+ * Es una clase instanciable (no una utilidad `object`) que implementa el
+ * contrato [CalculadoraCaidaLibre] y se inyecta en los componentes que
+ * necesitan calcular tiempo, posición, velocidad o trayectoria.
  *
  * Convención de signos: la altura se mide desde el suelo hacia arriba y el
  * cuerpo cae en dirección del suelo, con velocidad inicial no negativa.
  */
-class CalculoCaidaLibre {
+class CalculoCaidaLibre : CalculadoraCaidaLibre {
 
     /**
      * Calcula el tiempo que tarda el cuerpo en llegar al suelo.
      *
      * Aplica h₀ = v₀·t + ½·g·t², despejando `t`:
      * t = (−v₀ + √(v₀² + 2·g·h₀)) / g
-     *
-     * @return tiempo en segundos, o `null` si los valores no son físicamente válidos.
      */
-    fun calcularTiempoCaida(h0: Double, v0: Double, g: Double): Double? {
+    override fun calcularTiempoCaida(h0: Double, v0: Double, g: Double): Double? {
         if (h0 < 0.0 || v0 < 0.0 || g <= 0.0) return null
         return (-v0 + sqrt(v0 * v0 + 2.0 * g * h0)) / g
     }
@@ -31,7 +30,7 @@ class CalculoCaidaLibre {
      * Calcula la velocidad de impacto por conservación de la energía:
      * v² = v₀² + 2·g·h₀.
      */
-    fun calcularVelocidadImpacto(h0: Double, v0: Double, g: Double): Double? {
+    override fun calcularVelocidadImpacto(h0: Double, v0: Double, g: Double): Double? {
         if (h0 < 0.0 || v0 < 0.0 || g <= 0.0) return null
         return sqrt(v0 * v0 + 2.0 * g * h0)
     }
@@ -39,7 +38,7 @@ class CalculoCaidaLibre {
     /**
      * Calcula la altura instantánea y(t) = h₀ − (v₀·t + ½·g·t²).
      */
-    fun calcularPosicion(h0: Double, v0: Double, g: Double, t: Double): Double? {
+    override fun calcularPosicion(h0: Double, v0: Double, g: Double, t: Double): Double? {
         if (h0 < 0.0 || v0 < 0.0 || g <= 0.0 || t < 0.0) return null
         val tiempoCaida = calcularTiempoCaida(h0, v0, g) ?: return null
         if (t >= tiempoCaida) return 0.0
@@ -50,7 +49,7 @@ class CalculoCaidaLibre {
     /**
      * Calcula la velocidad instantánea v(t) = v₀ + g·t.
      */
-    fun calcularVelocidad(h0: Double, v0: Double, g: Double, t: Double): Double? {
+    override fun calcularVelocidad(h0: Double, v0: Double, g: Double, t: Double): Double? {
         if (h0 < 0.0 || v0 < 0.0 || g <= 0.0 || t < 0.0) return null
         val tiempoCaida = calcularTiempoCaida(h0, v0, g) ?: return null
         if (t >= tiempoCaida) return calcularVelocidadImpacto(h0, v0, g)
@@ -60,11 +59,11 @@ class CalculoCaidaLibre {
     /**
      * Genera una secuencia de [PuntoTrayectoria] desde t = 0 hasta el impacto.
      */
-    fun generarPuntosTrayectoria(
+    override fun generarPuntosTrayectoria(
         h0: Double,
         v0: Double,
         g: Double,
-        cantidadPuntos: Int = 100
+        cantidadPuntos: Int
     ): List<PuntoTrayectoria> {
         val tiempoCaida = calcularTiempoCaida(h0, v0, g) ?: return emptyList()
         val velocidadImpacto = calcularVelocidadImpacto(h0, v0, g) ?: return emptyList()

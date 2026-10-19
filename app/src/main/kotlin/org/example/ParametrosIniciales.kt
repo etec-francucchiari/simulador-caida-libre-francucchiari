@@ -45,18 +45,13 @@ class ParametrosIniciales(
     /** Comportamiento de dominio: resumen legible. */
     fun resumen(): String = "y₀ = $alturaInicialInterna m, v₀ = $velocidadInicialInterna m/s"
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ParametrosIniciales) return false
-        return alturaInicialInterna == other.alturaInicialInterna &&
-                velocidadInicialInterna == other.velocidadInicialInterna
-    }
-
-    override fun hashCode(): Int {
-        var resultado = alturaInicialInterna.hashCode()
-        resultado = 31 * resultado + velocidadInicialInterna.hashCode()
-        return resultado
-    }
+    /**
+     * Comportamiento de dominio: compara los valores físicos con otros
+     * parámetros sin recurrir a comprobaciones de tipo.
+     */
+    fun mismosValoresQue(otro: ParametrosIniciales): Boolean =
+        alturaInicialInterna == otro.alturaInicialInterna &&
+            velocidadInicialInterna == otro.velocidadInicialInterna
 
     override fun toString(): String = resumen()
 }

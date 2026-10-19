@@ -9,19 +9,20 @@ import javafx.beans.value.ObservableValue
  * Gestor de estado reactivo del simulador de caída libre.
  *
  * Implementa los contratos [EstadoSimulacion] y [ComandosSimulacion] para que
- * las vistas dependan de abstracciones (DIP).
+ * las vistas dependan de abstracciones (DIP). Delega las reglas físicas de
+ * avance temporal en [MotorEstadoCaida] (SRP).
  *
  * Encapsulación estricta: todas las propiedades observables son campos
  * [private]; solo se exponen como [ObservableValue] de solo lectura mediante
  * métodos, además de los métodos de consulta y comando.
  *
  * @property configuracion valores por defecto y límites físicos.
- * @property calculo servicio de fórmulas físicas inyectado.
+ * @property motor motor de cálculo del estado instantáneo.
  */
 class GestorEstadoSimulacion(
-    private val configuracion: ConfiguracionFisica = ConfiguracionFisica(),
-    planetaInicial: EntornoGravitatorio = Planeta.TIERRA,
-    private val calculo: CalculoCaidaLibre = CalculoCaidaLibre()
+    private val configuracion: ConfiguracionSimulacion,
+    planetaInicial: EntornoGravitatorio,
+    private val motor: MotorSimulacion
 ) : ContextoSimulacion {
 
     private val planetaActivo = SimpleObjectProperty<EntornoGravitatorio>(planetaInicial)
@@ -92,26 +93,21 @@ class GestorEstadoSimulacion(
         velocidadInicial.set(velocidad)
     }
 
-    private val umbralPrecisionTiempo: Double = 1e-6
-    private val umbralAlturaSuelo: Double = 1e-5
-
-    /**
-     * Determina si el cuerpo se encuentra detenido en el suelo.
-     */
-    override fun haLlegadoAlSuelo(): Boolean {
-        val h0 = obtenerAlturaInicial()
-        val v0 = obtenerVelocidadInicial()
-        val g = obtenerPlaneta().gravedad()
-        val tiempoCaida = calculo.calcularTiempoCaida(h0, v0, g) ?: 0.0
-        return obtenerAlturaActual() <= umbralAlturaSuelo ||
-                (tiempoCaida > 0.0 && (tiempoCaida - obtenerTiempoActual()) <= umbralPrecisionTiempo)
-    }
+    override fun haLlegadoAlSuelo(): Boolean =
+        motor.haLlegadoAlSuelo(
+            obtenerAlturaInicial(),
+            obtenerVelocidadInicial(),
+            obtenerPlaneta().gravedad(),
+            obtenerTiempoActual(),
+            obtenerAlturaActual()
+        )
 
     override fun iniciarSimulacion() {
-        val h0 = obtenerAlturaInicial()
-        val v0 = obtenerVelocidadInicial()
-        val g = obtenerPlaneta().gravedad()
-        val tiempoCaida = calculo.calcularTiempoCaida(h0, v0, g) ?: 0.0
+        val tiempoCaida = motor.tiempoCaida(
+            obtenerAlturaInicial(),
+            obtenerVelocidadInicial(),
+            obtenerPlaneta().gravedad()
+        )
 
         if (haLlegadoAlSuelo() || obtenerTiempoActual() >= tiempoCaida) {
             reiniciarSimulacion()
@@ -140,39 +136,26 @@ class GestorEstadoSimulacion(
      * Establece el tiempo instantáneo y recalcula altura y velocidad.
      */
     fun establecerTiempoActual(nuevoTiempo: Double) {
-        val h0 = obtenerAlturaInicial()
-        val v0 = obtenerVelocidadInicial()
-        val g = obtenerPlaneta().gravedad()
-        val tiempoCaida = calculo.calcularTiempoCaida(h0, v0, g) ?: 0.0
+        val estadoInstantaneo = motor.estadoEn(
+            obtenerAlturaInicial(),
+            obtenerVelocidadInicial(),
+            obtenerPlaneta().gravedad(),
+            nuevoTiempo
+        )
 
-        val tiempoLimitado = nuevoTiempo.coerceIn(0.0, tiempoCaida)
-        val tiempoEfectivo =
-            if (tiempoCaida > 0.0 && (tiempoCaida - tiempoLimitado) <= umbralPrecisionTiempo) {
-                tiempoCaida
-            } else {
-                tiempoLimitado
-            }
-        tiempoActual.set(tiempoEfectivo)
+        tiempoActual.set(estadoInstantaneo.tiempo())
+        alturaActual.set(estadoInstantaneo.altura())
+        velocidadActual.set(estadoInstantaneo.velocidad())
 
-        val posicion = calculo.calcularPosicion(h0, v0, g, tiempoEfectivo) ?: 0.0
-        val velocidad = calculo.calcularVelocidad(h0, v0, g, tiempoEfectivo) ?: 0.0
-
-        if (posicion <= umbralAlturaSuelo || tiempoEfectivo >= tiempoCaida) {
-            alturaActual.set(0.0)
-            val velocidadImpacto = calculo.calcularVelocidadImpacto(h0, v0, g) ?: velocidad
-            velocidadActual.set(velocidadImpacto)
+        if (estadoInstantaneo.enSuelo()) {
             enEjecucion.set(false)
-        } else {
-            alturaActual.set(posicion)
-            velocidadActual.set(velocidad)
         }
     }
 
     override fun avanzarTiempo(deltaSegundos: Double): Boolean {
         if (!estaEnEjecucion() || deltaSegundos <= 0.0) return false
 
-        val tiempoDestino = obtenerTiempoActual() + deltaSegundos
-        establecerTiempoActual(tiempoDestino)
+        establecerTiempoActual(obtenerTiempoActual() + deltaSegundos)
 
         if (obtenerAlturaActual() <= 0.0 || haLlegadoAlSuelo()) {
             enEjecucion.set(false)

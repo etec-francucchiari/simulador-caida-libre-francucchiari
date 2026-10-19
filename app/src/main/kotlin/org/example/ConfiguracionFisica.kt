@@ -1,11 +1,11 @@
 package org.example
 
 /**
- * Configuración física del simulador: valores por defecto y límites válidos.
+ * Implementación de la configuración física del simulador.
  *
- * Es una clase instanciable (no una utilidad estática) que además de datos
- * expone comportamiento de validación, inyectable en el gestor de estado y en
- * el validador de parámetros.
+ * Además de los valores por defecto y los límites válidos, expone
+ * comportamiento de dominio para ajustar magnitudes al rango permitido y
+ * describir la configuración, evitando una clase meramente anémica.
  *
  * @property alturaPorDefectoInterna altura inicial por defecto en metros.
  * @property velocidadPorDefectoInterna velocidad inicial por defecto en m/s.
@@ -17,25 +17,37 @@ class ConfiguracionFisica(
     private val velocidadPorDefectoInterna: Double = 0.0,
     private val alturaMinimaInterna: Double = 0.0,
     private val velocidadMinimaInterna: Double = 0.0
-) {
+) : ConfiguracionSimulacion {
 
-    /** Altura inicial por defecto (y₀) en metros. */
-    fun alturaPorDefecto(): Double = alturaPorDefectoInterna
+    override fun alturaPorDefecto(): Double = alturaPorDefectoInterna
 
-    /** Velocidad inicial por defecto (v₀) en m/s. */
-    fun velocidadPorDefecto(): Double = velocidadPorDefectoInterna
+    override fun velocidadPorDefecto(): Double = velocidadPorDefectoInterna
 
-    /** Altura mínima admitida en metros. */
-    fun alturaMinima(): Double = alturaMinimaInterna
+    override fun alturaMinima(): Double = alturaMinimaInterna
 
-    /** Velocidad mínima admitida en m/s. */
-    fun velocidadMinima(): Double = velocidadMinimaInterna
+    override fun velocidadMinima(): Double = velocidadMinimaInterna
 
-    /** Comportamiento de dominio: altura dentro del rango válido. */
-    fun esAlturaValida(altura: Double): Boolean =
+    override fun esAlturaValida(altura: Double): Boolean =
         altura.isFinite() && altura >= alturaMinimaInterna
 
-    /** Comportamiento de dominio: velocidad dentro del rango válido. */
-    fun esVelocidadValida(velocidad: Double): Boolean =
+    override fun esVelocidadValida(velocidad: Double): Boolean =
         velocidad.isFinite() && velocidad >= velocidadMinimaInterna
+
+    /**
+     * Comportamiento de dominio: ajusta una altura al rango permitido.
+     */
+    fun ajustarAltura(altura: Double): Double =
+        if (esAlturaValida(altura)) altura else alturaMinimaInterna
+
+    /**
+     * Comportamiento de dominio: ajusta una velocidad al rango permitido.
+     */
+    fun ajustarVelocidad(velocidad: Double): Double =
+        if (esVelocidadValida(velocidad)) velocidad else velocidadMinimaInterna
+
+    /** Comportamiento de dominio: resumen legible de la configuración. */
+    fun resumen(): String =
+        "Altura por defecto: $alturaPorDefectoInterna m; " +
+            "velocidad por defecto: $velocidadPorDefectoInterna m/s; " +
+            "mínimos: $alturaMinimaInterna m y $velocidadMinimaInterna m/s."
 }

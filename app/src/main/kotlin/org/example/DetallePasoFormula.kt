@@ -44,6 +44,12 @@ class DetallePasoFormula(
     /** Comportamiento de dominio: corresponden a la fórmula de posición. */
     fun esFormulaDePosicion(): Boolean = formulaGeneralInterna.contains("y(t)")
 
+    /** Comportamiento de dominio: corresponden a la fórmula de velocidad. */
+    fun esFormulaDeVelocidad(): Boolean = formulaGeneralInterna.contains("v(t)")
+
+    /** Comportamiento de dominio: corresponden a la fórmula de tiempo de caída. */
+    fun esFormulaDeTiempo(): Boolean = formulaGeneralInterna.contains("t_final")
+
     /** Comportamiento de dominio: representación completa del paso. */
     fun comoTexto(): String = listOf(
         tituloInterno,

@@ -43,7 +43,7 @@ kotlin {
 }
 
 application {
-    mainClass.set("org.example.AppKt")
+    mainClass.set("org.example.PuntoEntrada")
 }
 
 // La tarea :app:run de JavaFX no es compatible con la configuration cache
