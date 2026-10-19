@@ -3,7 +3,7 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación II (RepoSense + análisis de calidad POO/SOLID). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-10-17.
+> Generado: 2026-10-19.
 
 ## 1. Veredicto
 
@@ -15,7 +15,7 @@
 | Clases (bien usadas) | 43 (7 OK) |
 | Código dentro de clases (%POO) | 78% |
 | Funciones fuera de clases | 3 |
-| Duplicación | 7.7% |
+| Duplicación lógica | 1.7% |
 | Señales S/O/L/I/D | 25/3/0/0/18 |
 | Tope duro aplicado | `SUELTAS>=3` → índice ≤ 40 |
 
@@ -28,14 +28,14 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 | Semáforo | Resultado |
 |---|---|
 | Aprobar (`estandar`) | **no cumple** — 1/4 |
-| Destacar (`exigente`) | **no cumple** — 0/5 |
+| Destacar (`exigente`) | **no cumple** — 1/5 |
 
 **Criterios para aprobar**
 
 | Criterio | Requisito | Tu resultado | Cumple |
 |---|---|---|---|
 | Código dentro de clases (%POO) | ≥ 85% | 78% | no |
-| Duplicación | ≤ 10% | 2.3% | sí |
+| Duplicación lógica | ≤ 10% | 1.7% | sí |
 | Funciones fuera de clases | ≤ 1 | 3 | no |
 | Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO) | no |
 
@@ -44,7 +44,7 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 | Criterio | Requisito | Tu resultado | Cumple |
 |---|---|---|---|
 | Código dentro de clases (%POO) | ≥ 95% | 78% | no |
-| Duplicación | ≤ 5% | 7.7% | no |
+| Duplicación lógica | ≤ 5% | 1.7% | sí |
 | Funciones fuera de clases | ≤ 0 | 3 | no |
 | Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Complejidad alta, Acoplamiento alto (CBO), Switch sobre tipos (OCP) | no |
 | Índice de calidad POO/SOLID | ≥ 60 | 3/100 | no |
@@ -67,11 +67,11 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 - **Por qué importa:** Ordena y prioriza la revisión: un índice bajo indica varias señales que conviene mirar juntas.
 - **Tu resultado:** índice **3/100**
 
-### 2. Duplicación (DRY) (duplicacion) — con señales
+### 2. Duplicación lógica (DRY) (duplicacion) — con señales
 
-- **Qué mide:** Porcentaje de bloques de código repetidos (similitud) en el repositorio.
-- **Por qué importa:** Cada copia se mantiene por separado: un arreglo hay que repetirlo y los defectos se multiplican.
-- **Tu resultado:** **7.7%** de duplicación
+- **Qué mide:** Porcentaje de bloques de LÓGICA repetidos. Quedan fuera imports/includes, anotaciones, declaraciones de campos y comentarios/Javadoc/docstrings: esos bloques son boilerplate, no lógica.
+- **Por qué importa:** Cada copia de lógica se mantiene por separado: un arreglo hay que repetirlo y los defectos se multiplican.
+- **Tu resultado:** **1.7%** de duplicación lógica
 - **Para investigar la causa:**
     - ¿El trabajo se repartió por pantallas o archivos y se integró copiando y pegando bloques?
     - ¿Qué zonas del sistema cambiaron juntas más de una vez (señal de lógica compartida)?
@@ -322,18 +322,18 @@ xychart-beta
     title "Índice POO/SOLID a lo largo de los commits"
     x-axis ["e4c7dc4", "f9cdb25", "21e6166", "6f7333f", "bdbdb04", "fbb8e8c", "6d00bd3"]
     y-axis "Índice" 0 --> 100
-    line [0, 0, 16, 15, 9, 5, 3]
+    line [0, 0, 21, 17, 10, 5, 3]
 ```
 
 | # | Fecha | Commit | Autor | LOC | Índice | %POO | Duplic. | Sueltas |
 |---|---|---|---|---:|---:|---:|---:|---:|
 | 1 | 2026-08-14 | `e4c7dc4` | francucchiari-code | 0 | 0 | 0% | 0.0% | 0 |
 | 2 | 2026-08-31 | `f9cdb25` | dqmdz-etec | 0 | 0 | 0% | 0.0% | 0 |
-| 3 | 2026-09-07 | `21e6166` | francucchiari-code | 172 | 16 | 48% | 6.0% | 1 |
-| 4 | 2026-09-14 | `6f7333f` | francucchiari-code | 286 | 15 | 58% | 3.6% | 1 |
-| 5 | 2026-09-25 | `bdbdb04` | francucchiari-code | 937 | 9 | 78% | 4.6% | 1 |
-| 6 | 2026-10-02 | `fbb8e8c` | francucchiari-code | 1,647 | 5 | 81% | 7.1% | 1 |
-| 7 | 2026-10-16 | `6d00bd3` | francucchiari-code | 3,453 | 3 | 78% | 7.7% | 3 |
+| 3 | 2026-09-07 | `21e6166` | francucchiari-code | 172 | 21 | 48% | 0.0% | 1 |
+| 4 | 2026-09-14 | `6f7333f` | francucchiari-code | 286 | 17 | 58% | 0.0% | 1 |
+| 5 | 2026-09-25 | `bdbdb04` | francucchiari-code | 937 | 10 | 78% | 0.0% | 1 |
+| 6 | 2026-10-02 | `fbb8e8c` | francucchiari-code | 1,647 | 5 | 81% | 0.0% | 1 |
+| 7 | 2026-10-16 | `6d00bd3` | francucchiari-code | 3,453 | 3 | 78% | 1.7% | 3 |
 
 ---
 _Informe generado por la cátedra. Los criterios y umbrales de medición corresponden al perfil `exigente` de `calidad.py`; el semáforo de aprobación, a `CRITERIOS-CALIDAD.md` (ver `README.md`). Ante dudas, revisá el archivo señalado._
