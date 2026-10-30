@@ -14,7 +14,7 @@ class ServicioExportacionTest {
 
     @Test
     fun generaLaMuestraConAceleracionConstanteYExtremosCorrectos() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         gestor.establecerAlturaInicial(100.0)
         gestor.establecerVelocidadInicial(0.0)
 
@@ -39,7 +39,7 @@ class ServicioExportacionTest {
         val archivo = File.createTempFile("muestra", ".csv")
         archivo.deleteOnExit()
 
-        val servicio = ServicioExportacion(GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre())), calculo, 20)
+        val servicio = ServicioExportacion(GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado()), calculo, 20)
         servicio.exportar(ExportadorCsv(), archivo)
 
         val lineas = archivo.readLines()

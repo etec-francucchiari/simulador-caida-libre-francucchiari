@@ -32,4 +32,12 @@ interface ComandosSimulacion {
      * @return `true` si la simulación continúa en el aire.
      */
     fun avanzarTiempo(deltaSegundos: Double): Boolean
+
+    /**
+     * Aplica un estado de la máquina de estados de la simulación
+     * ([EstadoEjecucion]).
+     *
+     * @return el estado aplicado.
+     */
+    fun cambiarEstado(nuevoEstado: EstadoEjecucion): EstadoEjecucion
 }

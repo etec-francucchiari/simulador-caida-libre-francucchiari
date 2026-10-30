@@ -54,4 +54,7 @@ interface EstadoSimulacion {
 
     /** Observable (solo lectura) del estado de ejecución. */
     fun enEjecucionObservable(): ObservableValue<Boolean>
+
+    /** Estado actual de la máquina de estados de la simulación (Patrón State). */
+    fun estadoEjecucion(): EstadoEjecucion
 }

@@ -46,7 +46,7 @@ class ControladorSimulacion(
      * @return `true` si la simulación continúa en el aire, o `false` si concluyó.
      */
     fun procesarFrame(ahoraNano: Long): Boolean {
-        if (!contexto.estaEnEjecucion()) {
+        if (!contexto.estadoEjecucion().esActiva()) {
             detenerTemporizador()
             return false
         }
@@ -60,7 +60,7 @@ class ControladorSimulacion(
         ultimoTimestampNano = ahoraNano
 
         if (deltaSegundos <= 0.0) {
-            return contexto.estaEnEjecucion()
+            return contexto.estadoEjecucion().esActiva()
         }
 
         val deltaSeguro = deltaSegundos.coerceAtMost(deltaMaximoSegundos)
@@ -75,11 +75,8 @@ class ControladorSimulacion(
     }
 
     override fun alternarEjecucion() {
-        if (contexto.estaEnEjecucion()) {
-            pausar()
-        } else {
-            iniciar()
-        }
+        // La decisión de alternar (pausa <-> inicio) la toma el estado actual.
+        contexto.cambiarEstado(contexto.estadoEjecucion().alternar())
     }
 
     override fun iniciar() {

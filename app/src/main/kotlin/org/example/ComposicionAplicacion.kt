@@ -20,7 +20,8 @@ class ComposicionAplicacion : ServiciosAplicacion {
         GestorEstadoSimulacion(
             configuracionInterna,
             Planeta.TIERRA,
-            MotorEstadoCaida(calculoInterno)
+            MotorEstadoCaida(calculoInterno),
+            EstadoEjecucionReiniciado()
         )
     private val controlInterno: ControlReproduccion = ControladorSimulacion(contextoInterno)
 
