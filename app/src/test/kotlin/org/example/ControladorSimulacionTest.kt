@@ -20,7 +20,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun instanciarControlador() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
         assertNotNull(controlador)
         assertFalse(gestor.estaEnEjecucion())
@@ -28,7 +28,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun iniciarActivaEjecucion() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
 
         controlador.iniciar()
@@ -37,7 +37,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun pausarDetieneEjecucion() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
 
         controlador.iniciar()
@@ -49,7 +49,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun alternarEjecucionConmutaEntreIniciarYPausar() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
 
         // Estado inicial: detenido -> alternar debe iniciar
@@ -63,7 +63,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun reiniciarRestableceEstadoAValoresIniciales() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
 
         gestor.establecerAlturaInicial(100.0)
@@ -86,7 +86,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun procesarPrimerFotogramaEstableceMarcaTemporalSinAvanzar() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
 
         gestor.establecerAlturaInicial(50.0)
@@ -102,7 +102,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun procesarFotogramasConsecutivosAvanzaEstadoFisico() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
 
         // h0 = 100 m, v0 = 0 m/s, Tierra g = 9.81 m/s²
@@ -129,7 +129,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun procesarFotogramaConDeltaExcesivoSeLimitaAUmbralSeguro() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
 
         controlador.iniciar()
@@ -150,7 +150,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun procesarFotogramaDetieneSimulacionAlDetectarImpacto() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
 
         // h0 = 4.9 m, v0 = 0 m/s, Tierra g = 9.81 m/s² -> t_caida ≈ 0.999 s
@@ -189,7 +189,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun procesarFotogramaCuandoNoEstaEnEjecucionRetornaFalso() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
 
         assertFalse(gestor.estaEnEjecucion())
@@ -199,7 +199,7 @@ class ControladorSimulacionTest {
 
     @Test
     fun iniciarReiniciaAutomaticamenteSiYaEstabaEnElSuelo() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         val controlador = ControladorSimulacion(gestor)
 
         // h0 = 4.9 m, g = 9.8 -> t_caida = 1.0 s

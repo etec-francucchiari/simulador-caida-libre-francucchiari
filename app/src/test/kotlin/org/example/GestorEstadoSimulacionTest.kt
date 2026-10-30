@@ -17,7 +17,7 @@ class GestorEstadoSimulacionTest {
 
     @Test
     fun alturaInicialSePublicaEnLaPropiedadObservable() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         var ultimoValorNotificado = Double.NaN
 
         gestor.alturaInicialObservable().addListener { _, _, nuevoValor ->
@@ -32,7 +32,7 @@ class GestorEstadoSimulacionTest {
 
     @Test
     fun velocidadInicialSePublicaEnLaPropiedadObservable() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         var ultimoValorNotificado = Double.NaN
 
         gestor.velocidadInicialObservable().addListener { _, _, nuevoValor ->
@@ -47,7 +47,7 @@ class GestorEstadoSimulacionTest {
 
     @Test
     fun losValoresPorDefectoSonLosParametrosIniciales() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
 
         assertEquals(ConfiguracionFisica().alturaPorDefecto(), gestor.obtenerAlturaInicial())
         assertEquals(ConfiguracionFisica().velocidadPorDefecto(), gestor.obtenerVelocidadInicial())
@@ -59,7 +59,7 @@ class GestorEstadoSimulacionTest {
 
     @Test
     fun establecerTiempoActualActualizaPropiedadesInstantaneasReactiamente() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         // h0 = 100 m, v0 = 0 m/s, Tierra (g = 9.81)
         gestor.establecerAlturaInicial(100.0)
         gestor.establecerVelocidadInicial(0.0)
@@ -75,7 +75,7 @@ class GestorEstadoSimulacionTest {
 
     @Test
     fun cambiarParametrosInicialesReiniciaEstadoInstantaneo() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         gestor.establecerTiempoActual(2.0)
 
         // Cambiar la altura inicial debe reiniciar el tiempo a 0 y actualizar la altura actual
@@ -88,7 +88,7 @@ class GestorEstadoSimulacionTest {
 
     @Test
     fun cambiarPlanetaReiniciaEstadoInstantaneo() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         gestor.establecerTiempoActual(1.5)
 
         gestor.establecerPlaneta(Planeta.LUNA)
@@ -100,7 +100,7 @@ class GestorEstadoSimulacionTest {
 
     @Test
     fun avanzarTiempoDetieneLaSimulacionAlLlegarAlSuelo() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         // h0 = 4.9 m, v0 = 0, Tierra g = 9.81 -> t_caida ≈ 0.999 s
         gestor.establecerAlturaInicial(4.9)
         gestor.establecerVelocidadInicial(0.0)
@@ -131,7 +131,7 @@ class GestorEstadoSimulacionTest {
 
     @Test
     fun iniciarSimulacionConAlturaCeroNoSeEjecuta() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         gestor.establecerAlturaInicial(0.0)
 
         gestor.iniciarSimulacion()
@@ -143,7 +143,7 @@ class GestorEstadoSimulacionTest {
 
     @Test
     fun haLlegadoAlSueloEsFalsoDuranteVueloYVerdaderoAlFinalizar() {
-        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()))
+        val gestor = GestorEstadoSimulacion(ConfiguracionFisica(), Planeta.TIERRA, MotorEstadoCaida(CalculoCaidaLibre()), EstadoEjecucionReiniciado())
         gestor.establecerAlturaInicial(100.0)
         gestor.establecerVelocidadInicial(0.0)
 

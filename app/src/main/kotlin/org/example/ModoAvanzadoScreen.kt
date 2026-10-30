@@ -171,5 +171,8 @@ class ModoAvanzadoScreen(
         comandos.establecerAlturaInicial(ejercicio.alturaInicial())
         comandos.establecerVelocidadInicial(ejercicio.velocidadInicial())
         control.reiniciar()
+        // El escenario del desafío se aplica sobre la máquina de estados,
+        // que inicia en reposo hasta que el usuario ejecute la simulación.
+        comandos.cambiarEstado(EstadoEjecucionEnModoEjercicio(desafio))
     }
 }

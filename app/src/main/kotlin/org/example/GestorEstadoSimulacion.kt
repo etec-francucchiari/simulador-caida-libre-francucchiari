@@ -9,8 +9,9 @@ import javafx.beans.value.ObservableValue
  * Gestor de estado reactivo del simulador de caída libre.
  *
  * Implementa los contratos [EstadoSimulacion] y [ComandosSimulacion] para que
- * las vistas dependan de abstracciones (DIP). Delega las reglas físicas de
- * avance temporal en [MotorEstadoCaida] (SRP).
+ * las vistas dependan de abstracciones (DIP). Aloja la máquina de estados de
+ * la simulación mediante el Patrón State ([EstadoEjecucion]) y delega las reglas
+ * físicas de avance temporal en [MotorEstadoCaida] (SRP).
  *
  * Encapsulación estricta: todas las propiedades observables son campos
  * [private]; solo se exponen como [ObservableValue] de solo lectura mediante
@@ -18,11 +19,13 @@ import javafx.beans.value.ObservableValue
  *
  * @property configuracion valores por defecto y límites físicos.
  * @property motor motor de cálculo del estado instantáneo.
+ * @property estadoInicial estado inicial de la máquina de estados.
  */
 class GestorEstadoSimulacion(
     private val configuracion: ConfiguracionSimulacion,
     planetaInicial: EntornoGravitatorio,
-    private val motor: MotorSimulacion
+    private val motor: MotorSimulacion,
+    private val estadoInicial: EstadoEjecucion
 ) : ContextoSimulacion {
 
     private val planetaActivo = SimpleObjectProperty<EntornoGravitatorio>(planetaInicial)
@@ -32,6 +35,8 @@ class GestorEstadoSimulacion(
     private val alturaActual = SimpleDoubleProperty(configuracion.alturaPorDefecto())
     private val velocidadActual = SimpleDoubleProperty(configuracion.velocidadPorDefecto())
     private val enEjecucion = SimpleBooleanProperty(false)
+
+    private var estadoActual: EstadoEjecucion = estadoInicial
 
     init {
         // Al modificar cualquier parámetro inicial o el planeta, se reinicia
@@ -57,7 +62,16 @@ class GestorEstadoSimulacion(
 
     override fun obtenerVelocidadActual(): Double = velocidadActual.get()
 
-    override fun estaEnEjecucion(): Boolean = enEjecucion.get()
+    override fun estaEnEjecucion(): Boolean = estadoActual.esActiva()
+
+    override fun haLlegadoAlSuelo(): Boolean =
+        motor.haLlegadoAlSuelo(
+            obtenerAlturaInicial(),
+            obtenerVelocidadInicial(),
+            obtenerPlaneta().gravedad(),
+            obtenerTiempoActual(),
+            obtenerAlturaActual()
+        )
 
     // ------------------------------------------------------------------
     // EstadoSimulacion: observables de solo lectura
@@ -77,8 +91,10 @@ class GestorEstadoSimulacion(
 
     override fun enEjecucionObservable(): ObservableValue<Boolean> = enEjecucion
 
+    override fun estadoEjecucion(): EstadoEjecucion = estadoActual
+
     // ------------------------------------------------------------------
-    // ComandosSimulacion
+    // ComandosSimulacion: aplicación de estados
     // ------------------------------------------------------------------
 
     override fun establecerPlaneta(planeta: EntornoGravitatorio) {
@@ -93,16 +109,20 @@ class GestorEstadoSimulacion(
         velocidadInicial.set(velocidad)
     }
 
-    override fun haLlegadoAlSuelo(): Boolean =
-        motor.haLlegadoAlSuelo(
-            obtenerAlturaInicial(),
-            obtenerVelocidadInicial(),
-            obtenerPlaneta().gravedad(),
-            obtenerTiempoActual(),
-            obtenerAlturaActual()
-        )
+    override fun cambiarEstado(nuevoEstado: EstadoEjecucion): EstadoEjecucion {
+        estadoActual = nuevoEstado
+        enEjecucion.set(nuevoEstado.esActiva())
+        return nuevoEstado
+    }
+
+    // ------------------------------------------------------------------
+    // ComandosSimulacion: control de la máquina de estados
+    // ------------------------------------------------------------------
 
     override fun iniciarSimulacion() {
+        val nuevoEstado = estadoActual.iniciar()
+        cambiarEstado(nuevoEstado)
+
         val tiempoCaida = motor.tiempoCaida(
             obtenerAlturaInicial(),
             obtenerVelocidadInicial(),
@@ -114,22 +134,31 @@ class GestorEstadoSimulacion(
         }
 
         if (obtenerAlturaInicial() <= 0.0) {
-            enEjecucion.set(false)
             return
         }
 
-        enEjecucion.set(true)
+        // Aplica la transición de inicio sobre el estado vigente (reaplica el
+        // reinicio previo y arranca la ejecución cuando procede).
+        cambiarEstado(estadoActual.iniciar())
     }
 
     override fun pausarSimulacion() {
-        enEjecucion.set(false)
+        cambiarEstado(estadoActual.pausar())
     }
 
     override fun reiniciarSimulacion() {
-        enEjecucion.set(false)
+        cambiarEstado(estadoActual.reiniciar())
         tiempoActual.set(0.0)
         alturaActual.set(obtenerAlturaInicial())
         velocidadActual.set(obtenerVelocidadInicial())
+    }
+
+    override fun avanzarTiempo(deltaSegundos: Double): Boolean {
+        if (deltaSegundos <= 0.0 || !estaEnEjecucion()) return false
+
+        establecerTiempoActual(obtenerTiempoActual() + deltaSegundos)
+
+        return estaEnEjecucion()
     }
 
     /**
@@ -148,19 +177,7 @@ class GestorEstadoSimulacion(
         velocidadActual.set(estadoInstantaneo.velocidad())
 
         if (estadoInstantaneo.enSuelo()) {
-            enEjecucion.set(false)
+            cambiarEstado(EstadoEjecucionReiniciado())
         }
-    }
-
-    override fun avanzarTiempo(deltaSegundos: Double): Boolean {
-        if (!estaEnEjecucion() || deltaSegundos <= 0.0) return false
-
-        establecerTiempoActual(obtenerTiempoActual() + deltaSegundos)
-
-        if (obtenerAlturaActual() <= 0.0 || haLlegadoAlSuelo()) {
-            enEjecucion.set(false)
-        }
-
-        return estaEnEjecucion()
     }
 }
