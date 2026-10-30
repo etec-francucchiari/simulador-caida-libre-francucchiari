@@ -3,20 +3,20 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación II (RepoSense + análisis de calidad POO/SOLID). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-10-29.
+> Generado: 2026-10-30.
 
 ## 1. Veredicto
 
 | Aspecto | Resultado |
 |---|---|
-| Índice de calidad POO/SOLID | **2/100** |
-| Código (LOC) | 5,932 |
-| Archivos de código | 114 |
-| Clases (bien usadas) | 112 (17 OK) |
+| Índice de calidad POO/SOLID | **3/100** |
+| Código (LOC) | 6,129 |
+| Archivos de código | 120 |
+| Clases (bien usadas) | 118 (23 OK) |
 | Código dentro de clases (%POO) | 79% |
 | Funciones fuera de clases | 0 |
-| Duplicación lógica | 3.5% |
-| Señales S/O/L/I/D | 41/0/0/0/46 |
+| Duplicación lógica | 3.4% |
+| Señales S/O/L/I/D | 22/0/0/0/34 |
 
 > Este informe **describe** lo que el análisis midió con los criterios ya establecidos de la materia. No es una nota.
 
@@ -34,25 +34,25 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 | Criterio | Requisito | Tu resultado | Cumple |
 |---|---|---|---|
 | Código dentro de clases (%POO) | ≥ 85% | 79% | no |
-| Duplicación lógica | ≤ 10% | 3.5% | sí |
+| Duplicación lógica | ≤ 10% | 3.4% | sí |
 | Funciones fuera de clases | ≤ 1 | 0 | sí |
-| Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO) | no |
+| Señales POO/SOLID críticas | ninguna | Acoplamiento alto (CBO) | no |
 
 **Criterios para destacar**
 
 | Criterio | Requisito | Tu resultado | Cumple |
 |---|---|---|---|
 | Código dentro de clases (%POO) | ≥ 95% | 79% | no |
-| Duplicación lógica | ≤ 5% | 3.5% | sí |
+| Duplicación lógica | ≤ 5% | 3.4% | sí |
 | Funciones fuera de clases | ≤ 1 | 0 | sí |
-| Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Complejidad alta, Acoplamiento alto (CBO) | no |
-| Índice de calidad POO/SOLID | ≥ 60 | 2/100 | no |
+| Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO) | no |
+| Índice de calidad POO/SOLID | ≥ 60 | 3/100 | no |
 
 ## 2. Autoría (RepoSense)
 
 | Autor | Commits | Código (LOC) | Tests (LOC) | Docs (LOC) | Días activos | % del código |
 |---|---:|---:|---:|---:|---:|---:|
-| francucchiari-code | 12 | 5,860 | 1,312 | 1 | 9 | 100% |
+| francucchiari-code | 13 | 6,038 | 1,395 | 1 | 10 | 100% |
 
 > _El LOC de autoría lo calcula RepoSense sobre el historial y puede diferir del LOC de código del análisis de calidad (que mira solo el estado de `main`)._
 
@@ -64,13 +64,13 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Un resumen numérico (0-100) que combina la riqueza de clases bien usadas con la penalización por señales POO/SOLID y duplicación, y luego aplica topes duros.
 - **Por qué importa:** Ordena y prioriza la revisión: un índice bajo indica varias señales que conviene mirar juntas.
-- **Tu resultado:** índice **2/100**
+- **Tu resultado:** índice **3/100**
 
 ### 2. Duplicación lógica (DRY) (duplicacion) — con señales
 
 - **Qué mide:** Porcentaje de bloques de LÓGICA repetidos. Quedan fuera imports/includes, anotaciones, declaraciones de campos y comentarios/Javadoc/docstrings: esos bloques son boilerplate, no lógica.
 - **Por qué importa:** Cada copia de lógica se mantiene por separado: un arreglo hay que repetirlo y los defectos se multiplican.
-- **Tu resultado:** **3.5%** de duplicación lógica
+- **Tu resultado:** **3.4%** de duplicación lógica
 - **Para investigar la causa:**
     - ¿El trabajo se repartió por pantallas o archivos y se integró copiando y pegando bloques?
     - ¿Qué zonas del sistema cambiaron juntas más de una vez (señal de lógica compartida)?
@@ -80,7 +80,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Qué porción del código vive dentro de clases (no de funciones sueltas).
 - **Por qué importa:** El diseño orientado a objetos es el eje de la materia: el comportamiento debería vivir como método de una clase.
-- **Tu resultado:** **79.1%** del código dentro de clases
+- **Tu resultado:** **78.7%** del código dentro de clases
 
 ### 4. Funciones fuera de clases (sueltas) — sin señales
 
@@ -90,9 +90,9 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 ### 5. Clase demasiado grande (SRP) (god) — con señales
 
-- **Qué mide:** Clases con muchas líneas, métodos o campos a la vez.
+- **Qué mide:** Clases con demasiadas líneas o métodos de LÓGICA. No cuentan los getters/setters triviales ni la cantidad de campos por sí sola.
 - **Por qué importa:** Una clase que hace de todo cambia por muchos motivos y cuesta entenderla y probarla.
-- **Tu resultado:** **22** clase(s) demasiado grande(s)
+- **Tu resultado:** **4** clase(s) demasiado grande(s)
 - **Para investigar la causa:**
     - ¿La clase creció por acumulación de responsabilidades?
     - ¿Qué partes de la clase se usan siempre juntas y cuáles no?
@@ -102,21 +102,17 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Métodos y campos de una clase que casi no se relacionan entre sí.
 - **Por qué importa:** Una unidad que cambia por motivos distintos y comparte poca información suele esconder más de una responsabilidad.
-- **Tu resultado:** **4** clase(s) con baja cohesión
+- **Tu resultado:** **1** clase(s) con baja cohesión
 - **Para investigar la causa:**
     - ¿Qué métodos de la clase no comparten estado con el resto?
     - ¿Cambian por motivos distintos según la tarea?
     - ¿Se pensó su responsabilidad antes de escribirla, o se fue agregando?
 
-### 7. Complejidad alta (complejidad) — con señales
+### 7. Complejidad alta (complejidad) — sin señales
 
 - **Qué mide:** Complejidad ciclomática: cantidad de caminos posibles dentro de un método o función (condicionales, bucles, casos).
 - **Por qué importa:** Muchos caminos = difícil de seguir y de probar; suelen esconderse casos sin cubrir.
-- **Tu resultado:** **2** método(s)/función(es) con complejidad alta
-- **Para investigar la causa:**
-    - ¿Se agregaron condiciones a medida que aparecían casos nuevos?
-    - ¿Se probaron todos los caminos o solo el caso principal?
-    - ¿Hay reglas de negocio mezcladas con detalles técnicos?
+- **Tu resultado:** **0** método(s)/función(es) con complejidad alta
 
 ### 8. Métodos/funciones largos o con muchos parámetros (tamano) — con señales
 
@@ -132,7 +128,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Cuánto depende una clase de otros tipos del proyecto.
 - **Por qué importa:** Piezas muy enlazadas hacen que un cambio se propague y que sea difícil reemplazar partes.
-- **Tu resultado:** **55** clase(s) muy acoplada(s)
+- **Tu resultado:** **36** clase(s) muy acoplada(s)
 - **Para investigar la causa:**
     - ¿La clase conoce detalles internos de muchas otras?
     - ¿Se puede cambiar una parte sin tocar las demás?
@@ -166,7 +162,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Instanciación directa de clases concretas y ausencia de interfaces o clases abstractas pese al acoplamiento.
 - **Por qué importa:** Depender de implementaciones concretas dificulta cambiar o probar una parte sin arrastrar las demás.
-- **Tu resultado:** **46** dependencia(s) de concretos sin abstracciones
+- **Tu resultado:** **34** dependencia(s) de concretos sin abstracciones
 - **Para investigar la causa:**
     - ¿La clase crea por dentro a sus colaboradores en vez de recibirlos?
     - ¿Hay puntos de variación que convendría expresar como abstracción?
@@ -202,39 +198,14 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 Archivos donde el análisis encontró cada señal (sin número de línea, a propósito):
 
-**Clase demasiado grande (SRP) (god)** — 22 archivo(s):
-- `app/src/main/kotlin/org/example/BarraExportacion.kt`
-- `app/src/main/kotlin/org/example/CalculoCaidaLibre.kt`
-- `app/src/main/kotlin/org/example/ComposicionAplicacion.kt`
-- `app/src/main/kotlin/org/example/ControladorDesafio.kt`
-- `app/src/main/kotlin/org/example/EncabezadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/GeneradorEjercicios.kt`
-- `app/src/main/kotlin/org/example/GeneradorOpcionesRespuesta.kt`
-- `app/src/main/kotlin/org/example/GestorEstadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/ModeSelectionScreen.kt`
-- `app/src/main/kotlin/org/example/ModoAvanzadoScreen.kt`
-- `app/src/main/kotlin/org/example/MotorEstadoCaida.kt`
-- `app/src/main/kotlin/org/example/PanelGraficosSimulacion.kt`
-- `app/src/main/kotlin/org/example/PanelIndicadoresFisicos.kt`
-- `app/src/main/kotlin/org/example/PanelParametrosIniciales.kt`
-- `app/src/main/kotlin/org/example/PanelValoresInstantaneos.kt`
-- `app/src/main/kotlin/org/example/PrincipianteSimulationScreen.kt`
-- `app/src/main/kotlin/org/example/RenderizadorCaidaJavaFx.kt`
-- `app/src/main/kotlin/org/example/TarjetaFormulaDidactica.kt`
+**Clase demasiado grande (SRP) (god)** — 4 archivo(s):
 - `app/src/test/kotlin/org/example/CalculoCaidaLibreTest.kt`
 - `app/src/test/kotlin/org/example/ControladorSimulacionTest.kt`
 - `app/src/test/kotlin/org/example/ExplicadorFisicaPasoAPasoTest.kt`
 - `app/src/test/kotlin/org/example/ValidadorParametrosInicialesTest.kt`
 
-**Baja cohesión (LCOM) (cohesion)** — 4 archivo(s):
-- `app/src/main/kotlin/org/example/CalculoCaidaLibre.kt`
-- `app/src/main/kotlin/org/example/ModoAvanzadoScreen.kt`
-- `app/src/main/kotlin/org/example/PanelParametrosIniciales.kt`
-- `app/src/main/kotlin/org/example/RenderizadorCaidaJavaFx.kt`
-
-**Complejidad alta (complejidad)** — 2 archivo(s):
-- `app/src/main/kotlin/org/example/ExplicadorFisicaPasoAPaso.kt`
-- `app/src/main/kotlin/org/example/ValidadorParametrosIniciales.kt`
+**Baja cohesión (LCOM) (cohesion)** — 1 archivo(s):
+- `app/src/main/kotlin/org/example/GestorEstadoSimulacion.kt`
 
 **Métodos/funciones largos o con muchos parámetros (tamano)** — 9 archivo(s):
 - `app/src/main/kotlin/org/example/ExplicadorFisicaPasoAPaso.kt`
@@ -247,26 +218,16 @@ Archivos donde el análisis encontró cada señal (sin número de línea, a prop
 - `app/src/main/kotlin/org/example/VistaEtapaValidacion.kt`
 - `app/src/test/kotlin/org/example/ControladorSimulacionTest.kt`
 
-**Acoplamiento alto (CBO) (acoplamiento)** — 55 archivo(s):
+**Acoplamiento alto (CBO) (acoplamiento)** — 36 archivo(s):
 - `app/src/main/kotlin/org/example/BarraControlesSimulacion.kt`
 - `app/src/main/kotlin/org/example/BarraExportacion.kt`
 - `app/src/main/kotlin/org/example/CatalogoEstilosEntorno.kt`
 - `app/src/main/kotlin/org/example/CatalogoPlanetas.kt`
 - `app/src/main/kotlin/org/example/ComposicionAplicacion.kt`
 - `app/src/main/kotlin/org/example/ControladorDesafio.kt`
-- `app/src/main/kotlin/org/example/DesafioAvanzado.kt`
 - `app/src/main/kotlin/org/example/EjercicioCaidaLibre.kt`
 - `app/src/main/kotlin/org/example/EncabezadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/EstadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/EtapaDesafio.kt`
-- `app/src/main/kotlin/org/example/ExplicadorFisicaPasoAPaso.kt`
-- `app/src/main/kotlin/org/example/ExportadorCsv.kt`
-- `app/src/main/kotlin/org/example/ExportadorJson.kt`
 - `app/src/main/kotlin/org/example/FabricaControles.kt`
-- `app/src/main/kotlin/org/example/FabricaControlesUi.kt`
-- `app/src/main/kotlin/org/example/GeneradorEjercicios.kt`
-- `app/src/main/kotlin/org/example/GeneradorOpcionesFormula.kt`
-- `app/src/main/kotlin/org/example/GeneradorOpcionesRespuesta.kt`
 - `app/src/main/kotlin/org/example/GestorEstadoSimulacion.kt`
 - `app/src/main/kotlin/org/example/ModeSelectionScreen.kt`
 - `app/src/main/kotlin/org/example/ModoAvanzadoScreen.kt`
@@ -278,33 +239,24 @@ Archivos donde el análisis encontró cada señal (sin número de línea, a prop
 - `app/src/main/kotlin/org/example/PanelParametrosIniciales.kt`
 - `app/src/main/kotlin/org/example/PanelValoresInstantaneos.kt`
 - `app/src/main/kotlin/org/example/PlanetSelectionScreen.kt`
-- `app/src/main/kotlin/org/example/Planeta.kt`
 - `app/src/main/kotlin/org/example/PrincipianteSimulationScreen.kt`
 - `app/src/main/kotlin/org/example/RenderizadorCaidaJavaFx.kt`
-- `app/src/main/kotlin/org/example/ServicioExportacion.kt`
 - `app/src/main/kotlin/org/example/ServiciosAplicacion.kt`
-- `app/src/main/kotlin/org/example/SimuladorApp.kt`
 - `app/src/main/kotlin/org/example/TarjetaEntorno.kt`
 - `app/src/main/kotlin/org/example/TarjetaEntornoPersonalizado.kt`
-- `app/src/main/kotlin/org/example/TarjetaFormulaDidactica.kt`
-- `app/src/main/kotlin/org/example/ValidadorParametrosIniciales.kt`
 - `app/src/main/kotlin/org/example/VistaEtapaFormula.kt`
 - `app/src/main/kotlin/org/example/VistaEtapaSustitucion.kt`
 - `app/src/main/kotlin/org/example/VistaEtapaValidacion.kt`
 - `app/src/test/kotlin/org/example/ControladorDesafioTest.kt`
 - `app/src/test/kotlin/org/example/ControladorSimulacionTest.kt`
-- `app/src/test/kotlin/org/example/ExplicadorFisicaPasoAPasoTest.kt`
-- `app/src/test/kotlin/org/example/ExportadorCsvTest.kt`
-- `app/src/test/kotlin/org/example/ExportadorJsonTest.kt`
+- `app/src/test/kotlin/org/example/EstadoEjecucionTest.kt`
 - `app/src/test/kotlin/org/example/GeneradorEjerciciosTest.kt`
 - `app/src/test/kotlin/org/example/GeneradorOpcionesFormulaTest.kt`
 - `app/src/test/kotlin/org/example/GeneradorOpcionesRespuestaTest.kt`
 - `app/src/test/kotlin/org/example/GestorEstadoSimulacionTest.kt`
-- `app/src/test/kotlin/org/example/ModoSimulacionTest.kt`
-- `app/src/test/kotlin/org/example/PlanetaTest.kt`
 - `app/src/test/kotlin/org/example/ServicioExportacionTest.kt`
 
-**Dependencia de concretos y falta de abstracciones (DIP) (dip)** — 46 archivo(s):
+**Dependencia de concretos y falta de abstracciones (DIP) (dip)** — 34 archivo(s):
 - `app/src/main/kotlin/org/example/BarraControlesSimulacion.kt`
 - `app/src/main/kotlin/org/example/BarraExportacion.kt`
 - `app/src/main/kotlin/org/example/CatalogoEstilosEntorno.kt`
@@ -312,13 +264,7 @@ Archivos donde el análisis encontró cada señal (sin número de línea, a prop
 - `app/src/main/kotlin/org/example/ControladorDesafio.kt`
 - `app/src/main/kotlin/org/example/EjercicioCaidaLibre.kt`
 - `app/src/main/kotlin/org/example/EncabezadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/EstadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/EtapaDesafio.kt`
-- `app/src/main/kotlin/org/example/ExplicadorFisicaPasoAPaso.kt`
 - `app/src/main/kotlin/org/example/FabricaControles.kt`
-- `app/src/main/kotlin/org/example/GeneradorEjercicios.kt`
-- `app/src/main/kotlin/org/example/GeneradorOpcionesFormula.kt`
-- `app/src/main/kotlin/org/example/GeneradorOpcionesRespuesta.kt`
 - `app/src/main/kotlin/org/example/GestorEstadoSimulacion.kt`
 - `app/src/main/kotlin/org/example/ModeSelectionScreen.kt`
 - `app/src/main/kotlin/org/example/ModoAvanzadoScreen.kt`
@@ -330,22 +276,16 @@ Archivos donde el análisis encontró cada señal (sin número de línea, a prop
 - `app/src/main/kotlin/org/example/PanelParametrosIniciales.kt`
 - `app/src/main/kotlin/org/example/PanelValoresInstantaneos.kt`
 - `app/src/main/kotlin/org/example/PlanetSelectionScreen.kt`
-- `app/src/main/kotlin/org/example/Planeta.kt`
 - `app/src/main/kotlin/org/example/PrincipianteSimulationScreen.kt`
 - `app/src/main/kotlin/org/example/RenderizadorCaidaJavaFx.kt`
-- `app/src/main/kotlin/org/example/ServicioExportacion.kt`
-- `app/src/main/kotlin/org/example/SimuladorApp.kt`
 - `app/src/main/kotlin/org/example/TarjetaEntorno.kt`
 - `app/src/main/kotlin/org/example/TarjetaEntornoPersonalizado.kt`
-- `app/src/main/kotlin/org/example/TarjetaFormulaDidactica.kt`
-- `app/src/main/kotlin/org/example/ValidadorParametrosIniciales.kt`
 - `app/src/main/kotlin/org/example/VistaEtapaFormula.kt`
 - `app/src/main/kotlin/org/example/VistaEtapaSustitucion.kt`
 - `app/src/main/kotlin/org/example/VistaEtapaValidacion.kt`
 - `app/src/test/kotlin/org/example/ControladorDesafioTest.kt`
 - `app/src/test/kotlin/org/example/ControladorSimulacionTest.kt`
-- `app/src/test/kotlin/org/example/ExportadorCsvTest.kt`
-- `app/src/test/kotlin/org/example/ExportadorJsonTest.kt`
+- `app/src/test/kotlin/org/example/EstadoEjecucionTest.kt`
 - `app/src/test/kotlin/org/example/GeneradorEjerciciosTest.kt`
 - `app/src/test/kotlin/org/example/GeneradorOpcionesFormulaTest.kt`
 - `app/src/test/kotlin/org/example/GeneradorOpcionesRespuestaTest.kt`
@@ -384,26 +324,27 @@ Archivos donde el análisis encontró cada señal (sin número de línea, a prop
 
 ## 5. Evolución por commit
 
-Métricas calculadas sobre el estado de `main` en **cada commit** (8 commits con trabajo), del primero al último. La calidad usa el perfil `exigente`; el aporte de código lo mide RepoSense. El índice puede **bajar** al crecer el proyecto: se acumulan señales.
+Métricas calculadas sobre el estado de `main` en **cada commit** (9 commits con trabajo), del primero al último. La calidad usa el perfil `exigente`; el aporte de código lo mide RepoSense. El índice puede **bajar** al crecer el proyecto: se acumulan señales.
 
 ```mermaid
 xychart-beta
     title "Índice POO/SOLID a lo largo de los commits"
-    x-axis ["e4c7dc4", "f9cdb25", "21e6166", "6f7333f", "bdbdb04", "fbb8e8c", "6d00bd3", "54c463a"]
+    x-axis ["e4c7dc4", "f9cdb25", "21e6166", "6f7333f", "bdbdb04", "fbb8e8c", "6d00bd3", "54c463a", "ced6b32"]
     y-axis "Índice" 0 --> 100
-    line [0, 0, 21, 17, 10, 5, 3, 2]
+    line [0, 0, 24, 28, 20, 10, 5, 4, 3]
 ```
 
 | # | Fecha | Commit | Autor | LOC | Índice | %POO | Duplic. | Sueltas |
 |---|---|---|---|---:|---:|---:|---:|---:|
 | 1 | 2026-08-14 | `e4c7dc4` | francucchiari-code | 0 | 0 | 0% | 0.0% | 0 |
 | 2 | 2026-08-31 | `f9cdb25` | dqmdz-etec | 0 | 0 | 0% | 0.0% | 0 |
-| 3 | 2026-09-07 | `21e6166` | francucchiari-code | 172 | 21 | 48% | 0.0% | 1 |
-| 4 | 2026-09-14 | `6f7333f` | francucchiari-code | 286 | 17 | 58% | 0.0% | 1 |
-| 5 | 2026-09-25 | `bdbdb04` | francucchiari-code | 937 | 10 | 78% | 0.0% | 1 |
-| 6 | 2026-10-02 | `fbb8e8c` | francucchiari-code | 1,647 | 5 | 81% | 0.0% | 1 |
-| 7 | 2026-10-16 | `6d00bd3` | francucchiari-code | 3,453 | 3 | 78% | 1.7% | 3 |
-| 8 | 2026-10-19 | `54c463a` | francucchiari-code | 5,932 | 2 | 79% | 3.5% | 0 |
+| 3 | 2026-09-07 | `21e6166` | francucchiari-code | 172 | 24 | 48% | 0.0% | 1 |
+| 4 | 2026-09-14 | `6f7333f` | francucchiari-code | 286 | 28 | 58% | 0.0% | 1 |
+| 5 | 2026-09-25 | `bdbdb04` | francucchiari-code | 937 | 20 | 78% | 0.0% | 1 |
+| 6 | 2026-10-02 | `fbb8e8c` | francucchiari-code | 1,647 | 10 | 81% | 0.0% | 1 |
+| 7 | 2026-10-16 | `6d00bd3` | francucchiari-code | 3,453 | 5 | 78% | 1.7% | 3 |
+| 8 | 2026-10-19 | `54c463a` | francucchiari-code | 5,932 | 4 | 79% | 3.5% | 0 |
+| 9 | 2026-10-30 | `ced6b32` | francucchiari-code | 6,129 | 3 | 79% | 3.4% | 0 |
 
 ---
 _Informe generado por la cátedra. Los criterios y umbrales de medición corresponden al perfil `exigente` de `calidad.py`; el semáforo de aprobación, a `CRITERIOS-CALIDAD.md` (ver `README.md`). Ante dudas, revisá el archivo señalado._
