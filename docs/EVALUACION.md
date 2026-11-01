@@ -3,7 +3,7 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación II (RepoSense + análisis de calidad POO/SOLID). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-10-30.
+> Generado: 2026-11-01.
 
 ## 1. Veredicto
 
@@ -13,9 +13,9 @@
 | Código (LOC) | 6,129 |
 | Archivos de código | 120 |
 | Clases (bien usadas) | 118 (23 OK) |
-| Código dentro de clases (%POO) | 79% |
+| Código dentro de clases (%POO) | 99% |
 | Funciones fuera de clases | 0 |
-| Duplicación lógica | 3.4% |
+| Duplicación lógica | 3.5% |
 | Señales S/O/L/I/D | 22/0/0/0/34 |
 
 > Este informe **describe** lo que el análisis midió con los criterios ya establecidos de la materia. No es una nota.
@@ -26,15 +26,15 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 
 | Semáforo | Resultado |
 |---|---|
-| Aprobar (`estandar`) | **no cumple** — 2/4 |
-| Destacar (`exigente`) | **no cumple** — 2/5 |
+| Aprobar (`estandar`) | **no cumple** — 3/4 |
+| Destacar (`exigente`) | **no cumple** — 3/5 |
 
 **Criterios para aprobar**
 
 | Criterio | Requisito | Tu resultado | Cumple |
 |---|---|---|---|
-| Código dentro de clases (%POO) | ≥ 85% | 79% | no |
-| Duplicación lógica | ≤ 10% | 3.4% | sí |
+| Código dentro de clases (%POO) | ≥ 85% | 99% | sí |
+| Duplicación lógica | ≤ 10% | 3.5% | sí |
 | Funciones fuera de clases | ≤ 1 | 0 | sí |
 | Señales POO/SOLID críticas | ninguna | Acoplamiento alto (CBO) | no |
 
@@ -42,11 +42,19 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 
 | Criterio | Requisito | Tu resultado | Cumple |
 |---|---|---|---|
-| Código dentro de clases (%POO) | ≥ 95% | 79% | no |
-| Duplicación lógica | ≤ 5% | 3.4% | sí |
+| Código dentro de clases (%POO) | ≥ 95% | 99% | sí |
+| Duplicación lógica | ≤ 5% | 3.5% | sí |
 | Funciones fuera de clases | ≤ 1 | 0 | sí |
 | Señales POO/SOLID críticas | ninguna | Clase demasiado grande (SRP), Baja cohesión (LCOM), Acoplamiento alto (CBO) | no |
 | Índice de calidad POO/SOLID | ≥ 60 | 3/100 | no |
+
+### Cómo se calcula el %POO (y por qué no sube solo)
+
+`%POO = líneas de lógica dentro de clases ÷ líneas de lógica totales`.
+
+Se cuentan las líneas de **lógica y campos**; no cuentan `package`/`import`/`using`/anotaciones ni comentarios, Javadoc o docstrings. Es una **proporción**: si agregás código nuevo dentro de una clase, el numerador y el denominador crecen juntos y el porcentaje casi no cambia.
+
+Sube cuando el código que hoy está **fuera** de clases pasa a ser método de una clase (o desaparece): funciones sueltas, `main`, constantes de módulo, scripts y lógica de archivos sueltos. También importa que ese trabajo esté **integrado en `main`**: la evaluación siempre mide `main`, así que lo que sigue en otra rama no se refleja todavía.
 
 ## 2. Autoría (RepoSense)
 
@@ -56,7 +64,20 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 
 > _El LOC de autoría lo calcula RepoSense sobre el historial y puede diferir del LOC de código del análisis de calidad (que mira solo el estado de `main`)._
 
-## 3. Aspectos evaluados
+## 3. Fallas detectadas
+
+Reúne lo que el análisis marcó y lo que todavía falta para cada semáforo. Cuando la señal se puede asociar a archivos, se indican para orientar la revisión. No es una nota.
+
+| Falla | Tu resultado | Requisito | Archivos |
+|---|---|---|---|
+| Señales POO/SOLID críticas | Acoplamiento alto (CBO) | Aprobar: ninguna<br>Destacar: ninguna | `app/src/main/kotlin/org/example/BarraControlesSimulacion.kt`, `app/src/main/kotlin/org/example/BarraExportacion.kt`, `app/src/main/kotlin/org/example/CatalogoEstilosEntorno.kt`, `app/src/main/kotlin/org/example/CatalogoPlanetas.kt`, `app/src/main/kotlin/org/example/ComposicionAplicacion.kt`, `app/src/main/kotlin/org/example/ControladorDesafio.kt` (+33 más) |
+| Índice de calidad POO/SOLID | 3/100 | Destacar: ≥ 60 | — |
+| Métodos/funciones largos o con muchos parámetros | **11** método(s)/función(es) largos o con muchos parámetros | Sin señales | `app/src/main/kotlin/org/example/ExplicadorFisicaPasoAPaso.kt`, `app/src/main/kotlin/org/example/GeneradorOpcionesFormula.kt`, `app/src/main/kotlin/org/example/TarjetaEntorno.kt`, `app/src/main/kotlin/org/example/TarjetaEntornoPersonalizado.kt`, `app/src/main/kotlin/org/example/TarjetaFormulaDidactica.kt`, `app/src/main/kotlin/org/example/VistaEtapaFormula.kt` (+3 más) |
+| Dependencia de concretos y falta de abstracciones (DIP) | **34** dependencia(s) de concretos sin abstracciones | Sin señales | `app/src/main/kotlin/org/example/BarraControlesSimulacion.kt`, `app/src/main/kotlin/org/example/BarraExportacion.kt`, `app/src/main/kotlin/org/example/CatalogoEstilosEntorno.kt`, `app/src/main/kotlin/org/example/ComposicionAplicacion.kt`, `app/src/main/kotlin/org/example/ControladorDesafio.kt`, `app/src/main/kotlin/org/example/EjercicioCaidaLibre.kt` (+28 más) |
+| Clase sin métodos (solo datos) | **17** clase(s) sin métodos (solo datos) | Sin señales | `app/src/main/kotlin/org/example/BarraControlesSimulacion.kt`, `app/src/main/kotlin/org/example/CampoSustitucion.kt`, `app/src/main/kotlin/org/example/ComposicionAplicacion.kt`, `app/src/main/kotlin/org/example/ConfiguracionFisica.kt`, `app/src/main/kotlin/org/example/DetallePasoFormula.kt`, `app/src/main/kotlin/org/example/EstadoInstantaneo.kt` (+11 más) |
+| Campos públicos (encapsulación) | **9** clase(s) con campos públicos | Sin señales | `app/src/main/kotlin/org/example/CalculoCaidaLibre.kt`, `app/src/main/kotlin/org/example/EncabezadoSimulacion.kt`, `app/src/main/kotlin/org/example/GeneradorEjercicios.kt`, `app/src/main/kotlin/org/example/GeneradorOpcionesRespuesta.kt`, `app/src/main/kotlin/org/example/ModeSelectionScreen.kt`, `app/src/main/kotlin/org/example/MotorEstadoCaida.kt` (+3 más) |
+
+## 4. Aspectos evaluados
 
 Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuando el análisis reportó una señal, se agregan preguntas para **investigar la causa** (no hay recetas: entender el porqué es parte de la evaluación).
 
@@ -66,21 +87,18 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 - **Por qué importa:** Ordena y prioriza la revisión: un índice bajo indica varias señales que conviene mirar juntas.
 - **Tu resultado:** índice **3/100**
 
-### 2. Duplicación lógica (DRY) (duplicacion) — con señales
+### 2. Duplicación lógica (DRY) (duplicacion) — sin señales
 
 - **Qué mide:** Porcentaje de bloques de LÓGICA repetidos. Quedan fuera imports/includes, anotaciones, declaraciones de campos y comentarios/Javadoc/docstrings: esos bloques son boilerplate, no lógica.
 - **Por qué importa:** Cada copia de lógica se mantiene por separado: un arreglo hay que repetirlo y los defectos se multiplican.
-- **Tu resultado:** **3.4%** de duplicación lógica
-- **Para investigar la causa:**
-    - ¿El trabajo se repartió por pantallas o archivos y se integró copiando y pegando bloques?
-    - ¿Qué zonas del sistema cambiaron juntas más de una vez (señal de lógica compartida)?
-    - ¿Hubo un lugar común acordado para la lógica repetida antes de empezar, o cada integrante resolvió lo suyo?
+- **Tu resultado:** **3.5%** de duplicación lógica
 
 ### 3. Adopción de POO (% de código en clases) (poo) — sin señales
 
-- **Qué mide:** Qué porción del código vive dentro de clases (no de funciones sueltas).
+- **Qué mide:** Proporción de las **líneas de lógica** que viven dentro de una clase. Quedan fuera `package`/`import`/`using`/anotaciones y comentarios/Javadoc/docstrings: no son código que pueda estar dentro de una clase y, si contaran, el porcentaje quedaría topado por el boilerplate de cada archivo.
 - **Por qué importa:** El diseño orientado a objetos es el eje de la materia: el comportamiento debería vivir como método de una clase.
-- **Tu resultado:** **78.7%** del código dentro de clases
+- **Tu resultado:** **99.0%** del código dentro de clases
+- **Cómo leerlo:** Es una **proporción**, no un acumulado: agregar código dentro de una clase no la sube por sí solo (numerador y denominador crecen juntos). Sube cuando el código que está **fuera** de clases (funciones sueltas, `main`, constantes de módulo, scripts) pasa a ser método de una clase o deja de existir. La medición se hace sobre `main`: el trabajo que todavía vive en otra rama no se refleja hasta que se integra.
 
 ### 4. Funciones fuera de clases (sueltas) — sin señales
 
@@ -194,134 +212,6 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 - **Por qué importa:** Es comportamiento procedural disfrazado de clase: no se instancia ni participa del modelo de objetos.
 - **Tu resultado:** **0** clase(s) solo con métodos estáticos
 
-## 4. Anexo: dónde mirar
-
-Archivos donde el análisis encontró cada señal (sin número de línea, a propósito):
-
-**Clase demasiado grande (SRP) (god)** — 4 archivo(s):
-- `app/src/test/kotlin/org/example/CalculoCaidaLibreTest.kt`
-- `app/src/test/kotlin/org/example/ControladorSimulacionTest.kt`
-- `app/src/test/kotlin/org/example/ExplicadorFisicaPasoAPasoTest.kt`
-- `app/src/test/kotlin/org/example/ValidadorParametrosInicialesTest.kt`
-
-**Baja cohesión (LCOM) (cohesion)** — 1 archivo(s):
-- `app/src/main/kotlin/org/example/GestorEstadoSimulacion.kt`
-
-**Métodos/funciones largos o con muchos parámetros (tamano)** — 9 archivo(s):
-- `app/src/main/kotlin/org/example/ExplicadorFisicaPasoAPaso.kt`
-- `app/src/main/kotlin/org/example/GeneradorOpcionesFormula.kt`
-- `app/src/main/kotlin/org/example/TarjetaEntorno.kt`
-- `app/src/main/kotlin/org/example/TarjetaEntornoPersonalizado.kt`
-- `app/src/main/kotlin/org/example/TarjetaFormulaDidactica.kt`
-- `app/src/main/kotlin/org/example/VistaEtapaFormula.kt`
-- `app/src/main/kotlin/org/example/VistaEtapaSustitucion.kt`
-- `app/src/main/kotlin/org/example/VistaEtapaValidacion.kt`
-- `app/src/test/kotlin/org/example/ControladorSimulacionTest.kt`
-
-**Acoplamiento alto (CBO) (acoplamiento)** — 36 archivo(s):
-- `app/src/main/kotlin/org/example/BarraControlesSimulacion.kt`
-- `app/src/main/kotlin/org/example/BarraExportacion.kt`
-- `app/src/main/kotlin/org/example/CatalogoEstilosEntorno.kt`
-- `app/src/main/kotlin/org/example/CatalogoPlanetas.kt`
-- `app/src/main/kotlin/org/example/ComposicionAplicacion.kt`
-- `app/src/main/kotlin/org/example/ControladorDesafio.kt`
-- `app/src/main/kotlin/org/example/EjercicioCaidaLibre.kt`
-- `app/src/main/kotlin/org/example/EncabezadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/FabricaControles.kt`
-- `app/src/main/kotlin/org/example/GestorEstadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/ModeSelectionScreen.kt`
-- `app/src/main/kotlin/org/example/ModoAvanzadoScreen.kt`
-- `app/src/main/kotlin/org/example/NavegadorPantallas.kt`
-- `app/src/main/kotlin/org/example/PanelAnimacionCaida.kt`
-- `app/src/main/kotlin/org/example/PanelExplicacionFisica.kt`
-- `app/src/main/kotlin/org/example/PanelGraficosSimulacion.kt`
-- `app/src/main/kotlin/org/example/PanelIndicadoresFisicos.kt`
-- `app/src/main/kotlin/org/example/PanelParametrosIniciales.kt`
-- `app/src/main/kotlin/org/example/PanelValoresInstantaneos.kt`
-- `app/src/main/kotlin/org/example/PlanetSelectionScreen.kt`
-- `app/src/main/kotlin/org/example/PrincipianteSimulationScreen.kt`
-- `app/src/main/kotlin/org/example/RenderizadorCaidaJavaFx.kt`
-- `app/src/main/kotlin/org/example/ServiciosAplicacion.kt`
-- `app/src/main/kotlin/org/example/TarjetaEntorno.kt`
-- `app/src/main/kotlin/org/example/TarjetaEntornoPersonalizado.kt`
-- `app/src/main/kotlin/org/example/VistaEtapaFormula.kt`
-- `app/src/main/kotlin/org/example/VistaEtapaSustitucion.kt`
-- `app/src/main/kotlin/org/example/VistaEtapaValidacion.kt`
-- `app/src/test/kotlin/org/example/ControladorDesafioTest.kt`
-- `app/src/test/kotlin/org/example/ControladorSimulacionTest.kt`
-- `app/src/test/kotlin/org/example/EstadoEjecucionTest.kt`
-- `app/src/test/kotlin/org/example/GeneradorEjerciciosTest.kt`
-- `app/src/test/kotlin/org/example/GeneradorOpcionesFormulaTest.kt`
-- `app/src/test/kotlin/org/example/GeneradorOpcionesRespuestaTest.kt`
-- `app/src/test/kotlin/org/example/GestorEstadoSimulacionTest.kt`
-- `app/src/test/kotlin/org/example/ServicioExportacionTest.kt`
-
-**Dependencia de concretos y falta de abstracciones (DIP) (dip)** — 34 archivo(s):
-- `app/src/main/kotlin/org/example/BarraControlesSimulacion.kt`
-- `app/src/main/kotlin/org/example/BarraExportacion.kt`
-- `app/src/main/kotlin/org/example/CatalogoEstilosEntorno.kt`
-- `app/src/main/kotlin/org/example/ComposicionAplicacion.kt`
-- `app/src/main/kotlin/org/example/ControladorDesafio.kt`
-- `app/src/main/kotlin/org/example/EjercicioCaidaLibre.kt`
-- `app/src/main/kotlin/org/example/EncabezadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/FabricaControles.kt`
-- `app/src/main/kotlin/org/example/GestorEstadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/ModeSelectionScreen.kt`
-- `app/src/main/kotlin/org/example/ModoAvanzadoScreen.kt`
-- `app/src/main/kotlin/org/example/NavegadorPantallas.kt`
-- `app/src/main/kotlin/org/example/PanelAnimacionCaida.kt`
-- `app/src/main/kotlin/org/example/PanelExplicacionFisica.kt`
-- `app/src/main/kotlin/org/example/PanelGraficosSimulacion.kt`
-- `app/src/main/kotlin/org/example/PanelIndicadoresFisicos.kt`
-- `app/src/main/kotlin/org/example/PanelParametrosIniciales.kt`
-- `app/src/main/kotlin/org/example/PanelValoresInstantaneos.kt`
-- `app/src/main/kotlin/org/example/PlanetSelectionScreen.kt`
-- `app/src/main/kotlin/org/example/PrincipianteSimulationScreen.kt`
-- `app/src/main/kotlin/org/example/RenderizadorCaidaJavaFx.kt`
-- `app/src/main/kotlin/org/example/TarjetaEntorno.kt`
-- `app/src/main/kotlin/org/example/TarjetaEntornoPersonalizado.kt`
-- `app/src/main/kotlin/org/example/VistaEtapaFormula.kt`
-- `app/src/main/kotlin/org/example/VistaEtapaSustitucion.kt`
-- `app/src/main/kotlin/org/example/VistaEtapaValidacion.kt`
-- `app/src/test/kotlin/org/example/ControladorDesafioTest.kt`
-- `app/src/test/kotlin/org/example/ControladorSimulacionTest.kt`
-- `app/src/test/kotlin/org/example/EstadoEjecucionTest.kt`
-- `app/src/test/kotlin/org/example/GeneradorEjerciciosTest.kt`
-- `app/src/test/kotlin/org/example/GeneradorOpcionesFormulaTest.kt`
-- `app/src/test/kotlin/org/example/GeneradorOpcionesRespuestaTest.kt`
-- `app/src/test/kotlin/org/example/GestorEstadoSimulacionTest.kt`
-- `app/src/test/kotlin/org/example/ServicioExportacionTest.kt`
-
-**Clase sin métodos (solo datos) (data)** — 17 archivo(s):
-- `app/src/main/kotlin/org/example/BarraControlesSimulacion.kt`
-- `app/src/main/kotlin/org/example/CampoSustitucion.kt`
-- `app/src/main/kotlin/org/example/ComposicionAplicacion.kt`
-- `app/src/main/kotlin/org/example/ConfiguracionFisica.kt`
-- `app/src/main/kotlin/org/example/DetallePasoFormula.kt`
-- `app/src/main/kotlin/org/example/EstadoInstantaneo.kt`
-- `app/src/main/kotlin/org/example/EtapaDesafio.kt`
-- `app/src/main/kotlin/org/example/FilaDatosSimulacion.kt`
-- `app/src/main/kotlin/org/example/ModeSelectionScreen.kt`
-- `app/src/main/kotlin/org/example/MotorEstadoCaida.kt`
-- `app/src/main/kotlin/org/example/MuestraDatosSimulacion.kt`
-- `app/src/main/kotlin/org/example/ObjetivoEjercicio.kt`
-- `app/src/main/kotlin/org/example/OpcionFormula.kt`
-- `app/src/main/kotlin/org/example/OpcionRespuesta.kt`
-- `app/src/main/kotlin/org/example/Planeta.kt`
-- `app/src/main/kotlin/org/example/PuntoTrayectoria.kt`
-- `app/src/main/kotlin/org/example/Retroalimentacion.kt`
-
-**Campos públicos (encapsulación) (encapsulacion)** — 9 archivo(s):
-- `app/src/main/kotlin/org/example/CalculoCaidaLibre.kt`
-- `app/src/main/kotlin/org/example/EncabezadoSimulacion.kt`
-- `app/src/main/kotlin/org/example/GeneradorEjercicios.kt`
-- `app/src/main/kotlin/org/example/GeneradorOpcionesRespuesta.kt`
-- `app/src/main/kotlin/org/example/ModeSelectionScreen.kt`
-- `app/src/main/kotlin/org/example/MotorEstadoCaida.kt`
-- `app/src/main/kotlin/org/example/PanelGraficosSimulacion.kt`
-- `app/src/main/kotlin/org/example/PanelIndicadoresFisicos.kt`
-- `app/src/main/kotlin/org/example/PanelValoresInstantaneos.kt`
-
 ## 5. Evolución por commit
 
 Métricas calculadas sobre el estado de `main` en **cada commit** (9 commits con trabajo), del primero al último. La calidad usa el perfil `exigente`; el aporte de código lo mide RepoSense. El índice puede **bajar** al crecer el proyecto: se acumulan señales.
@@ -338,13 +228,13 @@ xychart-beta
 |---|---|---|---|---:|---:|---:|---:|---:|
 | 1 | 2026-08-14 | `e4c7dc4` | francucchiari-code | 0 | 0 | 0% | 0.0% | 0 |
 | 2 | 2026-08-31 | `f9cdb25` | dqmdz-etec | 0 | 0 | 0% | 0.0% | 0 |
-| 3 | 2026-09-07 | `21e6166` | francucchiari-code | 172 | 24 | 48% | 0.0% | 1 |
-| 4 | 2026-09-14 | `6f7333f` | francucchiari-code | 286 | 28 | 58% | 0.0% | 1 |
-| 5 | 2026-09-25 | `bdbdb04` | francucchiari-code | 937 | 20 | 78% | 0.0% | 1 |
-| 6 | 2026-10-02 | `fbb8e8c` | francucchiari-code | 1,647 | 10 | 81% | 0.0% | 1 |
-| 7 | 2026-10-16 | `6d00bd3` | francucchiari-code | 3,453 | 5 | 78% | 1.7% | 3 |
-| 8 | 2026-10-19 | `54c463a` | francucchiari-code | 5,932 | 4 | 79% | 3.5% | 0 |
-| 9 | 2026-10-30 | `ced6b32` | francucchiari-code | 6,129 | 3 | 79% | 3.4% | 0 |
+| 3 | 2026-09-07 | `21e6166` | francucchiari-code | 172 | 24 | 64% | 0.0% | 1 |
+| 4 | 2026-09-14 | `6f7333f` | francucchiari-code | 286 | 28 | 76% | 0.0% | 1 |
+| 5 | 2026-09-25 | `bdbdb04` | francucchiari-code | 937 | 20 | 92% | 0.0% | 1 |
+| 6 | 2026-10-02 | `fbb8e8c` | francucchiari-code | 1,647 | 10 | 96% | 0.0% | 1 |
+| 7 | 2026-10-16 | `6d00bd3` | francucchiari-code | 3,453 | 5 | 98% | 1.7% | 1 |
+| 8 | 2026-10-19 | `54c463a` | francucchiari-code | 5,932 | 4 | 99% | 3.6% | 0 |
+| 9 | 2026-10-30 | `ced6b32` | francucchiari-code | 6,129 | 3 | 99% | 3.5% | 0 |
 
 ---
 _Informe generado por la cátedra. Los criterios y umbrales de medición corresponden al perfil `exigente` de `calidad.py`; el semáforo de aprobación, a `CRITERIOS-CALIDAD.md` (ver `README.md`). Ante dudas, revisá el archivo señalado._
