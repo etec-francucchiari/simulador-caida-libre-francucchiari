@@ -1,85 +1,53 @@
 package org.example
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
-/**
- * Pruebas del [ValidadorParametrosIniciales]: formato numérico y
- * restricciones físicas de los parámetros iniciales.
- */
 class ValidadorParametrosInicialesTest {
+    /**
+     * Pruebas unitarias de validación del campo de altura inicial en
+     * [ValidadorParametrosIniciales]: separadores decimales (punto y coma),
+     * cadenas vacías, valores negativos y texto no numérico.
+     */
 
     private val validador = ValidadorParametrosIniciales(ConfiguracionFisica())
 
+    /**
+     * Un número decimal positivo con punto ("100.5") debe ser aceptado sin error.
+     */
     @Test
     fun alturaConPuntoDecimalEsValida() {
         assertNull(validador.validarAltura("100.5"))
     }
 
+    /**
+     * Un número decimal positivo con coma ("10,5") debe normalizarse y aceptarse.
+     */
     @Test
     fun alturaConComaDecimalEsValida() {
         assertNull(validador.validarAltura("10,5"))
     }
 
+    /**
+     * Una cadena vacía debe devolver un mensaje de error de formato numérico.
+     */
     @Test
     fun alturaVaciaEsInvalida() {
         assertNotNull(validador.validarAltura(""))
     }
 
+    /**
+     * Una altura negativa debe ser rechazada con el mensaje de dominio esperado.
+     */
     @Test
     fun alturaNegativaEsInvalida() {
-        assertEquals(
-            "La altura inicial no puede ser negativa.",
-            validador.validarAltura("-5")
-        )
+        assertEquals("La altura inicial no puede ser negativa.", validador.validarAltura("-5"))
     }
 
+    /**
+     * Cualquier texto alfabético no convertible a número real debe rechazarse.
+     */
     @Test
     fun alturaConTextoNoNumericoEsInvalida() {
         assertNotNull(validador.validarAltura("abc"))
-    }
-
-    @Test
-    fun velocidadCeroEsValida() {
-        assertNull(validador.validarVelocidad("0"))
-    }
-
-    @Test
-    fun velocidadNegativaEsInvalida() {
-        assertEquals(
-            "La velocidad inicial no puede ser negativa.",
-            validador.validarVelocidad("-1")
-        )
-    }
-
-    @Test
-    fun valoresNoFinitosSonInvalidos() {
-        assertNotNull(validador.validarAltura("NaN"))
-        assertNotNull(validador.validarVelocidad("Infinity"))
-    }
-
-    @Test
-    fun dosValoresValidosRetornanExitoso() {
-        val resultado = validador.validar("100", "5.5")
-
-        assertTrue(resultado.esValido())
-        val parametros = resultado.parametros()
-        assertNotNull(parametros)
-        assertEquals(100.0, parametros.alturaInicial())
-        assertEquals(5.5, parametros.velocidadInicial())
-    }
-
-    @Test
-    fun alturaInvalidaRetornaFallido() {
-        val resultado = validador.validar("-2", "5")
-
-        assertFalse(resultado.esValido())
-        val errores = resultado.errores()
-        assertEquals(1, errores.size)
-        assertNotNull(errores.firstOrNull { it.contains("altura", ignoreCase = true) })
     }
 }

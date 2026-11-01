@@ -1,12 +1,5 @@
 package org.example
 
-/**
- * Modelo de dominio que encapsula el desglose didáctico y numérico paso a paso
- * de una fórmula cinemática del Movimiento Rectilíneo Uniformemente Variado.
- *
- * Campos [private] (encapsulación estricta) y comportamiento de dominio:
- * [tieneAclaracion], [esFormulaDePosicion] y [comoTexto].
- */
 class DetallePasoFormula(
     private val tituloInterno: String,
     private val formulaGeneralInterna: String,
@@ -16,50 +9,106 @@ class DetallePasoFormula(
     private val resultadoFinalInterna: String,
     private val aclaracionDidacticaInterna: String = ""
 ) {
+    /**
+     * Modelo de dominio que encapsula el desglose didáctico y numérico paso a paso
+     * de una fórmula cinemática del Movimiento Rectilíneo Uniformemente Variado
+     * (MRUV) aplicado a la caída libre vertical.
+     *
+     * Conserva todos sus atributos como campos privados inmutables y ofrece
+     * predicados de clasificación ([tieneAclaracion], [esFormulaDePosicion],
+     * [esFormulaDeVelocidad], [esFormulaDeTiempo]) junto con la exportación
+     * estructurada en texto multilínea ([comoTexto]).
+     */
 
-    /** Nombre descriptivo de la magnitud física calculada. */
+    /**
+     * Nombre descriptivo de la magnitud física explicada en la tarjeta didáctica.
+     */
     fun titulo(): String = tituloInterno
 
-    /** Ecuación formal teórica del MRUV. */
+    /**
+     * Ecuación simbólica general del MRUV antes de reemplazar constantes.
+     */
     fun formulaGeneral(): String = formulaGeneralInterna
 
-    /** Ecuación con los parámetros de entrada reemplazados. */
+    /**
+     * Ecuación particularizada con los parámetros iniciales del escenario activo
+     * (y₀, v₀ y aceleración gravitatoria g).
+     */
     fun formulaConValores(): String = formulaConValoresInterna
 
-    /** Expresión con el tiempo instantáneo evaluado. */
+    /**
+     * Expresión algebraica resultante tras sustituir el instante de tiempo `t`
+     * actual de la simulación.
+     */
     fun sustitucionInstante(): String = sustitucionInstanteInterna
 
-    /** Desglose aritmético de operaciones intermedias. */
+    /**
+     * Paso aritmético intermedio con el valor numérico de cada término antes de
+     * la suma o raíz final.
+     */
     fun evaluacionIntermedia(): String = evaluacionIntermediaInterna
 
-    /** Valor numérico final con sus unidades. */
+    /**
+     * Resultado numérico final formateado con su unidad del Sistema Internacional.
+     */
     fun resultadoFinal(): String = resultadoFinalInterna
 
-    /** Explicación conceptual adicional para el estudiante. */
+    /**
+     * Nota pedagógica opcional que aclara casos particulares (como el impacto
+     * contra el suelo o el uso de la fórmula cuadrática).
+     */
     fun aclaracionDidactica(): String = aclaracionDidacticaInterna
 
-    /** Comportamiento de dominio: hay nota didáctica disponible. */
-    fun tieneAclaracion(): Boolean = aclaracionDidacticaInterna.isNotBlank()
+    /**
+     * Comportamiento de dominio: indica si existe una aclaración conceptual no
+     * vacía para mostrar al pie de la tarjeta.
+     */
+    fun tieneAclaracion(): Boolean {
+        return aclaracionDidacticaInterna.isNotBlank()
+    }
 
-    /** Comportamiento de dominio: corresponden a la fórmula de posición. */
-    fun esFormulaDePosicion(): Boolean = formulaGeneralInterna.contains("y(t)")
+    /**
+     * Comportamiento de dominio: indica si el desglose corresponde a la ecuación
+     * horaria de posición `y(t)`.
+     */
+    fun esFormulaDePosicion(): Boolean {
+        return formulaGeneralInterna.contains("y(t)")
+    }
 
-    /** Comportamiento de dominio: corresponden a la fórmula de velocidad. */
-    fun esFormulaDeVelocidad(): Boolean = formulaGeneralInterna.contains("v(t)")
+    /**
+     * Comportamiento de dominio: indica si el desglose corresponde a la ecuación
+     * horaria de velocidad `v(t)`.
+     */
+    fun esFormulaDeVelocidad(): Boolean {
+        return formulaGeneralInterna.contains("v(t)")
+    }
 
-    /** Comportamiento de dominio: corresponden a la fórmula de tiempo de caída. */
-    fun esFormulaDeTiempo(): Boolean = formulaGeneralInterna.contains("t_final")
+    /**
+     * Comportamiento de dominio: indica si el desglose corresponde al cálculo
+     * del tiempo total de caída `t_final`.
+     */
+    fun esFormulaDeTiempo(): Boolean {
+        return formulaGeneralInterna.contains("t_final")
+    }
 
-    /** Comportamiento de dominio: representación completa del paso. */
-    fun comoTexto(): String = listOf(
-        tituloInterno,
-        formulaGeneralInterna,
-        formulaConValoresInterna,
-        sustitucionInstanteInterna,
-        evaluacionIntermediaInterna,
-        resultadoFinalInterna,
-        aclaracionDidacticaInterna
-    ).filter { it.isNotBlank() }.joinToString(separator = "\n")
+    /**
+     * Comportamiento de dominio: concatena las etapas no vacías de la
+     * explicación en un bloque de texto ordenado línea por línea.
+     */
+    fun comoTexto(): String {
+        return listOf(
+            tituloInterno,
+            formulaGeneralInterna,
+            formulaConValoresInterna,
+            sustitucionInstanteInterna,
+            evaluacionIntermediaInterna,
+            resultadoFinalInterna,
+            aclaracionDidacticaInterna
+        ).filter { it.isNotBlank() }.joinToString(separator = "\n")
+    }
 
+    /**
+     * Representación compacta del paso de fórmula identificada por su título.
+     */
     override fun toString(): String = "DetallePasoFormula($tituloInterno)"
 }

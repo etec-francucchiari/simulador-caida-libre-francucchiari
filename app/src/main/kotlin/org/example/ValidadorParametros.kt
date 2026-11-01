@@ -1,12 +1,14 @@
 package org.example
 
-/**
- * Contrato de validación de los parámetros iniciales (DIP).
- *
- * La vista de configuración depende de esta abstracción y no de
- * [ValidadorParametrosIniciales].
- */
+import java.util.Locale
+
 interface ValidadorParametros {
+    /**
+     * Contrato de validación de los parámetros iniciales (DIP).
+     *
+     * La vista de configuración depende de esta abstracción y no de
+     * [ValidadorParametrosIniciales].
+     */
 
     /**
      * Valida el texto de la altura inicial.
@@ -24,4 +26,7 @@ interface ValidadorParametros {
 
     /** Valida ambos parámetros en conjunto. */
     fun validar(textoAltura: String, textoVelocidad: String): ResultadoValidacion
+
+    /** Formatea un parámetro numérico con dos cifras decimales. */
+    fun formatear(valor: Double): String = String.format(Locale.ROOT, "%.2f", valor)
 }

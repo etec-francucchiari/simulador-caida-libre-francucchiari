@@ -2,42 +2,74 @@ package org.example
 
 import kotlin.math.abs
 
-/**
- * Opción de respuesta numérica de la Etapa 2 del desafío (opción múltiple).
- *
- * Campos [private] (encapsulación estricta) y comportamiento de dominio para
- * comparar el valor con una tolerancia y describir el resultado.
- *
- * @property valorInterno valor numérico asociado a la opción.
- * @property textoInterno texto ya formateado con su unidad (por ejemplo "45.00 m").
- * @property correctaInterna indica si es la respuesta correcta.
- * @property retroalimentacionInterna explicación del error de cálculo común.
- */
 class OpcionRespuesta(
     private val valorInterno: Double,
     private val textoInterno: String,
     private val correctaInterna: Boolean,
     private val retroalimentacionInterna: String
 ) {
+    /**
+     * Modelo de dominio inmutable que representa una opción de respuesta
+     * numérica en la Etapa 2 del desafío interactivo ([VistaEtapaSustitucion]).
+     *
+     * Mantiene privados su valor numérico, su etiqueta con unidad del Sistema
+     * Internacional, su condición de respuesta verdadera y el diagnóstico del
+     * error aritmético asociado, ofreciendo comportamiento de dominio para
+     * comparar proximidad numérica ([coincideCon]) y emitir la
+     * [Retroalimentacion] pedagógica al ser seleccionada ([evaluarRespuesta]).
+     */
 
-    /** Valor numérico de la opción. */
+    /**
+     * Devuelve el valor numérico real representado por esta opción.
+     */
     fun valor(): Double = valorInterno
 
-    /** Texto formateado con unidad. */
+    /**
+     * Devuelve el texto formateado con dos decimales y su unidad de medida.
+     */
     fun texto(): String = textoInterno
 
-    /** Indica si es la respuesta correcta. */
-    fun esCorrecta(): Boolean = correctaInterna
+    /**
+     * Comportamiento de dominio: indica si esta opción contiene el resultado
+     * numérico verdadero del problema.
+     */
+    fun esCorrecta(): Boolean {
+        return correctaInterna
+    }
 
-    /** Comportamiento de dominio: explicación del error de cálculo. */
+    /**
+     * Devuelve la explicación del error de cálculo cometido cuando se elige un
+     * distractor numérico.
+     */
     fun retroalimentacion(): String = retroalimentacionInterna
 
     /**
-     * Comportamiento de dominio: indica si el valor de la opción coincide con
-     * [valor] dentro de la [tolerancia] indicada.
+     * Comportamiento de dominio: determina si el valor de esta opción difiere de
+     * [valor] en a lo sumo [tolerancia] unidades.
      */
-    fun coincideCon(valor: Double, tolerancia: Double): Boolean =
-        abs(valorInterno - valor) <= tolerancia
+    fun coincideCon(valor: Double, tolerancia: Double): Boolean {
+        return abs(valorInterno - valor) <= tolerancia
+    }
 
-    override fun toString(): String = textoInterno
+    /**
+     * Comportamiento de dominio: construye la [Retroalimentacion] que recibe el
+     * estudiante al confirmar esta opción como respuesta final del ejercicio.
+     */
+    fun evaluarRespuesta(): Retroalimentacion {
+        if (correctaInterna) {
+            return Retroalimentacion(
+                true,
+                "¡Resultado correcto!",
+                "El valor $textoInterno coincide con el cálculo teórico. Ahora puedes simular para comprobarlo."
+            )
+        }
+        return Retroalimentacion(false, "Resultado incorrecto.", retroalimentacionInterna)
+    }
+
+    /**
+     * Representación legible de la opción con su magnitud y unidad.
+     */
+    override fun toString(): String {
+        return textoInterno
+    }
 }

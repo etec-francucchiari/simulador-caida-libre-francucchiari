@@ -1,30 +1,40 @@
 package org.example
 
-/**
- * Servicio instanciable que administra el catálogo de entornos gravitatorios
- * disponibles en la interfaz de selección.
- *
- * Sustituye a la antigua utilidad estática: se inyecta donde se necesita y
- * concentra la lógica de creación y validación de entornos.
- */
 class CatalogoPlanetas : CatalogoEntornos {
+    /**
+     * Servicio de dominio instanciable que administra el catálogo de entornos
+     * gravitatorios disponibles en la pantalla de selección ([PlanetSelectionScreen])
+     * y en el generador de problemas ([GeneradorEjercicios]).
+     *
+     * Implementa el contrato [CatalogoEntornos] proporcionando acceso a los
+     * cuatro cuerpos celestes predefinidos ([Planeta]), la creación de entornos
+     * personalizados ([PlanetaPersonalizado]) y la validación física de la
+     * aceleración gravitatoria ingresada.
+     */
+
+    private val gravedadMinima = 0.0
 
     /**
-     * Devuelve los entornos predefinidos (Tierra, Luna, Marte y Júpiter).
+     * Devuelve la lista inmutable de entornos predefinidos del sistema solar:
+     * Tierra, Luna, Marte y Júpiter.
      */
-    override fun predefinidos(): List<EntornoGravitatorio> =
-        listOf(Planeta.TIERRA, Planeta.LUNA, Planeta.MARTE, Planeta.JUPITER)
+    override fun predefinidos(): List<EntornoGravitatorio> {
+        return Planeta.entries
+    }
 
     /**
-     * Crea un entorno personalizado con la gravedad indicada.
+     * Instancia un nuevo [PlanetaPersonalizado] configurado con la aceleración
+     * de la [gravedad] especificada en m/s².
      */
-    override fun personalizado(gravedad: Double): EntornoGravitatorio =
-        PlanetaPersonalizado(gravedad)
+    override fun personalizado(gravedad: Double): EntornoGravitatorio {
+        return PlanetaPersonalizado(gravedad)
+    }
 
     /**
-     * Comportamiento de dominio: valida que una gravedad sea físicamente útil
-     * (finita y estrictamente positiva).
+     * Comprueba que el valor de [gravedad] sea un número real finito y
+     * estrictamente mayor que cero (`g > 0 m/s²`).
      */
-    override fun esGravedadValida(gravedad: Double): Boolean =
-        gravedad.isFinite() && gravedad > 0.0
+    override fun esGravedadValida(gravedad: Double): Boolean {
+        return gravedad.isFinite() && gravedad > gravedadMinima
+    }
 }

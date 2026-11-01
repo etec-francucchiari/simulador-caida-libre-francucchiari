@@ -1,107 +1,76 @@
 package org.example
 
-import javafx.geometry.Pos
 import javafx.scene.Node
-import javafx.scene.control.Button
-import javafx.scene.control.Label
-import javafx.scene.control.Separator
-import javafx.scene.control.TextField
-import javafx.scene.layout.GridPane
-import javafx.scene.text.Font
-import javafx.scene.text.FontWeight
+import javafx.scene.control.*
+import javafx.scene.layout.*
 
-/**
- * Vista de la Etapa 2 del desafío: sustitución numérica y elección de la
- * respuesta final.
- */
 class VistaEtapaSustitucion(
     private val desafio: DesafioAvanzado,
     private val fabrica: FabricaControlesUi,
     private val onAvanzar: () -> Unit
 ) {
+    /**
+     * Vista de la Etapa 2 del desafío: sustitución numérica y elección de la
+     * respuesta final.
+     */
+
+    private val entradas = mutableListOf<TextField>()
 
     /** Construye y devuelve el nodo de la etapa. */
     fun construir(): Node {
         val columna = fabrica.columnaBase()
-
         val titulo = Label("Etapa 2 · Sustituye los valores y elige el resultado")
-        titulo.font = Font.font("System", FontWeight.BOLD, 16.0)
-        titulo.style = "-fx-text-fill: #1e293b;"
-
+        titulo.style = "-fx-text-fill: #1e293b; -fx-font-size: 16px; -fx-font-weight: bold;"
         val formula = Label("Fórmula elegida:  ${desafio.ejercicio().formulaSimbolica()}")
-        formula.font = Font.font("Monospaced", 14.0)
-        formula.style = "-fx-text-fill: #1d4ed8;"
-
-        val instruccion = Label(
-            "Escribe el valor numérico correcto para cada variable de la fórmula."
-        )
+        formula.style = "-fx-text-fill: #1d4ed8; -fx-font-family: Monospaced; -fx-font-size: 14px;"
+        val instruccion = Label("Escribe el valor numérico correcto para cada variable de la fórmula.")
         instruccion.isWrapText = true
         instruccion.style = "-fx-text-fill: #475569;"
+        val cuadricula = construirCuadricula()
+        val botonComprobar = fabrica.botonPrimario("Comprobar sustitución")
+        val feedbackSustitucion = fabrica.etiquetaFeedback()
+        botonComprobar.setOnAction {
+            val valores = entradas.map { fabrica.interpretarNumero(it.text) }
+            fabrica.aplicarFeedback(feedbackSustitucion, desafio.comprobarSustitucion(valores))
+        }
+        columna.children.addAll(titulo, formula, instruccion, cuadricula, botonComprobar, feedbackSustitucion)
+        agregarSeccionRespuestas(columna)
+        return columna
+    }
 
-        val campos = desafio.camposSustitucion()
-        val entradas = mutableListOf<TextField>()
+    private fun construirCuadricula(): GridPane {
+        entradas.clear()
         val cuadricula = GridPane()
         cuadricula.hgap = 12.0
         cuadricula.vgap = 8.0
-
-        campos.forEachIndexed { indice, campo ->
+        desafio.camposSustitucion().forEachIndexed { indice, campo ->
             val etiqueta = Label("${campo.simbolo()}  (${campo.descripcion()}) [${campo.unidad()}]")
             etiqueta.style = "-fx-text-fill: #334155;"
-
             val entrada = TextField()
             entrada.promptText = campo.simbolo()
             entrada.prefColumnCount = 10
             entradas.add(entrada)
-
             cuadricula.add(etiqueta, 0, indice)
             cuadricula.add(entrada, 1, indice)
         }
+        return cuadricula
+    }
 
-        val botonComprobar = fabrica.botonPrimario("Comprobar sustitución")
-        val etiquetaFeedbackSustitucion = fabrica.etiquetaFeedback()
-        botonComprobar.setOnAction {
-            val valores = entradas.map { fabrica.interpretarNumero(it.text) }
-            fabrica.aplicarFeedback(
-                etiquetaFeedbackSustitucion,
-                desafio.comprobarSustitucion(valores)
-            )
-        }
-
-        columna.children.addAll(
-            titulo,
-            formula,
-            instruccion,
-            cuadricula,
-            botonComprobar,
-            etiquetaFeedbackSustitucion,
-            Separator()
-        )
-
+    private fun agregarSeccionRespuestas(columna: VBox) {
         val tituloRespuestas = Label("Selecciona la respuesta final:")
-        tituloRespuestas.font = Font.font("System", FontWeight.BOLD, 14.0)
-        tituloRespuestas.style = "-fx-text-fill: #1e293b;"
+        tituloRespuestas.style = "-fx-text-fill: #1e293b; -fx-font-size: 14px; -fx-font-weight: bold;"
         columna.children.add(tituloRespuestas)
-
-        val etiquetaFeedbackRespuesta = fabrica.etiquetaFeedback()
-
+        val feedbackRespuesta = fabrica.etiquetaFeedback()
         desafio.opcionesRespuesta().forEachIndexed { indice, opcion ->
             val boton = Button(opcion.texto())
-            boton.maxWidth = Double.MAX_VALUE
-            boton.alignment = Pos.CENTER_LEFT
-            boton.font = Font.font("System", FontWeight.BOLD, 14.0)
-            boton.style = fabrica.estiloOpcion()
+            boton.prefWidth = 740.0
+            boton.style = "${fabrica.estiloOpcion()} -fx-alignment: center-left; -fx-font-size: 14px; -fx-font-weight: bold;"
             boton.setOnAction {
-                val retroalimentacion = desafio.responder(indice)
-                if (retroalimentacion.esCorrecta()) {
-                    onAvanzar()
-                } else {
-                    fabrica.aplicarFeedback(etiquetaFeedbackRespuesta, retroalimentacion)
-                }
+                val resultado = desafio.responder(indice)
+                if (resultado.esCorrecta()) onAvanzar() else fabrica.aplicarFeedback(feedbackRespuesta, resultado)
             }
             columna.children.add(boton)
         }
-
-        columna.children.add(etiquetaFeedbackRespuesta)
-        return columna
+        columna.children.add(feedbackRespuesta)
     }
 }

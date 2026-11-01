@@ -3,19 +3,22 @@ package org.example
 import java.io.File
 import java.util.Locale
 
-/**
- * Exportador de la tabla de datos a formato JSON.
- *
- * Genera un objeto con los metadatos del entorno y los parámetros iniciales,
- * junto con un arreglo `datos` con las filas cinemáticas (t, y, v, a).
- */
 class ExportadorJson : ExportadorDatos {
-
+    /**
+     * Exportador de la tabla de datos a formato JSON.
+     *
+     * Genera un objeto con los metadatos del entorno y los parámetros iniciales,
+     * junto con un arreglo `datos` con las filas cinemáticas (t, y, v, a).
+     */
     private val formatoDecimal: String = "%.4f"
 
-    override fun extension(): String = "json"
+    override fun extension(): String {
+        return "json"
+    }
 
-    override fun descripcion(): String = "Archivo JSON (.json)"
+    override fun descripcion(): String {
+        return "Archivo JSON (.json)"
+    }
 
     override fun exportar(muestra: MuestraDatosSimulacion, archivo: File) {
         val constructor = StringBuilder()
@@ -42,9 +45,11 @@ class ExportadorJson : ExportadorDatos {
         archivo.writeText(constructor.toString(), Charsets.UTF_8)
     }
 
-    private fun numero(valor: Double): String =
-        String.format(Locale.ROOT, formatoDecimal, valor)
+    private fun numero(valor: Double): String {
+        return String.format(Locale.ROOT, formatoDecimal, valor)
+    }
 
-    private fun escapar(texto: String): String =
-        texto.replace("\\", "\\\\").replace("\"", "\\\"")
+    private fun escapar(texto: String): String {
+        return texto.replace("\\", "\\\\").replace("\"", "\\\"")
+    }
 }

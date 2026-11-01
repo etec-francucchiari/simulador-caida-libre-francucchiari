@@ -2,19 +2,15 @@ package org.example
 
 import java.io.File
 
-/**
- * Servicio instanciable que construye la tabla de datos de la simulación y la
- * exporta usando un [ExportadorDatos].
- *
- * Depende por constructor de las abstracciones [EstadoSimulacion] y del
- * servicio de física [CalculoCaidaLibre] (DIP), de modo que no conoce las
- * implementaciones concretas del gestor ni de los formatos de salida.
- */
-class ServicioExportacion(
-    private val estado: EstadoSimulacion,
-    private val calculo: CalculadoraCaidaLibre,
-    private val cantidadPuntos: Int = 200
-) : ExportacionDatos {
+class ServicioExportacion(private val estado: EstadoSimulacion, private val calculo: CalculadoraCaidaLibre, private val cantidadPuntos: Int = 200) : ExportacionDatos {
+    /**
+     * Servicio instanciable que construye la tabla de datos de la simulación y la
+     * exporta usando un [ExportadorDatos].
+     *
+     * Depende por constructor de las abstracciones [EstadoSimulacion] y del
+     * servicio de física [CalculoCaidaLibre] (DIP), de modo que no conoce las
+     * implementaciones concretas del gestor ni de los formatos de salida.
+     */
 
     /**
      * Comportamiento de dominio: genera la muestra de datos (t, y, v, a) a
@@ -25,23 +21,10 @@ class ServicioExportacion(
         val velocidadInicial = estado.obtenerVelocidadInicial()
         val entorno = estado.obtenerPlaneta()
         val gravedad = entorno.gravedad()
-
-        val puntos = calculo.generarPuntosTrayectoria(
-            alturaInicial,
-            velocidadInicial,
-            gravedad,
-            cantidadPuntos
-        )
-
+        val puntos = calculo.generarPuntosTrayectoria(alturaInicial, velocidadInicial, gravedad, cantidadPuntos)
         val filas = puntos.map { punto ->
-            FilaDatosSimulacion(
-                punto.tiempo(),
-                punto.posicion(),
-                punto.velocidad(),
-                gravedad
-            )
+            FilaDatosSimulacion(punto.tiempo(), punto.posicion(), punto.velocidad(), gravedad)
         }
-
         return MuestraDatosSimulacion(
             entornoInterno = entorno,
             parametrosInternos = ParametrosIniciales(alturaInicial, velocidadInicial),

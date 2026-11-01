@@ -1,61 +1,55 @@
 package org.example
 
-/**
- * Raíz de composición de la aplicación.
- *
- * Construye una única vez los servicios instanciables y los expone mediante el
- * contrato [ServiciosAplicacion]. Es el único lugar donde se eligen las
- * implementaciones concretas, aplicando inversión de dependencias (DIP).
- */
-class ComposicionAplicacion : ServiciosAplicacion {
+class ComposicionAplicacion(
+    private val nucleo: NucleoSimulacion = NucleoSimulacion()
+) : ServiciosAplicacion {
+    /**
+     * Raíz de composición (`Composition Root`) de la aplicación JavaFX.
+     *
+     * Implementa el contrato [ServiciosAplicacion] coordinando las instancias
+     * centrales contenidas en [NucleoSimulacion] junto con los ensambladores
+     * especializados de cada modalidad ([EnsambladorPrincipiante] y
+     * [EnsambladorAvanzado]), garantizando que todas las pantallas y vistas
+     * reciban sus colaboradores por constructor (Principio de Inversión de
+     * Dependencias - DIP).
+     */
 
-    private val configuracionInterna: ConfiguracionSimulacion = ConfiguracionFisica()
-    private val calculoInterno: CalculadoraCaidaLibre = CalculoCaidaLibre()
-    private val explicadorInterno: ExplicadorFisica = ExplicadorFisicaPasoAPaso(calculoInterno)
-    private val validadorInterno: ValidadorParametros =
-        ValidadorParametrosIniciales(configuracionInterna)
-    private val catalogoInterno: CatalogoEntornos = CatalogoPlanetas()
+    private val ensambladorPrincipiante = EnsambladorPrincipiante(nucleo)
+    private val ensambladorAvanzado = EnsambladorAvanzado(nucleo)
 
-    private val contextoInterno: ContextoSimulacion =
-        GestorEstadoSimulacion(
-            configuracionInterna,
-            Planeta.TIERRA,
-            MotorEstadoCaida(calculoInterno),
-            EstadoEjecucionReiniciado()
-        )
-    private val controlInterno: ControlReproduccion = ControladorSimulacion(contextoInterno)
+    /**
+     * Expone el catálogo de entornos gravitatorios del núcleo.
+     */
+    override fun catalogo() = nucleo.catalogo()
 
-    private val desafioInterno: DesafioAvanzado = ControladorDesafio(
-        GeneradorEjercicios(catalogoInterno, calculoInterno),
-        GeneradorOpcionesFormula(),
-        GeneradorOpcionesRespuesta()
-    )
+    /**
+     * Expone el contexto reactivo de estado y comandos del núcleo.
+     */
+    override fun contexto() = nucleo.contexto()
 
-    private val catalogoExportadoresInterno: CatalogoDeExportadores =
-        CatalogoExportadores(listOf(ExportadorCsv(), ExportadorJson()))
-    private val selectorArchivoInterno: SelectorArchivoExportacion = SelectorArchivoJavaFx()
-    private val exportacionInterna: ExportacionDatos =
-        ServicioExportacion(contextoInterno, calculoInterno)
+    /**
+     * Expone el controlador de reproducción temporal del núcleo.
+     */
+    override fun control() = nucleo.control()
 
-    override fun configuracion(): ConfiguracionSimulacion = configuracionInterna
+    /**
+     * Expone el controlador del desafío interactivo del Modo Avanzado.
+     */
+    override fun desafio() = nucleo.desafio()
 
-    override fun calculo(): CalculadoraCaidaLibre = calculoInterno
+    /**
+     * Delega en [EnsambladorPrincipiante] la construcción de la pantalla de
+     * simulación guiada del Modo Principiante.
+     */
+    override fun crearPantallaPrincipiante(onCambiarPlaneta: () -> Unit, onCambiarModo: () -> Unit): PrincipianteSimulationScreen {
+        return ensambladorPrincipiante.construir(onCambiarPlaneta, onCambiarModo)
+    }
 
-    override fun explicador(): ExplicadorFisica = explicadorInterno
-
-    override fun validador(): ValidadorParametros = validadorInterno
-
-    override fun catalogo(): CatalogoEntornos = catalogoInterno
-
-    override fun contexto(): ContextoSimulacion = contextoInterno
-
-    override fun control(): ControlReproduccion = controlInterno
-
-    override fun desafio(): DesafioAvanzado = desafioInterno
-
-    override fun exportacion(): ExportacionDatos = exportacionInterna
-
-    override fun catalogoExportadores(): CatalogoDeExportadores = catalogoExportadoresInterno
-
-    override fun selectorArchivo(): SelectorArchivoExportacion = selectorArchivoInterno
+    /**
+     * Delega en [EnsambladorAvanzado] la construcción de la pantalla de desafío
+     * interactivo del Modo Avanzado.
+     */
+    override fun crearPantallaAvanzada(onCambiarModo: () -> Unit): ModoAvanzadoScreen {
+        return ensambladorAvanzado.construir(onCambiarModo)
+    }
 }

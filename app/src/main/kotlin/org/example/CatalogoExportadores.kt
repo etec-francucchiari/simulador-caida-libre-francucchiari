@@ -1,22 +1,32 @@
 package org.example
 
-/**
- * Implementación del catálogo de exportadores disponibles.
- *
- * Recibe por constructor la lista de [ExportadorDatos] (DIP), de modo que no
- * instancia formatos concretos internamente.
- */
 class CatalogoExportadores(
     private val exportadores: List<ExportadorDatos>
 ) : CatalogoDeExportadores {
+    /**
+     * Implementación instanciable del catálogo de formatos de exportación de
+     * datos ([CatalogoDeExportadores]).
+     *
+     * Recibe por constructor la colección de estrategias [ExportadorDatos]
+     * habilitadas (Principio de Inversión de Dependencias - DIP), permitiendo
+     * incorporar nuevos formatos sin modificar esta clase (OCP).
+     *
+     * @property exportadores lista privada de exportadores registrados.
+     */
 
+    /**
+     * Devuelve la lista completa de exportadores disponibles en el catálogo.
+     */
     override fun disponibles(): List<ExportadorDatos> = exportadores
 
+    /**
+     * Proyecta las extensiones asociadas a cada exportador registrado.
+     */
     override fun extensiones(): List<String> = exportadores.map { it.extension() }
 
     /**
-     * Comportamiento de dominio: busca un exportador por su extensión,
-     * ignorando un punto inicial y las mayúsculas.
+     * Localiza un exportador a partir de su [extension] de archivo, ignorando
+     * espacios en blanco, el punto inicial opcional y diferencias de mayúsculas.
      */
     override fun porExtension(extension: String): ExportadorDatos? {
         val normalizada = extension.trim().trimStart('.').lowercase()

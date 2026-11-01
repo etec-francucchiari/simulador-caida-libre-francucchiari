@@ -3,25 +3,25 @@ package org.example
 import java.io.File
 import javafx.stage.Window
 
-/**
- * Contrato del selector de archivo de destino para la exportación (DIP).
- *
- * Aísla a la vista de la clase concreta [javafx.stage.FileChooser], de modo
- * que la lógica de exportación pueda probarse con una implementación falsa.
- */
 interface SelectorArchivoExportacion {
+    /**
+     * Contrato del selector interactivo de archivo de destino para la
+     * exportación de datos (Principio de Inversión de Dependencias - DIP).
+     *
+     * Aísla a la barra de exportación ([BarraExportacion]) del diálogo nativo
+     * [javafx.stage.FileChooser] encapsulado en [SelectorArchivoJavaFx],
+     * facilitando pruebas automatizadas sin abrir ventanas del sistema operativo.
+     */
 
     /**
-     * Solicita al usuario un archivo de destino.
+     * Solicita al usuario la ruta de destino donde guardar la muestra exportada,
+     * configurando el nombre inicial sugerido y el filtro de extensión del
+     * [exportador] elegido.
      *
-     * @param ventana ventana propietaria del diálogo (puede ser `null`).
-     * @param nombreSugerido nombre de archivo sugerido.
-     * @param exportador exportador cuyo formato y extensión se ofrecen.
-     * @return el archivo elegido, o `null` si el usuario cancela.
+     * @param ventana ventana anfitriona del diálogo modal, o `null`.
+     * @param nombreSugerido nombre base de archivo con extensión por defecto.
+     * @param exportador formato activo cuyos metadatos definen el filtro.
+     * @return archivo seleccionado por el usuario, o `null` si canceló el diálogo.
      */
-    fun seleccionarDestino(
-        ventana: Window?,
-        nombreSugerido: String,
-        exportador: ExportadorDatos
-    ): File?
+    fun seleccionarDestino(ventana: Window?, nombreSugerido: String, exportador: ExportadorDatos): File?
 }

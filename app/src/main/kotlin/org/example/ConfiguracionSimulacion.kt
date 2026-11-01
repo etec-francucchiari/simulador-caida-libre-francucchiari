@@ -1,29 +1,46 @@
 package org.example
 
-/**
- * Contrato de configuración física del simulador (DIP).
- *
- * Expone los valores por defecto y las reglas de validación que consumen el
- * gestor de estado y el validador de parámetros, sin acoplarlos a
- * [ConfiguracionFisica].
- */
 interface ConfiguracionSimulacion {
+    /**
+     * Contrato de configuración física base del simulador de caída libre
+     * (Principio de Inversión de Dependencias - DIP).
+     *
+     * Expone los valores iniciales por defecto y las cotas e invariantes de
+     * validación que consumen [MemoriaParametrosSimulacion],
+     * [MemoriaInstantaneaSimulacion] y [ValidadorParametrosIniciales] sin
+     * acoplarlos a la implementación concreta [ConfiguracionFisica].
+     */
 
-    /** Altura inicial por defecto en metros. */
+    /**
+     * Devuelve la altura inicial por defecto expresada en metros (`100.0 m`).
+     */
     fun alturaPorDefecto(): Double
 
-    /** Velocidad inicial por defecto en m/s. */
+    /**
+     * Devuelve la velocidad inicial por defecto expresada en metros por segundo
+     * (`0.0 m/s`, correspondiente a caída desde el reposo).
+     */
     fun velocidadPorDefecto(): Double
 
-    /** Altura mínima admitida en metros. */
+    /**
+     * Devuelve la cota inferior admisible para la altura inicial en metros.
+     */
     fun alturaMinima(): Double
 
-    /** Velocidad mínima admitida en m/s. */
+    /**
+     * Devuelve la cota inferior admisible para la velocidad inicial en m/s.
+     */
     fun velocidadMinima(): Double
 
-    /** Indica si la altura está dentro del rango válido. */
+    /**
+     * Evalúa si el valor numérico de [altura] es finito y mayor o igual que
+     * [alturaMinima].
+     */
     fun esAlturaValida(altura: Double): Boolean
 
-    /** Indica si la velocidad está dentro del rango válido. */
+    /**
+     * Evalúa si el valor numérico de [velocidad] es finito y mayor o igual que
+     * [velocidadMinima].
+     */
     fun esVelocidadValida(velocidad: Double): Boolean
 }

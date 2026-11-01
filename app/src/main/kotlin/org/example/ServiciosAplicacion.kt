@@ -1,44 +1,44 @@
 package org.example
 
-/**
- * Contrato de acceso a los servicios de la aplicación (DIP).
- *
- * La raíz de composición construye las implementaciones concretas y el
- * navegador de pantallas consume únicamente esta abstracción, de modo que la
- * navegación no queda acoplada a las clases concretas de infraestructura.
- */
 interface ServiciosAplicacion {
+    /**
+     * Contrato de la fachada de servicios y ensambladores de pantallas de la
+     * aplicación (Principio de Inversión de Dependencias - DIP).
+     *
+     * Permite a [NavegadorPantallas] coordinar las transiciones entre vistas y
+     * acceder al catálogo de planetas, al contexto reactivo, al control de
+     * reproducción y al desafío avanzado sin acoplarse a [ComposicionAplicacion].
+     */
 
-    /** Configuración física del simulador. */
-    fun configuracion(): ConfiguracionSimulacion
-
-    /** Servicio de cálculo físico. */
-    fun calculo(): CalculadoraCaidaLibre
-
-    /** Servicio de explicaciones paso a paso. */
-    fun explicador(): ExplicadorFisica
-
-    /** Validador de parámetros iniciales. */
-    fun validador(): ValidadorParametros
-
-    /** Catálogo de entornos gravitatorios. */
+    /**
+     * Devuelve el catálogo de entornos gravitatorios disponibles.
+     */
     fun catalogo(): CatalogoEntornos
 
-    /** Estado y comandos de la simulación. */
+    /**
+     * Devuelve el contexto reactivo que unifica lecturas y comandos de estado.
+     */
     fun contexto(): ContextoSimulacion
 
-    /** Control de reproducción de la simulación. */
+    /**
+     * Devuelve el controlador de reproducción temporal de la simulación.
+     */
     fun control(): ControlReproduccion
 
-    /** Controlador del desafío del Modo Avanzado. */
+    /**
+     * Devuelve el controlador del desafío interactivo del Modo Avanzado.
+     */
     fun desafio(): DesafioAvanzado
 
-    /** Servicio de exportación de datos. */
-    fun exportacion(): ExportacionDatos
+    /**
+     * Construye y devuelve la pantalla completa de simulación del Modo
+     * Principiante con los callbacks de navegación indicados.
+     */
+    fun crearPantallaPrincipiante(onCambiarPlaneta: () -> Unit, onCambiarModo: () -> Unit): PrincipianteSimulationScreen
 
-    /** Catálogo de formatos de exportación. */
-    fun catalogoExportadores(): CatalogoDeExportadores
-
-    /** Selector de archivo de destino. */
-    fun selectorArchivo(): SelectorArchivoExportacion
+    /**
+     * Construye y devuelve la pantalla interactiva del Modo Avanzado vinculada
+     * a la acción de retorno al selector de modo.
+     */
+    fun crearPantallaAvanzada(onCambiarModo: () -> Unit): ModoAvanzadoScreen
 }

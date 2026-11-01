@@ -1,14 +1,21 @@
 package org.example
 
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.paint.Color
-import javafx.scene.paint.CycleMethod
-import javafx.scene.paint.LinearGradient
-import javafx.scene.paint.Stop
+import javafx.scene.paint.*
 
-/** Estilo visual del entorno joviano. */
 class EstiloJupiter : EstiloEntorno {
+    /**
+     * Implementación de [EstiloEntorno] correspondiente al gigante gaseoso
+     * Júpiter (`g = 24.79 m/s²`).
+     *
+     * Recrea una atmósfera densa en tonos ámbar, ocre y terracota atravesada
+     * por bandas nubosas horizontales características del planeta.
+     */
 
+    /**
+     * Pinta el gradiente atmosférico joviano y tres franjas horizontales
+     * semitransparentes que simulan las bandas de nubes de amoníaco.
+     */
     override fun dibujarFondo(gc: GraphicsContext, ancho: Double, alto: Double) {
         val jupiter = LinearGradient(
             0.0, 0.0, 0.0, 1.0, true, CycleMethod.NO_CYCLE,
@@ -18,13 +25,15 @@ class EstiloJupiter : EstiloEntorno {
         )
         gc.fill = jupiter
         gc.fillRect(0.0, 0.0, ancho, alto)
-
         gc.fill = Color.rgb(180, 83, 9, 0.35)
         gc.fillRect(0.0, 50.0, ancho, 22.0)
         gc.fillRect(0.0, 120.0, ancho, 30.0)
         gc.fillRect(0.0, 210.0, ancho, 25.0)
     }
 
+    /**
+     * Pinta la capa inferior de referencia (`y = 0 m`) en tonos caoba y cobrizo.
+     */
     override fun dibujarSuelo(gc: GraphicsContext, ancho: Double, alto: Double, ySuelo: Double) {
         gc.fill = Color.web("#431407")
         gc.fillRect(0.0, ySuelo, ancho, alto - ySuelo)

@@ -1,81 +1,76 @@
 package org.example
 
-import java.util.Random
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
-/**
- * Pruebas de la máquina de estados de la simulación (Issue #8: Patrón State).
- *
- * Verifica las transiciones entre los estados [EstadoEjecucionEnCurso],
- * [EstadoEjecucionPausado], [EstadoEjecucionReiniciado] y
- * [EstadoEjecucionEnModoEjercicio], así como la decisión de avance del
- * estado activo.
- */
 class EstadoEjecucionTest {
+    /**
+     * Pruebas unitarias de la máquina de estados del ciclo de vida de la
+     * simulación (Patrón State):
+     * - [EstadoEjecucionEnCurso]
+     * - [EstadoEjecucionPausado]
+     * - [EstadoEjecucionReiniciado]
+     * - [EstadoEjecucionEnModoEjercicio]
+     *
+     * Verifica que cada estado concreto responda polimórficamente a las
+     * transiciones `iniciar()`, `pausar()`, `alternar()`, `reiniciar()` y
+     * `debeAvanzar(deltaSegundos)`.
+     */
 
+    private val nucleo = NucleoSimulacion()
+
+    /**
+     * El estado en curso debe reportarse activo, autorizar el avance para deltas
+     * positivos, transicionar a pausado al alternar y volver a en curso al
+     * alternar por segunda vez.
+     */
     @Test
     fun estadoEjecutandosePausaAlAlternar() {
         val estado = EstadoEjecucionEnCurso()
-
         assertTrue(estado.esActiva())
         assertEquals("Ejecutándose", estado.nombre())
         assertTrue(estado.debeAvanzar(0.05))
         assertFalse(estado.debeAvanzar(0.0))
-
         val pausado = estado.alternar()
-
         assertFalse(pausado.esActiva())
         assertFalse(pausado.debeAvanzar(0.05))
-
         val reanudado = pausado.alternar()
         assertTrue(reanudado.esActiva())
         assertTrue(reanudado.debeAvanzar(0.05))
     }
 
+    /**
+     * El estado reiniciado comienza inactivo, no avanza fotogramas y pasa al
+     * estado en curso tanto al invocar `iniciar()` como `alternar()`.
+     */
     @Test
     fun estadoReiniciadoIniciaLaEjecucion() {
         val reiniciado = EstadoEjecucionReiniciado()
-
         assertFalse(reiniciado.esActiva())
         assertEquals("Reiniciado", reiniciado.nombre())
         assertFalse(reiniciado.debeAvanzar(0.05))
-
         val iniciado = reiniciado.iniciar()
         assertTrue(iniciado.esActiva())
         assertTrue(iniciado.debeAvanzar(0.05))
-
         val alternado = reiniciado.alternar()
         assertTrue(alternado.esActiva())
         assertTrue(alternado.debeAvanzar(0.05))
-
-        val trasReiniciar = reiniciado.reiniciar().iniciar()
-        assertTrue(trasReiniciar.esActiva())
+        assertTrue(reiniciado.reiniciar().iniciar().esActiva())
     }
 
+    /**
+     * El estado en modo ejercicio conserva la referencia al desafío al pausarse
+     * y reanudarse durante la validación experimental.
+     */
     @Test
     fun estadoEnModoEjercicioPermitePausaYReanudaEnLaMismaFase() {
-        val desafio = ControladorDesafio(
-            GeneradorEjercicios(CatalogoPlanetas(), CalculoCaidaLibre(), java.util.Random(7)),
-            GeneradorOpcionesFormula(),
-            GeneradorOpcionesRespuesta()
-        )
-        val estado = EstadoEjecucionEnModoEjercicio(desafio)
-
-        // Al entrar al modo ejercicio la simulación inicia en reposo.
+        val estado = EstadoEjecucionEnModoEjercicio(nucleo.desafio())
         assertFalse(estado.esActiva())
-
         val ejecutando = estado.iniciar()
         assertTrue(ejecutando.esActiva())
         assertTrue(ejecutando.debeAvanzar(0.05))
-
         val pausado = ejecutando.pausar()
         assertFalse(pausado.esActiva())
         assertFalse(pausado.debeAvanzar(0.05))
-
-        // La reanudación sigue dentro del Modo Ejercicio.
         val reanudado = pausado.iniciar()
         assertTrue(reanudado.esActiva())
         assertTrue(reanudado.debeAvanzar(0.05))
