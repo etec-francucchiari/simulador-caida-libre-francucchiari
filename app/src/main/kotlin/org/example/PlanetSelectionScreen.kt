@@ -1,84 +1,52 @@
 package org.example
 
-import javafx.geometry.Insets
-import javafx.geometry.Pos
-import javafx.scene.control.Button
-import javafx.scene.control.Label
-import javafx.scene.layout.HBox
+import javafx.scene.control.*
 import javafx.scene.layout.VBox
-import javafx.scene.text.Font
-import javafx.scene.text.FontWeight
 
-/**
- * Pantalla 2 - Selección de Planeta/Entorno.
- *
- * Compone las tarjetas de los entornos predefinidos ([TarjetaEntorno]) y la
- * tarjeta de gravedad personalizada ([TarjetaEntornoPersonalizado]), aplicando
- * SRP y DIP (recibe [CatalogoEntornos]).
- */
 class PlanetSelectionScreen(
     private val catalogo: CatalogoEntornos,
     private val onPlanetaSeleccionado: (EntornoGravitatorio) -> Unit,
     private val onVolver: () -> Unit
 ) : VBox(20.0) {
+    /**
+     * Pantalla 2 - Selección de Planeta/Entorno.
+     *
+     * Compone las tarjetas de los entornos predefinidos ([TarjetaEntorno]) y la
+     * tarjeta de gravedad personalizada ([TarjetaEntornoPersonalizado]), aplicando
+     * SRP y DIP (recibe [CatalogoEntornos]).
+     */
 
     init {
-        alignment = Pos.TOP_CENTER
-        padding = Insets(30.0)
-        style = "-fx-background-color: linear-gradient(to bottom, #f8fafc, #e2e8f0);"
-        maxWidth = Double.MAX_VALUE
-        maxHeight = Double.MAX_VALUE
-
-        val titulo = Label("Selecciona el Entorno Gravitatorio")
-        titulo.font = Font.font("System", FontWeight.BOLD, 28.0)
-        titulo.style = "-fx-text-fill: #1e293b;"
-
-        val subtitulo = Label("La gravedad determina la aceleración de la caída (g)")
-        subtitulo.font = Font.font("System", 15.0)
-        subtitulo.style = "-fx-text-fill: #64748b;"
-
-        val gridPlanetas = VBox(16.0)
-        gridPlanetas.alignment = Pos.CENTER
-        gridPlanetas.maxWidth = 560.0
-
-        for (entorno in catalogo.predefinidos()) {
-            gridPlanetas.children.add(
-                TarjetaEntorno(entorno, onPlanetaSeleccionado).nodo()
-            )
-        }
-
-        gridPlanetas.children.add(
-            TarjetaEntornoPersonalizado(catalogo, onPlanetaSeleccionado).nodo()
-        )
-
-        children.addAll(construirBarraSuperior(), titulo, subtitulo, gridPlanetas)
+        inicializar()
     }
 
-    private fun construirBarraSuperior(): HBox {
-        val barraSuperior = HBox()
-        barraSuperior.alignment = Pos.CENTER_LEFT
-        barraSuperior.maxWidth = Double.MAX_VALUE
+    private fun inicializar() {
+        style = "-fx-alignment: top-center; -fx-padding: 30; -fx-background-color: linear-gradient(to bottom, #f8fafc, #e2e8f0);"
+        val titulo = Label("Selecciona el Entorno Gravitatorio")
+        titulo.style = "-fx-text-fill: #1e293b; -fx-font-size: 28px; -fx-font-weight: bold;"
+        val gridPlanetas = VBox(16.0)
+        gridPlanetas.style = "-fx-alignment: center;"
+        gridPlanetas.maxWidth = 560.0
+        for (entorno in catalogo.predefinidos()) {
+            gridPlanetas.children.add(TarjetaEntorno(entorno, onPlanetaSeleccionado).nodo())
+        }
+        gridPlanetas.children.add(TarjetaEntornoPersonalizado(catalogo, onPlanetaSeleccionado).nodo())
+        children.addAll(crearBotonVolver(), titulo, gridPlanetas)
+    }
 
+    private fun crearBotonVolver(): Button {
         val botonVolver = Button("← Volver")
-        botonVolver.font = Font.font("System", FontWeight.MEDIUM, 13.0)
         botonVolver.style = estiloBotonVolver(false)
         botonVolver.setOnAction { onVolver() }
-        botonVolver.onMouseEntered = { botonVolver.style = estiloBotonVolver(true) }
-        botonVolver.onMouseExited = { botonVolver.style = estiloBotonVolver(false) }
-
-        barraSuperior.children.add(botonVolver)
-        return barraSuperior
+        botonVolver.setOnMouseEntered { botonVolver.style = estiloBotonVolver(true) }
+        botonVolver.setOnMouseExited { botonVolver.style = estiloBotonVolver(false) }
+        return botonVolver
     }
 
-    private fun estiloBotonVolver(resaltado: Boolean): String {
-        val fondo = if (resaltado) "#e2e8f0" else "transparent"
-        val texto = if (resaltado) "#334155" else "#64748b"
-        return """
-            -fx-background-color: $fondo;
-            -fx-text-fill: $texto;
-            -fx-padding: 8 16;
-            -fx-background-radius: 8;
-            -fx-cursor: hand;
-        """.trimIndent()
-    }
+    private fun estiloBotonVolver(resaltado: Boolean) =
+        if (resaltado) {
+            "-fx-background-color: #e2e8f0; -fx-text-fill: #334155; -fx-font-size: 13px; -fx-padding: 8 16; -fx-background-radius: 8; -fx-cursor: hand;"
+        } else {
+            "-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-font-size: 13px; -fx-padding: 8 16; -fx-background-radius: 8; -fx-cursor: hand;"
+        }
 }

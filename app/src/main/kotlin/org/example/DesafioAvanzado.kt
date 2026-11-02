@@ -1,50 +1,68 @@
 package org.example
 
-/**
- * Contrato del desafío interactivo del Modo Avanzado (DIP).
- *
- * Las vistas dependen de esta abstracción y no del controlador concreto, de
- * modo que la lógica pedagógica puede sustituirse o probarse de forma aislada.
- */
 interface DesafioAvanzado {
+    /**
+     * Contrato del desafío pedagógico interactivo en tres etapas del Modo
+     * Avanzado (Principio de Inversión de Dependencias - DIP).
+     *
+     * Las vistas de etapa ([VistaEtapaFormula], [VistaEtapaSustitucion],
+     * [VistaEtapaValidacion]) y el encabezado ([EncabezadoDesafioAvanzado])
+     * dependen exclusivamente de esta abstracción y no de [ControladorDesafio].
+     */
 
-    /** Etapa actual del desafío. */
+    /**
+     * Devuelve la [EtapaDesafio] en la que se encuentra actualmente el flujo
+     * (Fórmula, Sustitución o Validación).
+     */
     fun etapa(): EtapaDesafio
 
-    /** Ejercicio activo. */
+    /**
+     * Devuelve el [EjercicioCaidaLibre] activo que el estudiante está resolviendo.
+     */
     fun ejercicio(): EjercicioCaidaLibre
 
-    /** Opciones de fórmula de la Etapa 1. */
+    /**
+     * Devuelve las tres opciones de fórmula simbólica generadas para la Etapa 1.
+     */
     fun opcionesFormula(): List<OpcionFormula>
 
     /**
-     * Registra la elección de una fórmula.
-     *
-     * @return retroalimentación; si es correcta avanza a la Etapa 2.
+     * Evalúa la opción de fórmula seleccionada en la posición [indice],
+     * avanzando a la Etapa 2 cuando la elección es correcta.
      */
     fun elegirFormula(indice: Int): Retroalimentacion
 
-    /** Campos de sustitución de la Etapa 2. */
-    fun camposSustitucion(): List<CampoSustitucion>
+    /**
+     * Devuelve los campos de sustitución requeridos en la Etapa 2 según el
+     * ejercicio activo.
+     */
+    fun camposSustitucion(): List<CampoSustitucion> = ejercicio().camposSustitucion()
 
     /**
-     * Comprueba la sustitución numérica realizada por el estudiante.
+     * Verifica si la lista ordenada de [valoresIngresados] por el estudiante
+     * coincide con los datos esperados de cada variable del problema.
      */
     fun comprobarSustitucion(valoresIngresados: List<Double>): Retroalimentacion
 
-    /** Opciones de respuesta final de la Etapa 2. */
+    /**
+     * Devuelve las tres opciones de resultado numérico final para la Etapa 2.
+     */
     fun opcionesRespuesta(): List<OpcionRespuesta>
 
     /**
-     * Registra la respuesta final elegida.
-     *
-     * @return retroalimentación; si es correcta avanza a la Etapa 3.
+     * Evalúa la opción de respuesta numérica elegida en la posición [indice],
+     * marcando el desafío como resuelto y pasando a la Etapa 3 si es correcta.
      */
     fun responder(indice: Int): Retroalimentacion
 
-    /** Genera un nuevo ejercicio y reinicia el desafío. */
+    /**
+     * Genera un nuevo ejercicio aleatorio y restablece el desafío a la Etapa 1.
+     */
     fun nuevoEjercicio()
 
-    /** Indica si el ejercicio ya fue resuelto correctamente. */
+    /**
+     * Indica si el estudiante ya superó las etapas algebraica y numérica,
+     * habilitando la validación experimental con la simulación.
+     */
     fun estaResuelto(): Boolean
 }

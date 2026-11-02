@@ -2,13 +2,14 @@ package org.example
 
 import javafx.beans.value.ObservableValue
 
-/**
- * Abstracción de solo lectura del estado de la simulación (DIP).
- *
- * Las vistas dependen de este contrato en lugar del gestor concreto, de modo
- * que pueden reutilizarse o sustituirse sin acoplarse a la implementación.
- */
 interface EstadoSimulacion {
+    /**
+     * Abstracción de solo lectura del estado reactivo de la simulación (DIP / ISP).
+     *
+     * Las vistas dependen de este contrato segregado en lugar del gestor concreto,
+     * de modo que pueden reutilizarse o sustituirse en pruebas sin acoplarse a la
+     * implementación ni a los comandos de mutación ([ComandosSimulacion]).
+     */
 
     /** Entorno gravitatorio activo. */
     fun obtenerPlaneta(): EntornoGravitatorio
@@ -54,7 +55,4 @@ interface EstadoSimulacion {
 
     /** Observable (solo lectura) del estado de ejecución. */
     fun enEjecucionObservable(): ObservableValue<Boolean>
-
-    /** Estado actual de la máquina de estados de la simulación (Patrón State). */
-    fun estadoEjecucion(): EstadoEjecucion
 }

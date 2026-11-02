@@ -1,23 +1,32 @@
 package org.example
 
-/**
- * Catálogo instanciable que resuelve el estilo visual de cada entorno.
- *
- * La búsqueda se realiza por nombre en un mapa, sin `when` ni comprobaciones
- * de tipo. Un entorno no registrado recibe el estilo neutro (OCP).
- */
-class CatalogoEstilosEntorno : CatalogoEstilos {
-
-    private val estilos: Map<String, EstiloEntorno> = mapOf(
-        "Tierra" to EstiloTierra(),
-        "Luna" to EstiloLuna(),
-        "Marte" to EstiloMarte(),
-        "Júpiter" to EstiloJupiter()
-    )
-
+class CatalogoEstilosEntorno(
+    private val estilos: Map<String, EstiloEntorno> = RegistroEstilosEntorno().crearMapa(),
     private val estiloPorDefecto: EstiloEntorno = EstiloNeutro()
+) : CatalogoEstilos {
+    /**
+     * Implementación instanciable de [CatalogoEstilos] que resuelve la paleta y
+     * el renderizado ambiental de cada entorno gravitatorio.
+     *
+     * Utiliza un diccionario inyectado por constructor (provisto por defecto por
+     * [RegistroEstilosEntorno]) y un estilo de respaldo ([EstiloNeutro]) para
+     * los entornos personalizados, cumpliendo con los principios OCP y DIP sin
+     * emplear condicionales por tipo de planeta.
+     */
 
-    /** Devuelve el estilo correspondiente al entorno indicado. */
-    override fun para(entorno: EntornoGravitatorio): EstiloEntorno =
-        estilos[entorno.nombre()] ?: estiloPorDefecto
+    /**
+     * Devuelve el [EstiloEntorno] registrado para el nombre del [entorno]
+     * recibido, o [estiloPorDefecto] si no posee un estilo específico.
+     */
+    override fun para(entorno: EntornoGravitatorio): EstiloEntorno {
+        return estilos[entorno.nombre()] ?: estiloPorDefecto
+    }
+
+    /**
+     * Comportamiento de dominio: indica si el [entorno] cuenta con una entrada
+     * propia dentro del mapa de estilos planetarios predefinidos.
+     */
+    fun tieneEstiloPropio(entorno: EntornoGravitatorio): Boolean {
+        return estilos.containsKey(entorno.nombre())
+    }
 }

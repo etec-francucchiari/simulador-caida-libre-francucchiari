@@ -1,118 +1,79 @@
 package org.example
 
-import javafx.geometry.Pos
 import javafx.scene.control.Label
-import javafx.scene.layout.ColumnConstraints
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.VBox
-import javafx.scene.text.Font
-import javafx.scene.text.FontWeight
-import java.util.Locale
+import javafx.scene.layout.*
 
-/**
- * Panel con los indicadores físicos derivados de los parámetros
- * configurados y del planeta seleccionado.
- *
- * Se suscribe al gestor de estado reactivo y recalcula automáticamente
- * los valores al cambiar la altura inicial, la velocidad inicial o la
- * gravedad, utilizando [CalculoCaidaLibre] (lógica física desacoplada).
- */
 class PanelIndicadoresFisicos(
     private val estado: EstadoSimulacion,
     private val calculo: CalculadoraCaidaLibre
 ) : VBox(12.0) {
+    /**
+     * Panel con los indicadores físicos derivados de los parámetros
+     * configurados y del planeta seleccionado.
+     *
+     * Se suscribe al gestor de estado reactivo y recalcula automáticamente
+     * los valores utilizando [CalculadoraCaidaLibre] (DIP).
+     */
 
-    private val etiquetaAltura: Label = crearEtiquetaValor()
-    private val etiquetaVelocidad: Label = crearEtiquetaValor()
-    private val etiquetaGravedad: Label = crearEtiquetaValor()
-    private val etiquetaTiempoCaida: Label = crearEtiquetaValor()
-    private val etiquetaVelocidadImpacto: Label = crearEtiquetaValor()
+    private val etiquetaAltura = crearEtiquetaValor()
+    private val etiquetaVelocidad = crearEtiquetaValor()
+    private val etiquetaGravedad = crearEtiquetaValor()
+    private val etiquetaTiempoCaida = crearEtiquetaValor()
+    private val etiquetaVelocidadImpacto = crearEtiquetaValor()
 
     init {
+        configurarPanel()
+    }
+
+    private fun configurarPanel() {
         val titulo = Label("Fórmulas Físicas (se actualizan automáticamente)")
-        titulo.font = Font.font("System", FontWeight.BOLD, 16.0)
-        titulo.style = "-fx-text-fill: #2c3e50;"
-
-        style = "-fx-background-color: #ffffff; " +
-                "-fx-padding: 14; " +
-                "-fx-background-radius: 6; " +
-                "-fx-border-color: #d5dbe0; " +
-                "-fx-border-radius: 6;"
-
+        titulo.style = "-fx-text-fill: #2c3e50; -fx-font-size: 16px; -fx-font-weight: bold;"
+        style = "-fx-background-color: #ffffff; -fx-padding: 14; -fx-background-radius: 6; " +
+            "-fx-border-color: #d5dbe0; -fx-border-radius: 6;"
         val grilla = GridPane()
         grilla.hgap = 20.0
         grilla.vgap = 8.0
-        grilla.alignment = Pos.CENTER_LEFT
-
-        val columnaEtiquetaCuenta = ColumnConstraints(230.0)
-        val columnaValor = ColumnConstraints(150.0)
-        grilla.columnConstraints.addAll(columnaEtiquetaCuenta, columnaValor)
-
+        grilla.style = "-fx-alignment: center-left;"
         grilla.add(crearEtiquetaCampo("Altura inicial (h₀):"), 0, 0)
         grilla.add(etiquetaAltura, 1, 0)
-
         grilla.add(crearEtiquetaCampo("Velocidad inicial (v₀):"), 0, 1)
         grilla.add(etiquetaVelocidad, 1, 1)
-
         grilla.add(crearEtiquetaCampo("Gravedad del planeta (g):"), 0, 2)
         grilla.add(etiquetaGravedad, 1, 2)
-
         grilla.add(crearEtiquetaCampo("Tiempo de caída:  t = (√(v₀² + 2·g·h₀) − v₀) / g"), 0, 3)
         grilla.add(etiquetaTiempoCaida, 1, 3)
-
-        grilla.add(
-            crearEtiquetaCampo("Velocidad al impactar:  v = √(v₀² + 2·g·h₀)"),
-            0,
-            4
-        )
+        grilla.add(crearEtiquetaCampo("Velocidad al impactar:  v = √(v₀² + 2·g·h₀)"), 0, 4)
         grilla.add(etiquetaVelocidadImpacto, 1, 4)
-
         children.addAll(titulo, grilla)
-
-        // Suscripciones reactivas: cualquier cambio de estado recalcula las fórmulas.
         estado.alturaInicialObservable().addListener { _, _, _ -> actualizarIndicadores() }
         estado.velocidadInicialObservable().addListener { _, _, _ -> actualizarIndicadores() }
         estado.planetaObservable().addListener { _, _, _ -> actualizarIndicadores() }
         actualizarIndicadores()
     }
 
-    /**
-     * Recalcula todos los indicadores a partir del estado actual
-     * y de las fórmulas físicas de [CalculoCaidaLibre].
-     */
     private fun actualizarIndicadores() {
-        val altura = estado.obtenerAlturaInicial()
-        val velocidad = estado.obtenerVelocidadInicial()
-        val gravedad = estado.obtenerPlaneta().gravedad()
-        val nombrePlaneta = estado.obtenerPlaneta().nombre()
-
-        etiquetaAltura.text = "${formatear(altura)} m"
-        etiquetaVelocidad.text = "${formatear(velocidad)} m/s"
-        etiquetaGravedad.text = "$nombrePlaneta → ${formatear(gravedad)} m/s²"
-
-        val tiempo = calculo.calcularTiempoCaida(altura, velocidad, gravedad)
-        etiquetaTiempoCaida.text = tiempo?.let { "${formatear(it)} s" } ?: "No disponible"
-
-        val velocidadImpacto =
-            calculo.calcularVelocidadImpacto(altura, velocidad, gravedad)
-        etiquetaVelocidadImpacto.text =
-            velocidadImpacto?.let { "${formatear(it)} m/s" } ?: "No disponible"
+        val h = estado.obtenerAlturaInicial()
+        val v = estado.obtenerVelocidadInicial()
+        val g = estado.obtenerPlaneta().gravedad()
+        val nombre = estado.obtenerPlaneta().nombre()
+        etiquetaAltura.text = "${calculo.formatear(h)} m"
+        etiquetaVelocidad.text = "${calculo.formatear(v)} m/s"
+        etiquetaGravedad.text = "$nombre → ${calculo.formatear(g)} m/s²"
+        val t = calculo.calcularTiempoCaida(h, v, g)
+        etiquetaTiempoCaida.text = t?.let { "${calculo.formatear(it)} s" } ?: "No disponible"
+        val vImp = calculo.calcularVelocidadImpacto(h, v, g)
+        etiquetaVelocidadImpacto.text = vImp?.let { "${calculo.formatear(it)} m/s" } ?: "No disponible"
     }
 
     private fun crearEtiquetaCampo(texto: String): Label {
         val etiqueta = Label(texto)
-        etiqueta.font = Font.font("System", 13.0)
-        etiqueta.style = "-fx-text-fill: #34495e; -fx-wrap-text: true;"
+        etiqueta.style = "-fx-text-fill: #34495e; -fx-font-size: 13px; -fx-wrap-text: true;"
         return etiqueta
     }
 
     private fun crearEtiquetaValor(): Label {
         val etiqueta = Label()
-        etiqueta.font = Font.font("System", FontWeight.BOLD, 13.0)
-        etiqueta.style = "-fx-text-fill: #2c3e50;"
+        etiqueta.style = "-fx-text-fill: #2c3e50; -fx-font-size: 13px; -fx-font-weight: bold;"
         return etiqueta
     }
-
-    private fun formatear(valor: Double): String =
-        String.format(Locale.ROOT, "%.2f", valor)
 }

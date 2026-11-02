@@ -1,23 +1,25 @@
 package org.example
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
-/**
- * Pruebas del modelo de entornos gravitatorios [Planeta] y [PlanetaPersonalizado],
- * así como del catálogo instanciable [CatalogoPlanetas].
- *
- * Verifica los valores exigidos por la reestructuración de la interfaz:
- * - Tierra (g = 9.81 m/s²)
- * - Luna (g = 1.62 m/s²)
- * - Marte (g = 3.71 m/s²)
- * - Entorno personalizado con gravedad arbitraria.
- */
 class PlanetaTest {
-
+    /**
+     * Pruebas unitarias del modelo de entornos gravitatorios ([Planeta] y
+     * [PlanetaPersonalizado]) y del catálogo instanciable [CatalogoPlanetas].
+     *
+     * Verifica las aceleraciones gravitatorias superficiales de referencia:
+     * - Tierra: g = 9.81 m/s²
+     * - Luna: g = 1.62 m/s²
+     * - Marte: g = 3.71 m/s²
+     * - Júpiter: g = 24.79 m/s²
+     * - Entorno personalizado con gravedad arbitraria definida por el usuario.
+     */
     private val catalogo = CatalogoPlanetas()
 
+    /**
+     * Comprueba que cada constante del enumerador [Planeta] exponga su
+     * aceleración gravitatoria exacta en m/s².
+     */
     @Test
     fun entornosPredefinidosTienenLaGravedadEsperada() {
         assertEquals(9.81, Planeta.TIERRA.gravedad(), 1e-9)
@@ -26,6 +28,10 @@ class PlanetaTest {
         assertEquals(24.79, Planeta.JUPITER.gravedad(), 1e-9)
     }
 
+    /**
+     * Verifica que el catálogo devuelva exactamente los cuatro cuerpos celestes
+     * predefinidos con sus nombres en español.
+     */
     @Test
     fun predefinidosContieneCuatroEntornos() {
         val nombres = catalogo.predefinidos().map { it.nombre() }
@@ -33,6 +39,10 @@ class PlanetaTest {
         assertEquals(4, catalogo.predefinidos().size)
     }
 
+    /**
+     * Verifica que `catalogo.personalizado(g)` cree una instancia de
+     * [EntornoGravitatorio] marcada como personalizada y con la gravedad dada.
+     */
     @Test
     fun entornoPersonalizadoConservaSuGravedad() {
         val personalizado = catalogo.personalizado(5.5)
@@ -41,6 +51,10 @@ class PlanetaTest {
         assertTrue(personalizado.esPersonalizado())
     }
 
+    /**
+     * La representación textual de un planeta debe incluir tanto su nombre como
+     * su gravedad formateada a dos decimales.
+     */
     @Test
     fun planetaAStringIncluyeNombreYGravedad() {
         assertTrue(Planeta.MARTE.toString().contains("Marte"))

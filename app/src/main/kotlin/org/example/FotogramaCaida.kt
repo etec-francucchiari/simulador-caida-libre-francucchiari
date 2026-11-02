@@ -1,12 +1,7 @@
 package org.example
 
-/**
- * Modelo inmutable con los datos de un fotograma de la animación de caída.
- *
- * Expone comportamiento de dominio para calcular la fracción de altura
- * restante, evitando que el renderizador dependa directamente del gestor de
- * estado.
- */
+import java.util.Locale
+
 class FotogramaCaida(
     private val anchoInterno: Double,
     private val altoInterno: Double,
@@ -16,33 +11,79 @@ class FotogramaCaida(
     private val velocidadActualInterna: Double,
     private val impactadoInterno: Boolean
 ) {
+    /**
+     * Modelo de dominio inmutable que empaqueta toda la información geométrica
+     * y física necesaria para renderizar un fotograma del lienzo de caída libre
+     * ([RenderizadorAnimacionCaida]).
+     *
+     * Evita listas largas de parámetros primitivos y dota a los datos del
+     * fotograma de comportamiento propio para calcular la fracción normalizada
+     * de altura restante ([fraccionAltura]), construir la leyenda del entorno
+     * ([descripcionEntorno]) y formatear magnitudes con precisión uniforme
+     * ([formatear]).
+     */
 
-    /** Ancho del lienzo en píxeles. */
+    /**
+     * Devuelve el ancho disponible del lienzo de dibujo en píxeles.
+     */
     fun ancho(): Double = anchoInterno
 
-    /** Alto del lienzo en píxeles. */
+    /**
+     * Devuelve el alto disponible del lienzo de dibujo en píxeles.
+     */
     fun alto(): Double = altoInterno
 
-    /** Entorno gravitatorio activo. */
+    /**
+     * Devuelve el entorno gravitatorio activo cuyos colores y gravedad se
+     * representan en el fotograma.
+     */
     fun entorno(): EntornoGravitatorio = entornoInterno
 
-    /** Altura inicial en metros. */
+    /**
+     * Devuelve la altura inicial de lanzamiento en metros (extremo superior de
+     * la escala graduada).
+     */
     fun alturaInicial(): Double = alturaInicialInterna
 
-    /** Altura actual en metros. */
+    /**
+     * Devuelve la altura instantánea de la esfera en metros sobre el suelo.
+     */
     fun alturaActual(): Double = alturaActualInterna
 
-    /** Velocidad actual en m/s. */
+    /**
+     * Devuelve la velocidad instantánea en m/s para dimensionar el vector de
+     * velocidad sobre la esfera.
+     */
     fun velocidadActual(): Double = velocidadActualInterna
 
-    /** Indica si el cuerpo ya tocó el suelo. */
+    /**
+     * Indica si la esfera ya tocó el suelo y debe dibujarse el destello de impacto.
+     */
     fun haImpactado(): Boolean = impactadoInterno
 
-    /** Fracción de altura restante respecto de la altura inicial. */
-    fun fraccionAltura(): Double =
+    /**
+     * Comportamiento de dominio: calcula la proporción `alturaActual / alturaInicial`
+     * acotada al intervalo `[0.0, 1.0]` para interpolar la coordenada vertical
+     * de la esfera en pantalla.
+     */
+    fun fraccionAltura(): Double {
         if (alturaInicialInterna > 0.0) {
-            (alturaActualInterna / alturaInicialInterna).coerceIn(0.0, 1.0)
-        } else {
-            0.0
+            return (alturaActualInterna / alturaInicialInterna).coerceIn(0.0, 1.0)
         }
+        return 0.0
+    }
+
+    /**
+     * Comportamiento de dominio: construye la etiqueta descriptiva del entorno
+     * activo con su aceleración gravitatoria en m/s².
+     */
+    fun descripcionEntorno(): String {
+        return "${entornoInterno.nombre()} (g = ${formatear(entornoInterno.gravedad())} m/s²)"
+    }
+
+    /**
+     * Comportamiento de dominio: formatea un número real a dos decimales con
+     * punto decimal (`Locale.ROOT`) para las leyendas del lienzo.
+     */
+    fun formatear(valor: Double): String = String.format(Locale.ROOT, "%.2f", valor)
 }

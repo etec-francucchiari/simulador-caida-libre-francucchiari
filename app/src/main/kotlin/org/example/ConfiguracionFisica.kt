@@ -1,53 +1,85 @@
 package org.example
 
-/**
- * Implementación de la configuración física del simulador.
- *
- * Además de los valores por defecto y los límites válidos, expone
- * comportamiento de dominio para ajustar magnitudes al rango permitido y
- * describir la configuración, evitando una clase meramente anémica.
- *
- * @property alturaPorDefectoInterna altura inicial por defecto en metros.
- * @property velocidadPorDefectoInterna velocidad inicial por defecto en m/s.
- * @property alturaMinimaInterna altura mínima admitida en metros.
- * @property velocidadMinimaInterna velocidad mínima admitida en m/s.
- */
 class ConfiguracionFisica(
     private val alturaPorDefectoInterna: Double = 100.0,
     private val velocidadPorDefectoInterna: Double = 0.0,
     private val alturaMinimaInterna: Double = 0.0,
     private val velocidadMinimaInterna: Double = 0.0
 ) : ConfiguracionSimulacion {
+    /**
+     * Implementación de dominio de la configuración física del simulador de
+     * caída libre ([ConfiguracionSimulacion]).
+     *
+     * Encapsula de forma privada los parámetros iniciales por defecto y las
+     * cotas mínimas físicamente admisibles para la altura y la velocidad
+     * inicial, proporcionando reglas de validación, ajuste al rango permitido y
+     * generación de resúmenes descriptivos.
+     *
+     * @property alturaPorDefectoInterna altura inicial por defecto en metros (100.0 m).
+     * @property velocidadPorDefectoInterna velocidad inicial por defecto en m/s (0.0 m/s).
+     * @property alturaMinimaInterna cota inferior permitida para la altura (0.0 m).
+     * @property velocidadMinimaInterna cota inferior permitida para la velocidad (0.0 m/s).
+     */
 
+    /**
+     * Devuelve la altura inicial por defecto expresada en metros.
+     */
     override fun alturaPorDefecto(): Double = alturaPorDefectoInterna
 
+    /**
+     * Devuelve la velocidad inicial por defecto expresada en metros por segundo.
+     */
     override fun velocidadPorDefecto(): Double = velocidadPorDefectoInterna
 
+    /**
+     * Devuelve la altura mínima permitida por el modelo físico (nivel del suelo).
+     */
     override fun alturaMinima(): Double = alturaMinimaInterna
 
+    /**
+     * Devuelve la velocidad inicial mínima permitida en caída hacia abajo.
+     */
     override fun velocidadMinima(): Double = velocidadMinimaInterna
 
-    override fun esAlturaValida(altura: Double): Boolean =
-        altura.isFinite() && altura >= alturaMinimaInterna
-
-    override fun esVelocidadValida(velocidad: Double): Boolean =
-        velocidad.isFinite() && velocidad >= velocidadMinimaInterna
+    /**
+     * Comprueba si una [altura] es un número real finito mayor o igual que la
+     * cota mínima configurada.
+     */
+    override fun esAlturaValida(altura: Double): Boolean {
+        return altura.isFinite() && altura >= alturaMinimaInterna
+    }
 
     /**
-     * Comportamiento de dominio: ajusta una altura al rango permitido.
+     * Comprueba si una [velocidad] es un número real finito mayor o igual que
+     * la cota mínima configurada.
      */
-    fun ajustarAltura(altura: Double): Double =
-        if (esAlturaValida(altura)) altura else alturaMinimaInterna
+    override fun esVelocidadValida(velocidad: Double): Boolean {
+        return velocidad.isFinite() && velocidad >= velocidadMinimaInterna
+    }
 
     /**
-     * Comportamiento de dominio: ajusta una velocidad al rango permitido.
+     * Comportamiento de dominio: recorta o reemplaza una [altura] inválida por
+     * la altura mínima admisible.
      */
-    fun ajustarVelocidad(velocidad: Double): Double =
-        if (esVelocidadValida(velocidad)) velocidad else velocidadMinimaInterna
+    fun ajustarAltura(altura: Double): Double {
+        return if (esAlturaValida(altura)) altura else alturaMinimaInterna
+    }
 
-    /** Comportamiento de dominio: resumen legible de la configuración. */
-    fun resumen(): String =
-        "Altura por defecto: $alturaPorDefectoInterna m; " +
+    /**
+     * Comportamiento de dominio: recorta o reemplaza una [velocidad] inválida
+     * por la velocidad mínima admisible.
+     */
+    fun ajustarVelocidad(velocidad: Double): Double {
+        return if (esVelocidadValida(velocidad)) velocidad else velocidadMinimaInterna
+    }
+
+    /**
+     * Comportamiento de dominio: construye un resumen textual legible con los
+     * valores por defecto y los límites configurados.
+     */
+    fun resumen(): String {
+        return "Altura por defecto: $alturaPorDefectoInterna m; " +
             "velocidad por defecto: $velocidadPorDefectoInterna m/s; " +
             "mínimos: $alturaMinimaInterna m y $velocidadMinimaInterna m/s."
+    }
 }

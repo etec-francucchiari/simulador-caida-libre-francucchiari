@@ -1,40 +1,61 @@
 package org.example
 
-/**
- * Modelo de dominio que representa el resultado de una acción del usuario
- * dentro del desafío interactivo.
- *
- * Contiene comportamiento relevante (composición del mensaje didáctico) en
- * lugar de ser un simple contenedor de datos.
- *
- * @property correctaInterna indica si la acción del usuario fue acertada.
- * @property mensajeInterno mensaje breve del resultado.
- * @property detalleInterno explicación ampliada del error o del acierto.
- */
 class Retroalimentacion(
     private val correctaInterna: Boolean,
     private val mensajeInterno: String,
     private val detalleInterno: String = ""
 ) {
-
-    /** Indica si la acción fue correcta. */
-    fun esCorrecta(): Boolean = correctaInterna
-
-    /** Mensaje breve del resultado. */
-    fun mensaje(): String = mensajeInterno
-
-    /** Explicación ampliada del resultado. */
-    fun detalle(): String = detalleInterno
-
-    /** Comportamiento de dominio: hay explicación ampliada. */
-    fun tieneDetalle(): Boolean = detalleInterno.isNotBlank()
+    /**
+     * Modelo de dominio inmutable que encapsula el resultado pedagógico de una
+     * acción realizada por el estudiante dentro del desafío interactivo del
+     * Modo Avanzado (selección de fórmula, verificación de sustitución o
+     * elección de respuesta numérica).
+     *
+     * Conserva sus atributos como campos privados y ofrece comportamiento de
+     * dominio ([tieneDetalle], [resumen]) para componer el texto final que
+     * presenta la interfaz gráfica sin exponer su estructura interna.
+     *
+     * @property correctaInterna `true` cuando la intervención del usuario acertó.
+     * @property mensajeInterno titular breve del resultado.
+     * @property detalleInterno explicación conceptual o sugerencia de corrección.
+     */
 
     /**
-     * Comportamiento de dominio: combina mensaje y detalle en un único texto
-     * listo para mostrar en pantalla.
+     * Indica si la acción evaluada fue correcta.
      */
-    fun resumen(): String =
-        if (tieneDetalle()) "$mensajeInterno $detalleInterno" else mensajeInterno
+    fun esCorrecta(): Boolean = correctaInterna
 
-    override fun toString(): String = resumen()
+    /**
+     * Devuelve el mensaje principal breve de la retroalimentación.
+     */
+    fun mensaje(): String = mensajeInterno
+
+    /**
+     * Devuelve la explicación detallada complementaria, o cadena vacía si no
+     * se especificó.
+     */
+    fun detalle(): String = detalleInterno
+
+    /**
+     * Comportamiento de dominio: indica si existe una explicación ampliada no
+     * vacía además del mensaje principal.
+     */
+    fun tieneDetalle(): Boolean {
+        return detalleInterno.isNotBlank()
+    }
+
+    /**
+     * Comportamiento de dominio: unifica el mensaje principal y el detalle
+     * explicativo en una sola oración lista para presentar en la vista.
+     */
+    fun resumen(): String {
+        return if (tieneDetalle()) "$mensajeInterno $detalleInterno" else mensajeInterno
+    }
+
+    /**
+     * Representación textual completa de la retroalimentación.
+     */
+    override fun toString(): String {
+        return if (detalleInterno.isNotBlank()) "$mensajeInterno $detalleInterno" else mensajeInterno
+    }
 }

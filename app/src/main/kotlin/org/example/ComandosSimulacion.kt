@@ -1,43 +1,61 @@
 package org.example
 
-/**
- * Abstracción de comandos que modifican el estado de la simulación (DIP).
- *
- * Agrupa las operaciones de configuración y de flujo temporal que los
- * controladores de UI pueden invocar sin conocer la implementación concreta.
- */
 interface ComandosSimulacion {
+    /**
+     * Abstracción de los comandos que mutan el estado de la simulación de caída
+     * libre (Principio de Segregación de Interfaces - ISP y Principio de
+     * Inversión de Dependencias - DIP).
+     *
+     * Separa las operaciones de escritura y control del flujo temporal respecto
+     * de las consultas reactivas de solo lectura definidas en [EstadoSimulacion],
+     * de modo que los paneles meramente informativos no dependan de métodos de
+     * modificación que no utilizan.
+     */
 
-    /** Establece el entorno gravitatorio activo. */
+    /**
+     * Establece el [planeta] o entorno gravitatorio activo y reinicia el
+     * tiempo transcurrido al origen (`t = 0 s`).
+     */
     fun establecerPlaneta(planeta: EntornoGravitatorio)
 
-    /** Establece la altura inicial en metros. */
+    /**
+     * Actualiza la [altura] inicial de lanzamiento en metros y reinicia el
+     * estado instantáneo de la simulación.
+     */
     fun establecerAlturaInicial(altura: Double)
 
-    /** Establece la velocidad inicial en m/s. */
+    /**
+     * Actualiza la [velocidad] inicial hacia abajo en metros por segundo y
+     * reinicia el estado instantáneo de la simulación.
+     */
     fun establecerVelocidadInicial(velocidad: Double)
 
-    /** Inicia o reanuda la simulación. */
+    /**
+     * Inicia o reanuda la simulación siempre que la altura inicial sea positiva,
+     * reiniciando desde el tope si el cuerpo ya se encontraba en el suelo.
+     */
     fun iniciarSimulacion()
 
-    /** Pausa la simulación. */
+    /**
+     * Pausa el avance temporal conservando las magnitudes instantáneas actuales.
+     */
     fun pausarSimulacion()
 
-    /** Reinicia el tiempo y los valores instantáneos. */
+    /**
+     * Restablece el tiempo actual a `0.0 s`, la altura actual a `h₀` y la
+     * velocidad actual a `v₀`, deteniendo la ejecución activa.
+     */
     fun reiniciarSimulacion()
 
     /**
-     * Avanza el tiempo en [deltaSegundos].
-     *
-     * @return `true` si la simulación continúa en el aire.
+     * Avanza el tiempo de la simulación en [deltaSegundos] cuando el estado de
+     * ejecución lo autoriza, devolviendo `true` si el móvil continúa en el aire.
      */
     fun avanzarTiempo(deltaSegundos: Double): Boolean
 
     /**
-     * Aplica un estado de la máquina de estados de la simulación
-     * ([EstadoEjecucion]).
-     *
-     * @return el estado aplicado.
+     * Aplica un [nuevoEstado] de la máquina de estados ([EstadoEjecucion]) y
+     * sincroniza el indicador observable de ejecución activa.
      */
     fun cambiarEstado(nuevoEstado: EstadoEjecucion): EstadoEjecucion
 }

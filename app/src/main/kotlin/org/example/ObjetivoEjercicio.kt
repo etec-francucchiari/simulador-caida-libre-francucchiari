@@ -1,18 +1,10 @@
 package org.example
 
-/**
- * Objetivo de cálculo de un ejercicio del Modo Avanzado.
- *
- * Se modela como enumeración con campos [private] (encapsulación estricta) y
- * comportamiento de dominio: descripción didáctica, variable incógnita y
- * clasificación del objetivo. Evita una enumeración anémica.
- */
 enum class ObjetivoEjercicio(
     private val descripcionInterna: String,
     private val variableInterna: String,
     private val unidadInterna: String
 ) {
-
     CALCULAR_POSICION(
         descripcionInterna = "calcular la posición (altura) del objeto",
         variableInterna = "y",
@@ -29,23 +21,62 @@ enum class ObjetivoEjercicio(
         unidadInterna = "s"
     );
 
-    /** Descripción didáctica del objetivo. */
+    /**
+     * Enumerador de dominio que clasifica la magnitud física incógnita que el
+     * estudiante debe resolver en un [EjercicioCaidaLibre] del Modo Avanzado:
+     * - [CALCULAR_POSICION]: determinar la altura instantánea `y(t)` en metros.
+     * - [CALCULAR_VELOCIDAD]: determinar la rapidez `v(t)` en metros por segundo.
+     * - [CALCULAR_TIEMPO]: determinar el tiempo total de caída libre en segundos.
+     *
+     * Conserva sus atributos como campos privados inmutables y ofrece predicados
+     * de dominio ([esPosicion], [esVelocidad], [esTiempo]) para orientar la
+     * generación de fórmulas y distractores sin condicionales acoplados.
+     */
+
+    /**
+     * Devuelve la descripción didáctica del objetivo para insertar en el
+     * enunciado del problema.
+     */
     fun descripcion(): String = descripcionInterna
 
-    /** Variable incógnita del ejercicio. */
+    /**
+     * Devuelve el símbolo algebraico de la variable incógnita (`"y"`, `"v"` o `"t"`).
+     */
     fun variable(): String = variableInterna
 
-    /** Unidad de medida del resultado. */
+    /**
+     * Devuelve la unidad del Sistema Internacional asociada al resultado esperado.
+     */
     fun unidad(): String = unidadInterna
 
-    /** Comportamiento de dominio: el objetivo es la posición. */
-    fun esPosicion(): Boolean = this == CALCULAR_POSICION
+    /**
+     * Comportamiento de dominio: indica si la incógnita del ejercicio es la
+     * posición vertical instantánea `y(t)`.
+     */
+    fun esPosicion(): Boolean {
+        return variableInterna == "y"
+    }
 
-    /** Comportamiento de dominio: el objetivo es la velocidad. */
-    fun esVelocidad(): Boolean = this == CALCULAR_VELOCIDAD
+    /**
+     * Comportamiento de dominio: indica si la incógnita del ejercicio es la
+     * velocidad instantánea `v(t)`.
+     */
+    fun esVelocidad(): Boolean {
+        return variableInterna == "v"
+    }
 
-    /** Comportamiento de dominio: el objetivo es el tiempo de caída. */
-    fun esTiempo(): Boolean = this == CALCULAR_TIEMPO
+    /**
+     * Comportamiento de dominio: indica si la incógnita del ejercicio es el
+     * tiempo total de caída hasta tocar el suelo.
+     */
+    fun esTiempo(): Boolean {
+        return variableInterna == "t"
+    }
 
-    override fun toString(): String = descripcionInterna
+    /**
+     * Representación textual legible del objetivo de aprendizaje.
+     */
+    override fun toString(): String {
+        return descripcionInterna
+    }
 }

@@ -1,12 +1,14 @@
 package org.example
 
-/**
- * Contrato del servicio de física de la caída libre (DIP).
- *
- * Las capas de estado, explicación, gráficos y exportación dependen de esta
- * abstracción y no de la implementación concreta [CalculoCaidaLibre].
- */
+import java.util.Locale
+
 interface CalculadoraCaidaLibre {
+    /**
+     * Contrato del servicio de física de la caída libre (DIP).
+     *
+     * Las capas de estado, explicación, gráficos y exportación dependen de esta
+     * abstracción y no de la implementación concreta [CalculoCaidaLibre].
+     */
 
     /** Tiempo total de caída en segundos, o `null` si no es válido. */
     fun calcularTiempoCaida(h0: Double, v0: Double, g: Double): Double?
@@ -21,10 +23,8 @@ interface CalculadoraCaidaLibre {
     fun calcularVelocidad(h0: Double, v0: Double, g: Double, t: Double): Double?
 
     /** Secuencia de puntos de la trayectoria hasta el impacto. */
-    fun generarPuntosTrayectoria(
-        h0: Double,
-        v0: Double,
-        g: Double,
-        cantidadPuntos: Int = 100
-    ): List<PuntoTrayectoria>
+    fun generarPuntosTrayectoria(h0: Double, v0: Double, g: Double, cantidadPuntos: Int = 100): List<PuntoTrayectoria>
+
+    /** Formatea una magnitud física con dos cifras decimales. */
+    fun formatear(valor: Double): String = String.format(Locale.ROOT, "%.2f", valor)
 }

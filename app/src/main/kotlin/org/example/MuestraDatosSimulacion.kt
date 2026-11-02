@@ -1,44 +1,70 @@
 package org.example
 
-/**
- * Modelo de dominio que representa la tabla de datos generada por una
- * simulación de caída libre, lista para ser exportada.
- *
- * Encapsula el entorno, los parámetros iniciales y las filas, y expone
- * comportamiento de dominio (encabezados y estado de la muestra).
- *
- * @property entornoInterno entorno gravitatorio de la simulación.
- * @property parametrosInternos parámetros iniciales usados.
- * @property filasInternas filas cinemáticas de la tabla.
- */
 class MuestraDatosSimulacion(
     private val entornoInterno: EntornoGravitatorio,
     private val parametrosInternos: ParametrosIniciales,
     private val filasInternas: List<FilaDatosSimulacion>
 ) {
+    /**
+     * Modelo de dominio inmutable que representa la tabla completa de datos
+     * cinemáticos generada por una simulación de caída libre y preparada para
+     * su exportación mediante cualquier [ExportadorDatos].
+     *
+     * Encapsula como atributos privados el entorno gravitatorio activo, los
+     * parámetros iniciales de lanzamiento y la colección ordenada de registros
+     * [FilaDatosSimulacion], ofreciendo comportamiento de dominio propio para
+     * consultar el tamaño de la muestra ([cantidadFilas]), su vacuidad
+     * ([estaVacia]), los encabezados estandarizados ([encabezados]) y el
+     * instante final de impacto ([tiempoDeImpacto]).
+     */
 
-    /** Entorno gravitatorio de la simulación. */
+    /**
+     * Devuelve el entorno gravitatorio en el que se recolectó la muestra.
+     */
     fun entorno(): EntornoGravitatorio = entornoInterno
 
-    /** Parámetros iniciales de la simulación. */
+    /**
+     * Devuelve los parámetros iniciales (altura y velocidad inicial) de la muestra.
+     */
     fun parametros(): ParametrosIniciales = parametrosInternos
 
-    /** Filas cinemáticas de la tabla. */
+    /**
+     * Devuelve la lista ordenada de filas cinemáticas muestreadas.
+     */
     fun filas(): List<FilaDatosSimulacion> = filasInternas
 
-    /** Cantidad de filas de la muestra. */
-    fun cantidadFilas(): Int = filasInternas.size
+    /**
+     * Comportamiento de dominio: devuelve el número total de registros en la muestra.
+     */
+    fun cantidadFilas(): Int {
+        return filasInternas.size
+    }
 
-    /** Comportamiento de dominio: la muestra no contiene datos. */
-    fun estaVacia(): Boolean = filasInternas.isEmpty()
+    /**
+     * Comportamiento de dominio: indica si la muestra carece de registros.
+     */
+    fun estaVacia(): Boolean {
+        return filasInternas.isEmpty()
+    }
 
-    /** Comportamiento de dominio: encabezados de las columnas de la tabla. */
+    /**
+     * Comportamiento de dominio: devuelve los nombres de columna con sus
+     * unidades del Sistema Internacional para el encabezado tabular.
+     */
     fun encabezados(): List<String> = listOf("t (s)", "y (m)", "v (m/s)", "a (m/s²)")
 
-    /** Comportamiento de dominio: instante del impacto (última fila). */
-    fun tiempoDeImpacto(): Double =
-        filasInternas.lastOrNull()?.tiempo() ?: 0.0
+    /**
+     * Comportamiento de dominio: obtiene el instante de tiempo correspondiente
+     * al último punto muestreado (instante de impacto contra el suelo).
+     */
+    fun tiempoDeImpacto(): Double {
+        return filasInternas.lastOrNull()?.tiempo() ?: 0.0
+    }
 
-    override fun toString(): String =
-        "MuestraDatosSimulacion(${entornoInterno.nombre()}, ${filasInternas.size} filas)"
+    /**
+     * Resumen textual de la muestra indicando el entorno y la cantidad de filas.
+     */
+    override fun toString(): String {
+        return "MuestraDatosSimulacion(${entornoInterno.nombre()}, ${filasInternas.size} filas)"
+    }
 }
