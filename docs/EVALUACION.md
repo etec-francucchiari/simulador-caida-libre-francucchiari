@@ -249,15 +249,15 @@ xychart-beta
 | 2026-10-23 | No | sin actividad | 0 / 0 |
 | 2026-10-26 | No | sin actividad | 0 / 0 |
 
-#### Aportes fuera del calendario de clases
+#### Aportes fuera del calendario de clases — francucchiari-code
 
-**3 fechas fuera del calendario** · 2 commits · 3 merges
+**francucchiari-code — 3 fechas fuera del calendario** · 2 commits · 3 merges
 
-| Fecha | Repositorios | Commits / merges |
-|---|---|--:|
-| 2026-10-30 | simulador-caida-libre-francucchiari | 1 / 2 |
-| 2026-11-01 | simulador-caida-libre-francucchiari | 1 / 0 |
-| 2026-11-02 | simulador-caida-libre-francucchiari | 0 / 1 |
+| Alumno | Fecha | Repositorios | Commits / merges |
+|---|---|---|---|
+| francucchiari-code (`francucchiari-code`) | 2026-10-30 | simulador-caida-libre-francucchiari | 1 / 2 |
+| francucchiari-code (`francucchiari-code`) | 2026-11-01 | simulador-caida-libre-francucchiari | 1 / 0 |
+| francucchiari-code (`francucchiari-code`) | 2026-11-02 | simulador-caida-libre-francucchiari | 0 / 1 |
 
 <!-- actividad-clases:fin -->
 
