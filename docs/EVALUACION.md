@@ -212,6 +212,43 @@ xychart-beta
 | 8 | 2026-10-19 | `54c463a` | francucchiari-code | 5,932 | 4 | 99% | 3.6% | 0 |
 | 9 | 2026-10-30 | `ced6b32` | francucchiari-code | 6,129 | 3 | 99% | 3.5% | 0 |
 
+<!-- actividad-clases:inicio -->
+## Actividad en días de clase
+
+> Período **2026-08-14 → 2026-10-29** · **17 clases** (lunes, viernes) · calendario oficial de la materia.
+>
+> `Commits` = commits de trabajo (no-merge); `Merges` = merges de PR (también son push). Los días sin actividad dicen **sin actividad**. Se usan las fechas de clase del calendario oficial; los días fuera del calendario no se incluyen.
+>
+> Se recorre `git log --all` sobre un mirror (todas las ramas y `refs/pull/*`), con deduplicación por commit. Fecha = fecha de autor en UTC-3. Los commits locales no pusheados no se ven. Si el trabajo fue en pareja y el commit es de otra persona, figura a nombre del autor del commit; para reflejarlo, usar `Co-authored-by` o una nota manual.
+>
+> Sección informativa: no modifica el semáforo de aprobación.
+
+### francucchiari-code
+
+**9/17 clases con actividad** · 12 commits · 6 merges
+
+| Fecha | Marca | Repositorios | Commits / merges |
+|---|:--:|---|--:|
+| 2026-08-14 | **Sí** | simulador-caida-libre-francucchiari | 1 / 0 |
+| 2026-08-21 | No | sin actividad | 0 / 0 |
+| 2026-08-24 | No | sin actividad | 0 / 0 |
+| 2026-08-28 | No | sin actividad | 0 / 0 |
+| 2026-08-31 | **Sí** | simulador-caida-libre-francucchiari | 2 / 0 |
+| 2026-09-04 | **Sí** | simulador-caida-libre-francucchiari | 2 / 0 |
+| 2026-09-07 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
+| 2026-09-14 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
+| 2026-09-25 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
+| 2026-09-28 | No | sin actividad | 0 / 0 |
+| 2026-10-02 | **Sí** | simulador-caida-libre-francucchiari | 2 / 1 |
+| 2026-10-05 | No | sin actividad | 0 / 0 |
+| 2026-10-09 | No | sin actividad | 0 / 0 |
+| 2026-10-16 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
+| 2026-10-19 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
+| 2026-10-23 | No | sin actividad | 0 / 0 |
+| 2026-10-26 | No | sin actividad | 0 / 0 |
+
+<!-- actividad-clases:fin -->
+
 ---
 _Informe generado por la cátedra. Los criterios y umbrales de medición corresponden al perfil `exigente` de `calidad.py`; el semáforo de aprobación, a `CRITERIOS-CALIDAD.md` (ver `README.md`). Ante dudas, revisá el archivo señalado._
 <!-- evaluacion:fin -->
