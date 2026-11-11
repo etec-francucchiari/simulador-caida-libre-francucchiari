@@ -56,4 +56,14 @@ interface FabricaControlesUi {
      * `Double.NaN` cuando el formato no es válido.
      */
     fun interpretarNumero(texto: String): Double
+
+    /**
+     * Construye la barra inferior de controles de reproducción de la simulación.
+     */
+    fun crearBarraControles(estado: EstadoSimulacion, control: ControlReproduccion): BarraControlesSimulacion
+
+    /**
+     * Construye el panel visual de animación en tiempo real de la caída libre.
+     */
+    fun crearPanelAnimacion(estado: EstadoSimulacion, renderizador: RenderizadorAnimacionCaida): PanelAnimacionCaida
 }

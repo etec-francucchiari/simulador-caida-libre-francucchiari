@@ -7,25 +7,29 @@ class PanelGraficosSimulacion(
     private val estado: EstadoSimulacion,
     private val series: SeriesCinematica
 ) : VBox(8.0) {
+    constructor(estado: EstadoSimulacion, calculo: CalculadoraCaidaLibre) :
+        this(estado, ConstructorSeriesCinematica(calculo))
+
     /**
      * Componente visual reactivo encargado de graficar en tiempo real las funciones
      * cinemáticas de la caída libre: y(t) y v(t).
      */
 
-    private val graficoPosicion = GraficoCurvaCinematica(
-        "Tiempo t [s]",
+    private val graficoPosicion = crearGrafico(
         "Altura y(t) [m]",
         "Posición vs Tiempo y(t)",
         "Curva teórica y(t)",
         "Punto actual (t, y)"
     )
-    private val graficoVelocidad = GraficoCurvaCinematica(
-        "Tiempo t [s]",
+    private val graficoVelocidad = crearGrafico(
         "Velocidad v(t) [m/s]",
         "Velocidad vs Tiempo v(t)",
         "Curva teórica v(t)",
         "Punto actual (t, v)"
     )
+
+    private fun crearGrafico(ejeY: String, titulo: String, curva: String, punto: String): GraficoCurvaCinematica =
+        GraficoCurvaCinematica("Tiempo t [s]", ejeY, titulo, curva, punto)
 
     init {
         inicializar()

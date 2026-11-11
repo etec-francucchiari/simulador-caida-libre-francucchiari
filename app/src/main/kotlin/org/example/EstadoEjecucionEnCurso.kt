@@ -39,7 +39,7 @@ class EstadoEjecucionEnCurso : EstadoEjecucion {
     /**
      * Al alternar desde la ejecución activa, conmuta al estado pausado.
      */
-    override fun alternar(): EstadoEjecucion = EstadoEjecucionPausado()
+    override fun alternar(): EstadoEjecucion = pausar()
 
     /**
      * Autoriza el avance cinemático siempre que el intervalo [deltaSegundos]

@@ -23,9 +23,9 @@ class EnsambladorPrincipiante(
             contexto = nucleo.contexto(),
             control = nucleo.control(),
             vistaFormulas = crearVistaFormulas(),
-            vistaSimulacion = crearVistaSimulacion()
+            calculo = nucleo.calculo()
         )
-        return fabrica.crear(onCambiarPlaneta, onCambiarModo)
+        return fabrica.crear(nucleo.crearRenderizador(), onCambiarPlaneta, onCambiarModo)
     }
 
     /**
@@ -34,19 +34,8 @@ class EnsambladorPrincipiante(
     private fun crearVistaFormulas(): VistaPestanaFormulas {
         return VistaPestanaFormulas(
             contexto = nucleo.contexto(),
-            explicador = ExplicadorFisicaPasoAPaso(nucleo.calculo()),
-            validador = ValidadorParametrosIniciales(nucleo.configuracion())
-        )
-    }
-
-    /**
-     * Construye la vista de la pestaña de simulación interactiva en tiempo real.
-     */
-    private fun crearVistaSimulacion(): VistaPestanaSimulacion {
-        return VistaPestanaSimulacion(
-            estado = nucleo.contexto(),
-            series = ConstructorSeriesCinematica(nucleo.calculo()),
-            renderizador = nucleo.crearRenderizador()
+            calculo = nucleo.calculo(),
+            configuracion = nucleo.configuracion()
         )
     }
 }

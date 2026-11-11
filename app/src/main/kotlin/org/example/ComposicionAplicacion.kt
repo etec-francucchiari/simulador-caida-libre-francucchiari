@@ -1,7 +1,7 @@
 package org.example
 
 class ComposicionAplicacion(
-    private val nucleo: NucleoSimulacion = NucleoSimulacion()
+    private val nucleo: NucleoSimulacion
 ) : ServiciosAplicacion {
     /**
      * Raíz de composición (`Composition Root`) de la aplicación JavaFX.

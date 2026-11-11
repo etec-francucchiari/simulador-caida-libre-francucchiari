@@ -7,6 +7,7 @@ class NavegadorPantallas(
     private val contenedor: StackPane,
     private val servicios: ServiciosAplicacion
 ) {
+    constructor(contenedor: StackPane, nucleo: NucleoSimulacion) : this(contenedor, ComposicionAplicacion(nucleo))
     /**
      * Orquestador de navegación entre las pantallas de la aplicación.
      *

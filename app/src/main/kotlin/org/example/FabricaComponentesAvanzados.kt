@@ -20,7 +20,7 @@ class FabricaComponentesAvanzados(
      * exhibe en la tercera etapa de validación experimental.
      */
     fun crearSelectorEtapa(): SelectorVistaEtapa {
-        val animacion = PanelAnimacionCaida(contexto, renderizador)
+        val animacion = fabricaControles.crearPanelAnimacion(contexto, renderizador)
         return SelectorVistaEtapa(desafio, fabricaControles, animacion)
     }
 
