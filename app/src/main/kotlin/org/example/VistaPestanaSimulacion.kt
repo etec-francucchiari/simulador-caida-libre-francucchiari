@@ -4,7 +4,7 @@ import javafx.scene.layout.*
 
 class VistaPestanaSimulacion(
     private val estado: EstadoSimulacion,
-    private val series: SeriesCinematica,
+    private val calculo: CalculadoraCaidaLibre,
     private val renderizador: RenderizadorAnimacionCaida
 ) {
     /**
@@ -12,7 +12,7 @@ class VistaPestanaSimulacion(
      * Principiante, integrando los valores instantáneos, el lienzo de animación y
      * las curvas cinemáticas.
      *
-     * Depende exclusivamente de los contratos [EstadoSimulacion], [SeriesCinematica]
+     * Depende exclusivamente de los contratos [EstadoSimulacion], [CalculadoraCaidaLibre]
      * y [RenderizadorAnimacionCaida] inyectados por constructor (DIP).
      */
 
@@ -36,7 +36,7 @@ class VistaPestanaSimulacion(
         val panelAnimacion = PanelAnimacionCaida(estado, renderizador)
         panelAnimacion.prefWidth = 300.0
         panelAnimacion.minWidth = 280.0
-        val panelGraficos = PanelGraficosSimulacion(estado, series)
+        val panelGraficos = PanelGraficosSimulacion(estado, calculo)
         panelGraficos.prefWidth = 760.0
         val filaVisualizacion = HBox(12.0, panelAnimacion, panelGraficos)
         filaVisualizacion.style = "-fx-alignment: top-center;"

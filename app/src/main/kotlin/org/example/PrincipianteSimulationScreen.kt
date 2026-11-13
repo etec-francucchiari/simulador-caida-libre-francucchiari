@@ -5,10 +5,8 @@ import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
 
 class PrincipianteSimulationScreen(
-    encabezado: Node,
     pestanaFormulas: Node,
-    pestanaSimulacion: Node,
-    barraControles: Node
+    pestanaSimulacion: Node
 ) : BorderPane() {
     /**
      * Pantalla 3 - Simulación del Modo Principiante.
@@ -18,13 +16,20 @@ class PrincipianteSimulationScreen(
      */
 
     init {
-        inicializar(encabezado, pestanaFormulas, pestanaSimulacion, barraControles)
+        center = construirPanelCentral(pestanaFormulas, pestanaSimulacion)
     }
 
-    private fun inicializar(encabezado: Node, pestanaFormulas: Node, pestanaSimulacion: Node, barraControles: Node) {
-        top = encabezado
-        center = construirPanelCentral(pestanaFormulas, pestanaSimulacion)
-        bottom = barraControles
+    /**
+     * Configura la cabecera de navegación y la barra de controles de reproducción.
+     */
+    fun configurarBarras(
+        estado: EstadoSimulacion,
+        control: ControlReproduccion,
+        onCambiarPlaneta: () -> Unit,
+        onCambiarModo: () -> Unit
+    ) {
+        top = EncabezadoSimulacion(estado, onCambiarPlaneta, onCambiarModo)
+        bottom = BarraControlesSimulacion(estado, control)
     }
 
     private fun construirPanelCentral(pestanaFormulas: Node, pestanaSimulacion: Node): TabPane {

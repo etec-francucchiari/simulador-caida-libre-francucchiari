@@ -7,6 +7,9 @@ class PanelExplicacionFisica(
     private val estado: EstadoSimulacion,
     private val explicador: ExplicadorFisica
 ) : VBox(10.0) {
+    constructor(estado: EstadoSimulacion, calculo: CalculadoraCaidaLibre) :
+        this(estado, ExplicadorFisicaPasoAPaso(calculo))
+
     /**
      * Panel que presenta la explicación didáctica de la física paso a paso para el
      * Modo Principiante.
@@ -16,9 +19,12 @@ class PanelExplicacionFisica(
      */
 
     private val etiquetaTiempoCabecera = Label()
-    private val tarjetaPosicion = TarjetaFormulaDidactica("1. Posición: y(t) = y₀ + v₀·t - ½·g·t²", "#3b82f6")
-    private val tarjetaVelocidad = TarjetaFormulaDidactica("2. Velocidad: v(t) = v₀ - g·t", "#f59e0b")
-    private val tarjetaTiempoCaida = TarjetaFormulaDidactica("3. Tiempo de caída esperado: t_final = √(2·y₀ / g)", "#8b5cf6")
+    private val tarjetaPosicion = crearTarjeta("1. Posición: y(t) = y₀ + v₀·t - ½·g·t²", "#3b82f6")
+    private val tarjetaVelocidad = crearTarjeta("2. Velocidad: v(t) = v₀ - g·t", "#f59e0b")
+    private val tarjetaTiempoCaida = crearTarjeta("3. Tiempo de caída esperado: t_final = √(2·y₀ / g)", "#8b5cf6")
+
+    private fun crearTarjeta(titulo: String, color: String): TarjetaFormulaDidactica =
+        TarjetaFormulaDidactica(titulo, color)
 
     init {
         inicializar()

@@ -5,15 +5,15 @@ import javafx.scene.layout.VBox
 
 class VistaPestanaFormulas(
     private val contexto: ContextoSimulacion,
-    private val explicador: ExplicadorFisica,
-    private val validador: ValidadorParametros
+    private val calculo: CalculadoraCaidaLibre,
+    private val configuracion: ConfiguracionSimulacion
 ) {
     /**
      * Construye el contenido desplazable de la pestaña didáctica de fórmulas paso a paso
      * del Modo Principiante.
      *
      * Recibe por constructor únicamente abstracciones ([ContextoSimulacion],
-     * [ExplicadorFisica] y [ValidadorParametros]) cumpliendo con el principio de
+     * [CalculadoraCaidaLibre] y [ConfiguracionSimulacion]) cumpliendo con el principio de
      * inversión de dependencias (DIP) y liberando a [PrincipianteSimulationScreen]
      * de conocer los paneles internos de configuración y desglose algebraico.
      */
@@ -34,8 +34,8 @@ class VistaPestanaFormulas(
      * explicaciones físicas paso a paso.
      */
     private fun construirContenedor(): VBox {
-        val panelParametros = PanelParametrosIniciales(contexto, contexto, validador)
-        val panelExplicacion = PanelExplicacionFisica(contexto, explicador)
+        val panelParametros = PanelParametrosIniciales(contexto, configuracion)
+        val panelExplicacion = PanelExplicacionFisica(contexto, calculo)
         val contenedor = VBox(16.0, panelParametros, panelExplicacion)
         contenedor.style = "-fx-padding: 18; -fx-alignment: top-center;"
         contenedor.maxWidth = 720.0

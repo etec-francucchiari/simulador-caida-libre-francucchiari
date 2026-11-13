@@ -2,28 +2,23 @@ package org.example
 
 enum class Planeta(
     private val nombreInterno: String,
-    private val gravedadInterna: Double,
-    private val descripcionInterna: String
+    private val gravedadInterna: Double
 ) : EntornoGravitatorio {
     TIERRA(
         nombreInterno = "Tierra",
-        gravedadInterna = 9.81,
-        descripcionInterna = "g = 9.81 m/s²"
+        gravedadInterna = 9.81
     ),
     LUNA(
         nombreInterno = "Luna",
-        gravedadInterna = 1.62,
-        descripcionInterna = "g = 1.62 m/s²"
+        gravedadInterna = 1.62
     ),
     MARTE(
         nombreInterno = "Marte",
-        gravedadInterna = 3.71,
-        descripcionInterna = "g = 3.71 m/s²"
+        gravedadInterna = 3.71
     ),
     JUPITER(
         nombreInterno = "Júpiter",
-        gravedadInterna = 24.79,
-        descripcionInterna = "g = 24.79 m/s²"
+        gravedadInterna = 24.79
     );
 
     /**
@@ -34,16 +29,12 @@ enum class Planeta(
      * se realiza mediante los métodos del contrato [EntornoGravitatorio].
      */
 
-    override fun nombre(): String {
-        return nombreInterno
-    }
+    override fun nombre(): String = nombreInterno
 
-    override fun gravedad(): Double {
-        return gravedadInterna
-    }
+    override fun gravedad(): Double = gravedadInterna
 
     override fun descripcion(): String {
-        return descripcionInterna
+        return "$nombreInterno (g = $gravedadInterna m/s²)"
     }
 
     /**

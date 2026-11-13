@@ -32,10 +32,10 @@ class ControladorDesafio(
 
     override fun elegirFormula(indice: Int): Retroalimentacion {
         if (!etapaActual.esFormula()) {
-            return Retroalimentacion(false, "Ya superaste la etapa de selección de fórmula.")
+            return crearRetroalimentacion(false, "Ya superaste la etapa de selección de fórmula.")
         }
         val opcion = opcionesFormulaActuales.getOrNull(indice)
-            ?: return Retroalimentacion(false, "Opción no válida.")
+            ?: return crearRetroalimentacion(false, "Opción no válida.")
         if (opcion.esCorrecta()) {
             etapaActual = etapaActual.siguiente()
         }
@@ -45,24 +45,24 @@ class ControladorDesafio(
     override fun comprobarSustitucion(valoresIngresados: List<Double>): Retroalimentacion {
         val campos = ejercicioActual.camposSustitucion()
         if (valoresIngresados.size != campos.size) {
-            return Retroalimentacion(false, "Debes completar todos los campos de la fórmula.")
+            return crearRetroalimentacion(false, "Debes completar todos los campos de la fórmula.")
         }
         val incorrectos = campos.filterIndexed { indice, campo ->
             !campo.esAcierto(valoresIngresados[indice], toleranciaSustitucion)
         }
         if (incorrectos.isEmpty()) {
-            return Retroalimentacion(true, "¡Sustitución correcta!", "Reemplazaste bien todos los datos en la fórmula.")
+            return crearRetroalimentacion(true, "¡Sustitución correcta!", "Reemplazaste bien todos los datos en la fórmula.")
         }
         val detalle = "Revisa: " + incorrectos.joinToString(", ") { "${it.simbolo()} (esperado ${it.valorEsperado()} ${it.unidad()})" }
-        return Retroalimentacion(false, "Hay ${incorrectos.size} valor(es) incorrecto(s).", detalle)
+        return crearRetroalimentacion(false, "Hay ${incorrectos.size} valor(es) incorrecto(s).", detalle)
     }
 
     override fun responder(indice: Int): Retroalimentacion {
         if (!etapaActual.esSustitucion()) {
-            return Retroalimentacion(false, "Primero debes elegir la fórmula correcta.")
+            return crearRetroalimentacion(false, "Primero debes elegir la fórmula correcta.")
         }
         val opcion = opcionesRespuestaActuales.getOrNull(indice)
-            ?: return Retroalimentacion(false, "Opción no válida.")
+            ?: return crearRetroalimentacion(false, "Opción no válida.")
         if (opcion.esCorrecta()) {
             etapaActual = etapaActual.siguiente()
             resuelto = true
@@ -77,4 +77,7 @@ class ControladorDesafio(
         etapaActual = etapaActual.reiniciar()
         resuelto = false
     }
+
+    private fun crearRetroalimentacion(correcta: Boolean, mensaje: String, detalle: String = ""): Retroalimentacion =
+        Retroalimentacion(correcta, mensaje, detalle)
 }

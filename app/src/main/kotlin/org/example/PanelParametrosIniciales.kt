@@ -8,6 +8,8 @@ class PanelParametrosIniciales(
     private val comandos: ComandosSimulacion,
     private val validador: ValidadorParametros
 ) : VBox(12.0) {
+    constructor(contexto: ContextoSimulacion, configuracion: ConfiguracionSimulacion) :
+        this(contexto, contexto, ValidadorParametrosIniciales(configuracion))
     /**
      * Panel de configuración de los parámetros iniciales (altura h₀ y velocidad v₀).
      *

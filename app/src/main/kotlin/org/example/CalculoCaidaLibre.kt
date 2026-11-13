@@ -45,20 +45,16 @@ class CalculoCaidaLibre : CalculadoraCaidaLibre {
     /** Genera una secuencia de [PuntoTrayectoria] desde t = 0 hasta el impacto. */
     override fun generarPuntosTrayectoria(h0: Double, v0: Double, g: Double, cantidadPuntos: Int): List<PuntoTrayectoria> {
         val tiempoCaida = calcularTiempoCaida(h0, v0, g) ?: return emptyList()
-        val velocidadImpacto = calcularVelocidadImpacto(h0, v0, g) ?: return emptyList()
         if (tiempoCaida == minimoValor) {
             return listOf(PuntoTrayectoria(minimoValor, h0, v0))
         }
         val puntosDeseados = max(2, cantidadPuntos)
         val pasoTiempo = tiempoCaida / (puntosDeseados - 1)
-        val puntos = ArrayList<PuntoTrayectoria>(puntosDeseados)
-        for (i in 0 until puntosDeseados - 1) {
-            val t = i * pasoTiempo
+        return (0 until puntosDeseados).map { i ->
+            val t = if (i == puntosDeseados - 1) tiempoCaida else i * pasoTiempo
             val y = calcularPosicion(h0, v0, g, t) ?: minimoValor
             val v = calcularVelocidad(h0, v0, g, t) ?: minimoValor
-            puntos.add(PuntoTrayectoria(t, y, v))
+            PuntoTrayectoria(t, y, v)
         }
-        puntos.add(PuntoTrayectoria(tiempoCaida, minimoValor, velocidadImpacto))
-        return puntos
     }
 }

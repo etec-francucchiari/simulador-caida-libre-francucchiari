@@ -1,40 +1,40 @@
 package org.example
 
-import javafx.scene.Node
 import javafx.scene.control.ScrollPane
 import javafx.scene.layout.*
 
 class ModoAvanzadoScreen(
-    private val encabezado: EncabezadoDesafioAvanzado,
-    private val selectorEtapa: SelectorVistaEtapa,
-    private val sincronizador: SincronizadorEscenarioDesafio,
-    private val barraExportacion: BarraExportacion,
-    private val barraControles: Node,
-    onCambiarModo: () -> Unit
+    private val contexto: ContextoSimulacion,
+    private val control: ControlReproduccion,
+    desafio: DesafioAvanzado,
+    private val componentes: FabricaComponentesAvanzados
 ) : BorderPane() {
     /**
      * Pantalla del Modo Avanzado: desafío interactivo de cálculo manual más
      * exportación de resultados.
      *
      * Orquesta las tres etapas del desafío delegando en componentes inyectados
-     * por constructor ([EncabezadoDesafioAvanzado], [SelectorVistaEtapa],
-     * [SincronizadorEscenarioDesafio], [BarraExportacion]) cumpliendo SRP y DIP.
+     * por constructor cumpliendo SRP y DIP.
      */
 
     private val contenedorContenido = VBox(14.0)
+    private val encabezado = EncabezadoDesafioAvanzado(desafio, componentes.controles())
+    private val selectorEtapa = componentes.crearSelectorEtapa()
+    private val sincronizador = componentes.crearSincronizador()
+    private var barraExportacion: BarraExportacion? = null
 
-    init {
-        inicializar(onCambiarModo)
-    }
-
-    private fun inicializar(onCambiarModo: () -> Unit) {
+    /** Configura las barras de la pantalla y vincula la acción de cambio de modo. */
+    fun configurar(calculo: CalculadoraCaidaLibre, onCambiarModo: () -> Unit): ModoAvanzadoScreen {
+        val exportacion = FabricaBarraExportacion(contexto, calculo, componentes.controles()).crear { scene?.window }
+        barraExportacion = exportacion
         style = "-fx-background-color: #f8fafc;"
         encabezado.configurarAcciones({ iniciarNuevoEjercicio() }, onCambiarModo)
         top = encabezado
         center = construirCentro()
-        bottom = barraControles
+        bottom = componentes.controles().crearBarraControles(contexto, control)
         sincronizador.sincronizar()
         refrescar()
+        return this
     }
 
     private fun construirCentro(): ScrollPane {
@@ -52,7 +52,7 @@ class ModoAvanzadoScreen(
 
     private fun iniciarNuevoEjercicio() {
         sincronizador.iniciarNuevoEjercicio()
-        barraExportacion.reiniciarMensaje()
+        barraExportacion?.reiniciarMensaje()
         refrescar()
     }
 

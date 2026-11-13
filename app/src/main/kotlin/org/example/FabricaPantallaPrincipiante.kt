@@ -4,7 +4,7 @@ class FabricaPantallaPrincipiante(
     private val contexto: ContextoSimulacion,
     private val control: ControlReproduccion,
     private val vistaFormulas: VistaPestanaFormulas,
-    private val vistaSimulacion: VistaPestanaSimulacion
+    private val calculo: CalculadoraCaidaLibre
 ) {
     /**
      * Fábrica que ensambla la pantalla de simulación del Modo Principiante
@@ -19,24 +19,21 @@ class FabricaPantallaPrincipiante(
      * Construye la pantalla completa del Modo Principiante con las acciones de
      * navegación indicadas.
      *
+     * @param renderizador renderizador del lienzo de caída libre.
      * @param onCambiarPlaneta acción para regresar a la selección de entorno.
      * @param onCambiarModo acción para regresar a la selección de modo.
      */
-    fun crear(onCambiarPlaneta: () -> Unit, onCambiarModo: () -> Unit): PrincipianteSimulationScreen {
-        val encabezado = crearEncabezado(onCambiarPlaneta, onCambiarModo)
-        val controles = BarraControlesSimulacion(contexto, control)
-        return PrincipianteSimulationScreen(
-            encabezado = encabezado,
+    fun crear(
+        renderizador: RenderizadorAnimacionCaida,
+        onCambiarPlaneta: () -> Unit,
+        onCambiarModo: () -> Unit
+    ): PrincipianteSimulationScreen {
+        val vistaSimulacion = VistaPestanaSimulacion(contexto, calculo, renderizador)
+        val pantalla = PrincipianteSimulationScreen(
             pestanaFormulas = vistaFormulas.construir(),
-            pestanaSimulacion = vistaSimulacion.construir(),
-            barraControles = controles
+            pestanaSimulacion = vistaSimulacion.construir()
         )
-    }
-
-    /**
-     * Construye la barra de encabezado superior vinculada al estado reactivo.
-     */
-    private fun crearEncabezado(onCambiarPlaneta: () -> Unit, onCambiarModo: () -> Unit): EncabezadoSimulacion {
-        return EncabezadoSimulacion(contexto, onCambiarPlaneta, onCambiarModo)
+        pantalla.configurarBarras(contexto, control, onCambiarPlaneta, onCambiarModo)
+        return pantalla
     }
 }

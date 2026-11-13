@@ -28,7 +28,7 @@ class SimuladorApp : Application() {
         val scene = Scene(contenedorRaiz, anchoVentana, altoVentana)
         scene.stylesheets.add(javaClass.getResource("/estilos.css")?.toExternalForm())
 
-        val navegador = NavegadorPantallas(contenedorRaiz, ComposicionAplicacion())
+        val navegador = NavegadorPantallas(contenedorRaiz, NucleoSimulacion())
         navegador.mostrarSeleccionModo()
 
         stage.scene = scene

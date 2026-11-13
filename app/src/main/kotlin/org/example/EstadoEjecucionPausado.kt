@@ -39,7 +39,7 @@ class EstadoEjecucionPausado : EstadoEjecucion {
     /**
      * Conmuta desde la pausa hacia la ejecución en curso.
      */
-    override fun alternar(): EstadoEjecucion = EstadoEjecucionEnCurso()
+    override fun alternar(): EstadoEjecucion = iniciar()
 
     /**
      * Impide que el motor físico avance el tiempo mientras dure la pausa.

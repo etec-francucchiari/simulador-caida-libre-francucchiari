@@ -1,19 +1,12 @@
 package org.example
 
 class FabricaPantallaAvanzada(
-    private val contexto: ContextoSimulacion,
-    private val control: ControlReproduccion,
-    private val desafio: DesafioAvanzado,
-    private val componentes: FabricaComponentesAvanzados,
-    private val fabricaBarra: FabricaBarraExportacion
+    private val nucleo: NucleoSimulacion,
+    private val fabricaControles: FabricaControlesUi
 ) {
     /**
      * Fábrica que ensambla la pantalla completa del Modo Avanzado inyectando
      * todos sus colaboradores (DIP).
-     *
-     * Separa la construcción de los subcomponentes ([EncabezadoDesafioAvanzado],
-     * [SelectorVistaEtapa], [SincronizadorEscenarioDesafio], [BarraExportacion] y
-     * [BarraControlesSimulacion]) de la vista [ModoAvanzadoScreen].
      */
 
     /**
@@ -23,23 +16,25 @@ class FabricaPantallaAvanzada(
      * @param onCambiarModo acción para regresar a la selección de modo.
      */
     fun crear(onCambiarModo: () -> Unit): ModoAvanzadoScreen {
-        lateinit var pantalla: ModoAvanzadoScreen
-        val barraExportacion = fabricaBarra.crear { pantalla.scene?.window }
-        pantalla = ModoAvanzadoScreen(
-            encabezado = crearEncabezado(),
-            selectorEtapa = componentes.crearSelectorEtapa(),
-            sincronizador = componentes.crearSincronizador(),
-            barraExportacion = barraExportacion,
-            barraControles = BarraControlesSimulacion(contexto, control),
-            onCambiarModo = onCambiarModo
+        val pantalla = ModoAvanzadoScreen(
+            contexto = nucleo.contexto(),
+            control = nucleo.control(),
+            desafio = nucleo.desafio(),
+            componentes = crearComponentes()
         )
-        return pantalla
+        return pantalla.configurar(nucleo.calculo(), onCambiarModo)
     }
 
     /**
-     * Construye el encabezado interactivo del desafío avanzado.
+     * Construye la fábrica de componentes específicos del desafío avanzado.
      */
-    private fun crearEncabezado(): EncabezadoDesafioAvanzado {
-        return EncabezadoDesafioAvanzado(desafio, componentes.controles())
+    private fun crearComponentes(): FabricaComponentesAvanzados {
+        return FabricaComponentesAvanzados(
+            contexto = nucleo.contexto(),
+            control = nucleo.control(),
+            desafio = nucleo.desafio(),
+            renderizador = nucleo.crearRenderizador(),
+            fabricaControles = fabricaControles
+        )
     }
 }

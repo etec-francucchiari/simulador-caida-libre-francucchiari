@@ -67,4 +67,12 @@ class FabricaControles : FabricaControlesUi {
     /** Interpreta un texto numérico aceptando coma o punto decimal. */
     override fun interpretarNumero(texto: String): Double =
         texto.trim().replace(',', '.').toDoubleOrNull() ?: Double.NaN
+
+    /** Construye la barra inferior de controles de reproducción. */
+    override fun crearBarraControles(estado: EstadoSimulacion, control: ControlReproduccion): BarraControlesSimulacion =
+        BarraControlesSimulacion(estado, control)
+
+    /** Construye el panel visual de animación de la caída libre. */
+    override fun crearPanelAnimacion(estado: EstadoSimulacion, renderizador: RenderizadorAnimacionCaida): PanelAnimacionCaida =
+        PanelAnimacionCaida(estado, renderizador)
 }
