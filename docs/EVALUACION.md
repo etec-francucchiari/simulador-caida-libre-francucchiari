@@ -60,7 +60,7 @@ Sube cuando el código que hoy está **fuera** de clases pasa a ser método de u
 
 | Autor | Commits | Código (LOC) | Tests (LOC) | Docs (LOC) | Días activos | % del código |
 |---|---:|---:|---:|---:|---:|---:|
-| francucchiari-code | 15 | 6,511 | 1,595 | 1 | 14 | 100% |
+| francucchiari-code | 16 | 6,511 | 1,595 | 1 | 14 | 100% |
 
 > _El LOC de autoría lo calcula RepoSense sobre el historial y puede diferir del LOC de código del análisis de calidad (que mira solo el estado de `main`)._
 
