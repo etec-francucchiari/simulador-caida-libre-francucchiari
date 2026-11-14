@@ -3,7 +3,7 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación II (RepoSense + análisis de calidad POO/SOLID). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-11-13.
+> Generado: 2026-11-14.
 
 ## 1. Veredicto
 
@@ -70,9 +70,9 @@ Reúne lo que el análisis marcó y lo que todavía falta para cada semáforo. C
 
 | Falla | Tu resultado | Requisito | Archivos |
 |---|---|---|---|
-| Señales POO/SOLID críticas | Baja cohesión (LCOM) | Aprobar: ninguna<br>Destacar: ninguna | `app/src/main/kotlin/org/example/CampoSustitucion.kt`, `app/src/main/kotlin/org/example/ComposicionAplicacion.kt`, `app/src/main/kotlin/org/example/ConfiguracionFisica.kt`, `app/src/main/kotlin/org/example/ControladorDesafio.kt`, `app/src/main/kotlin/org/example/DetallePasoFormula.kt`, `app/src/main/kotlin/org/example/EjercicioCaidaLibre.kt` (+12 más) |
-| Métodos/funciones largos o con muchos parámetros | **1** método(s)/función(es) largos o con muchos parámetros | Sin señales | `app/src/main/kotlin/org/example/ExplicadorFisicaPasoAPaso.kt` |
-| Dependencia de concretos y falta de abstracciones (DIP) | **27** dependencia(s) de concretos sin abstracciones | Sin señales | `app/src/main/kotlin/org/example/ExplicadorFisicaPasoAPaso.kt`, `app/src/main/kotlin/org/example/FabricaBarraExportacion.kt`, `app/src/main/kotlin/org/example/FabricaCatalogoExportadores.kt`, `app/src/main/kotlin/org/example/FabricaContextoSimulacion.kt`, `app/src/main/kotlin/org/example/FabricaDesafioAvanzado.kt`, `app/src/main/kotlin/org/example/GeneradorOpcionesFormula.kt` (+21 más) |
+| Señales POO/SOLID críticas | Baja cohesión (LCOM) | Aprobar: ninguna<br>Destacar: ninguna | `app/src/main/kotlin/org/example/fisica/ConfiguracionFisica.kt`, `app/src/main/kotlin/org/example/logica/ComposicionAplicacion.kt`, `app/src/main/kotlin/org/example/logica/ControladorDesafio.kt`, `app/src/main/kotlin/org/example/logica/DetallePasoFormula.kt`, `app/src/main/kotlin/org/example/logica/EjercicioCaidaLibre.kt`, `app/src/main/kotlin/org/example/logica/EstadoInstantaneo.kt` (+12 más) |
+| Métodos/funciones largos o con muchos parámetros | **1** método(s)/función(es) largos o con muchos parámetros | Sin señales | `app/src/main/kotlin/org/example/fisica/ExplicadorFisicaPasoAPaso.kt` |
+| Dependencia de concretos y falta de abstracciones (DIP) | **27** dependencia(s) de concretos sin abstracciones | Sin señales | `app/src/main/kotlin/org/example/exportacion/ServicioExportacion.kt`, `app/src/main/kotlin/org/example/fisica/ExplicadorFisicaPasoAPaso.kt`, `app/src/main/kotlin/org/example/logica/GeneradorOpcionesFormula.kt`, `app/src/main/kotlin/org/example/logica/NucleoSimulacion.kt`, `app/src/main/kotlin/org/example/logica/ValidadorParametrosIniciales.kt`, `app/src/main/kotlin/org/example/modelos/ParametrosIniciales.kt` (+21 más) |
 
 ## 4. Aspectos evaluados
 
@@ -199,14 +199,14 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 ## 5. Evolución por commit
 
-Métricas calculadas sobre el estado de `main` en **cada commit** (15 commits con trabajo), del primero al último. La calidad usa el perfil `exigente`; el aporte de código lo mide RepoSense. El índice puede **bajar** al crecer el proyecto: se acumulan señales.
+Métricas calculadas sobre el estado de `main` en **cada commit** (17 commits con trabajo), del primero al último. La calidad usa el perfil `exigente`; el aporte de código lo mide RepoSense. El índice puede **bajar** al crecer el proyecto: se acumulan señales.
 
 ```mermaid
 xychart-beta
     title "Índice POO/SOLID a lo largo de los commits"
-    x-axis ["e4c7dc4", "f9cdb25", "21e6166", "6f7333f", "bdbdb04", "fbb8e8c", "6d00bd3", "54c463a", "ced6b32", "89325b5", "78e89ac", "8a543a5", "33d96dd", "96ce9c6", "b5fd2c3"]
+    x-axis ["e4c7dc4", "f9cdb25", "21e6166", "6f7333f", "bdbdb04", "fbb8e8c", "6d00bd3", "54c463a", "ced6b32", "89325b5", "78e89ac", "8a543a5", "33d96dd", "96ce9c6", "b5fd2c3", "eeb8386", "2a2f4a1"]
     y-axis "Índice" 0 --> 100
-    line [0, 0, 58, 59, 66, 64, 67, 70, 70, 82, 82, 82, 82, 82, 85]
+    line [0, 0, 58, 59, 66, 64, 67, 70, 70, 82, 82, 82, 82, 82, 85, 85, 85]
 ```
 
 | # | Fecha | Commit | Autor | LOC | Índice | %POO | Duplic. | Sueltas |
@@ -226,58 +226,8 @@ xychart-beta
 | 13 | 2026-11-07 | `33d96dd` | dqmdz-etec | 7,136 | 82 | 99% | 0.6% | 0 |
 | 14 | 2026-11-07 | `96ce9c6` | dqmdz-etec | 7,136 | 82 | 99% | 0.6% | 0 |
 | 15 | 2026-11-13 | `b5fd2c3` | Simulador ETEC | 7,113 | 85 | 99% | 0.6% | 0 |
-
-<!-- actividad-clases:inicio -->
-## Actividad en días de clase
-
-> Período evaluado **2026-08-14 → 2026-11-13** · **21 clases** (lunes, viernes) · días de clase del calendario, extendidos hasta la fecha de corte.
->
-> `Commits` = commits de trabajo (no-merge); `Merges` = merges de PR (también son push). Los días sin actividad dicen **sin actividad**. El cuadro principal usa sólo las fechas de clase del calendario oficial.
->
-> **Aportes fuera del calendario:** cada alumno tiene un cuadro aparte con las fechas no lectivas con actividad, desde **2026-08-14** hasta **2026-11-13** (ventana de aportes). Esas fechas no forman parte del cuadro principal, pero se muestran para no perder trabajo hecho en fines de semana, feriados o después del período.
->
-> Se recorre `git log --all` sobre un mirror (todas las ramas y `refs/pull/*`), con deduplicación por commit. Fecha = fecha de autor en UTC-3. Los commits locales no pusheados no se ven. Si el trabajo fue en pareja y el commit es de otra persona, figura a nombre del autor del commit; para reflejarlo, usar `Co-authored-by` o una nota manual.
->
-> Sección informativa: no modifica el semáforo de aprobación.
-
-### francucchiari-code
-
-**12/21 clases con actividad** · 14 commits · 11 merges
-
-| Fecha | Marca | Repositorios | Commits / merges |
-|---|:--:|---|--:|
-| 2026-08-14 | **Sí** | simulador-caida-libre-francucchiari | 1 / 0 |
-| 2026-08-21 | No | sin actividad | 0 / 0 |
-| 2026-08-24 | No | sin actividad | 0 / 0 |
-| 2026-08-28 | No | sin actividad | 0 / 0 |
-| 2026-08-31 | **Sí** | simulador-caida-libre-francucchiari | 2 / 0 |
-| 2026-09-04 | **Sí** | simulador-caida-libre-francucchiari | 2 / 0 |
-| 2026-09-07 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
-| 2026-09-14 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
-| 2026-09-25 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
-| 2026-09-28 | No | sin actividad | 0 / 0 |
-| 2026-10-02 | **Sí** | simulador-caida-libre-francucchiari | 2 / 1 |
-| 2026-10-05 | No | sin actividad | 0 / 0 |
-| 2026-10-09 | No | sin actividad | 0 / 0 |
-| 2026-10-16 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
-| 2026-10-19 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
-| 2026-10-23 | No | sin actividad | 0 / 0 |
-| 2026-10-26 | No | sin actividad | 0 / 0 |
-| 2026-10-30 | **Sí** | simulador-caida-libre-francucchiari | 1 / 2 |
-| 2026-11-02 | **Sí** | simulador-caida-libre-francucchiari | 0 / 1 |
-| 2026-11-06 | No | sin actividad | 0 / 0 |
-| 2026-11-13 | **Sí** | simulador-caida-libre-francucchiari | 1 / 2 |
-
-#### Aportes fuera del calendario de clases — francucchiari-code
-
-**francucchiari-code — 2 fechas fuera del calendario** · 2 commits · 0 merges
-
-| Alumno | Fecha | Repositorios | Commits / merges |
-|---|---|---|---|
-| francucchiari-code (`francucchiari-code`) | 2026-11-01 | simulador-caida-libre-francucchiari | 1 / 0 |
-| francucchiari-code (`francucchiari-code`) | 2026-11-11 | simulador-caida-libre-francucchiari | 1 / 0 |
-
-<!-- actividad-clases:fin -->
+| 16 | 2026-11-13 | `eeb8386` | Simulador ETEC | 7,113 | 85 | 99% | 0.6% | 0 |
+| 17 | 2026-11-13 | `2a2f4a1` | dqmdz-etec | 7,113 | 85 | 99% | 0.6% | 0 |
 
 ---
 _Informe generado por la cátedra. Los criterios y umbrales de medición corresponden al perfil `exigente` de `calidad.py`; el semáforo de aprobación, a `CRITERIOS-CALIDAD.md` (ver `README.md`). Ante dudas, revisá el archivo señalado._
