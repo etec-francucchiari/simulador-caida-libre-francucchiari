@@ -3,20 +3,20 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación II (RepoSense + análisis de calidad POO/SOLID). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-11-16.
+> Generado: 2026-11-17.
 
 ## 1. Veredicto
 
 | Aspecto | Resultado |
 |---|---|
-| Índice de calidad POO/SOLID | **85/100** |
+| Índice de calidad POO/SOLID | **91/100** |
 | Código (LOC) | 7,113 |
 | Archivos de código | 145 |
-| Clases (bien usadas) | 143 (74 OK) |
+| Clases (bien usadas) | 143 (99 OK) |
 | Código dentro de clases (%POO) | 99% |
 | Funciones fuera de clases | 0 |
 | Duplicación lógica | 0.6% |
-| Señales S/O/L/I/D | 16/0/0/0/27 |
+| Señales S/O/L/I/D | 16/0/0/0/2 |
 
 > Este informe **describe** lo que el análisis midió con los criterios ya establecidos de la materia. No es una nota.
 
@@ -46,7 +46,7 @@ Criterios de `CRITERIOS-CALIDAD.md`. **Aprobar** se juega con el perfil `estanda
 | Duplicación lógica | ≤ 5% | 0.6% | sí |
 | Funciones fuera de clases | ≤ 1 | 0 | sí |
 | Señales POO/SOLID críticas | ninguna | Baja cohesión (LCOM), Acoplamiento alto (CBO) | no |
-| Índice de calidad POO/SOLID | ≥ 60 | 85/100 | sí |
+| Índice de calidad POO/SOLID | ≥ 60 | 91/100 | sí |
 
 ### Cómo se calcula el %POO (y por qué no sube solo)
 
@@ -72,7 +72,6 @@ Reúne lo que el análisis marcó y lo que todavía falta para cada semáforo. C
 |---|---|---|---|
 | Señales POO/SOLID críticas | Baja cohesión (LCOM) | Aprobar: ninguna<br>Destacar: ninguna | `app/src/main/kotlin/org/example/fisica/ConfiguracionFisica.kt`, `app/src/main/kotlin/org/example/logica/ComposicionAplicacion.kt`, `app/src/main/kotlin/org/example/logica/ControladorDesafio.kt`, `app/src/main/kotlin/org/example/logica/DetallePasoFormula.kt`, `app/src/main/kotlin/org/example/logica/EjercicioCaidaLibre.kt`, `app/src/main/kotlin/org/example/logica/EstadoInstantaneo.kt` (+12 más) |
 | Métodos/funciones largos o con muchos parámetros | **1** método(s)/función(es) largos o con muchos parámetros | Sin señales | `app/src/main/kotlin/org/example/fisica/ExplicadorFisicaPasoAPaso.kt` |
-| Dependencia de concretos y falta de abstracciones (DIP) | **27** dependencia(s) de concretos sin abstracciones | Sin señales | `app/src/main/kotlin/org/example/exportacion/ServicioExportacion.kt`, `app/src/main/kotlin/org/example/fisica/ExplicadorFisicaPasoAPaso.kt`, `app/src/main/kotlin/org/example/logica/GeneradorOpcionesFormula.kt`, `app/src/main/kotlin/org/example/logica/NucleoSimulacion.kt`, `app/src/main/kotlin/org/example/logica/ValidadorParametrosIniciales.kt`, `app/src/main/kotlin/org/example/modelos/ParametrosIniciales.kt` (+21 más) |
 
 ## 4. Aspectos evaluados
 
@@ -82,7 +81,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Un resumen numérico (0-100) que combina la riqueza de clases bien usadas con la penalización por señales POO/SOLID y duplicación, y luego aplica topes duros.
 - **Por qué importa:** Ordena y prioriza la revisión: un índice bajo indica varias señales que conviene mirar juntas.
-- **Tu resultado:** índice **85/100**
+- **Tu resultado:** índice **91/100**
 
 ### 2. Duplicación lógica (DRY) (duplicacion) — sin señales
 
@@ -169,44 +168,65 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 - **Por qué importa:** Suele indicar que la jerarquía no representa bien el problema y rompe la sustitución entre clases.
 - **Tu resultado:** **0** override(s) vacío(s) o 'no implementado'
 
-### 14. Dependencia de concretos y falta de abstracciones (DIP) (dip) — con señales
-
-- **Qué mide:** Instanciación directa de clases **propias** concretas y ausencia de interfaces o clases abstractas pese al acoplamiento. No cuentan los structs ni los nodos/tipos del motor.
-- **Por qué importa:** Depender de implementaciones concretas dificulta cambiar o probar una parte sin arrastrar las demás.
-- **Tu resultado:** **27** dependencia(s) de concretos sin abstracciones
-- **Para investigar la causa:**
-    - ¿La clase crea por dentro a sus colaboradores en vez de recibirlos?
-    - ¿Hay puntos de variación que convendría expresar como abstracción?
-    - ¿Cómo se probaría esa clase cambiando una implementación?
-
-### 15. Clase sin métodos (solo datos) (data) — sin señales
+### 14. Clase sin métodos (solo datos) (data) — sin señales
 
 - **Qué mide:** Clases que solo acumulan campos y no tienen comportamiento.
 - **Por qué importa:** Separar datos de comportamiento reparte por el proyecto la lógica que debería estar cerca de esos datos.
 - **Tu resultado:** **0** clase(s) sin métodos (solo datos)
 
-### 16. Campos públicos (encapsulación) (encapsulacion) — sin señales
+### 15. Campos mutables públicos (encapsulación) (encapsulacion) — sin señales
 
-- **Qué mide:** Clases que exponen campos sin control de acceso.
+- **Qué mide:** Clases que exponen estado **modificable** desde afuera. No cuentan constantes (`static final`, `const`), campos `final`/`readonly`, propiedades `val` de Kotlin ni propiedades con `private set`.
 - **Por qué importa:** Expone el estado interno y hace que cualquier cambio dependa de quién lo modifica desde afuera.
-- **Tu resultado:** **0** clase(s) con campos públicos
+- **Tu resultado:** **0** clase(s) con campos mutables públicos
 
-### 17. Clase solo con métodos estáticos (utilitaria) (static) — sin señales
+### 16. Clase solo con métodos estáticos (utilitaria) (static) — sin señales
 
 - **Qué mide:** Clases donde todos los métodos son estáticos.
 - **Por qué importa:** Es comportamiento procedural disfrazado de clase: no se instancia ni participa del modelo de objetos.
 - **Tu resultado:** **0** clase(s) solo con métodos estáticos
 
+### Desglose de la columna S (SRP)
+
+> La columna **S** no es un puntaje: cuenta **señales** de SRP. Aquí suma **16** entrada(s) sobre **16** clase(s) distinta(s).
+
+| Señal | Entradas | Regla (perfil exigente) |
+|---|---:|---|
+| Cohesión baja | 16 | < 50 % de los pares de métodos comparten algún campo (con ≥ 4 métodos con lógica y ≥ 3 campos). |
+
+**Clases con baja cohesión (16)**
+
+- `NucleoSimulacion`: cohesión baja (5% de pares comparten campos)
+- `FotogramaCaida`: cohesión baja (8% de pares comparten campos)
+- `ModoSimulacion`: cohesión baja (9% de pares comparten campos)
+- `DetallePasoFormula`: cohesión baja (26% de pares comparten campos)
+- `OpcionRespuesta`: cohesión baja (29% de pares comparten campos)
+- `EstadoInstantaneo`: cohesión baja (29% de pares comparten campos)
+- `OpcionFormula`: cohesión baja (30% de pares comparten campos)
+- `ObjetivoEjercicio`: cohesión baja (33% de pares comparten campos)
+- `CampoSustitucion`: cohesión baja (33% de pares comparten campos)
+- `EjercicioCaidaLibre`: cohesión baja (37% de pares comparten campos)
+- `ConfiguracionFisica`: cohesión baja (39% de pares comparten campos)
+- `ComposicionAplicacion`: cohesión baja (40% de pares comparten campos)
+- `MemoriaParametrosSimulacion`: cohesión baja (40% de pares comparten campos)
+- `GestorEstadoSimulacion`: cohesión baja (41% de pares comparten campos)
+- `ControladorDesafio`: cohesión baja (42% de pares comparten campos)
+- `MemoriaInstantaneaSimulacion`: cohesión baja (42% de pares comparten campos)
+
+> Los **1** hallazgo(s) de métodos largos o con muchos parámetros se listan en «Métodos/funciones largos o con muchos parámetros» y **no suman** a la columna S.
+
+> El análisis no excluye tests: una clase de test que supere los umbrales también suma.
+
 ## 5. Evolución por commit
 
-Métricas calculadas sobre el estado de `main` en **cada commit** (18 commits con trabajo), del primero al último. La calidad usa el perfil `exigente`; el aporte de código lo mide RepoSense. El índice puede **bajar** al crecer el proyecto: se acumulan señales.
+Métricas calculadas sobre el estado de `main` en **cada commit** (19 commits con trabajo), del primero al último. La calidad usa el perfil `exigente`; el aporte de código lo mide RepoSense. El índice puede **bajar** al crecer el proyecto: se acumulan señales.
 
 ```mermaid
 xychart-beta
     title "Índice POO/SOLID a lo largo de los commits"
-    x-axis ["e4c7dc4", "f9cdb25", "21e6166", "6f7333f", "bdbdb04", "fbb8e8c", "6d00bd3", "54c463a", "ced6b32", "89325b5", "78e89ac", "8a543a5", "33d96dd", "96ce9c6", "b5fd2c3", "eeb8386", "2a2f4a1", "0353746"]
+    x-axis ["e4c7dc4", "f9cdb25", "21e6166", "6f7333f", "bdbdb04", "fbb8e8c", "6d00bd3", "54c463a", "ced6b32", "89325b5", "78e89ac", "8a543a5", "33d96dd", "96ce9c6", "b5fd2c3", "eeb8386", "2a2f4a1", "0353746", "82ec01d"]
     y-axis "Índice" 0 --> 100
-    line [0, 0, 58, 59, 66, 64, 67, 70, 70, 82, 82, 82, 82, 82, 85, 85, 85, 85]
+    line [0, 0, 58, 59, 81, 80, 77, 77, 78, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91]
 ```
 
 | # | Fecha | Commit | Autor | LOC | Índice | %POO | Duplic. | Sueltas |
@@ -215,73 +235,21 @@ xychart-beta
 | 2 | 2026-08-31 | `f9cdb25` | dqmdz-etec | 0 | 0 | 0% | 0.0% | 0 |
 | 3 | 2026-09-07 | `21e6166` | francucchiari-code | 172 | 58 | 64% | 0.0% | 0 |
 | 4 | 2026-09-14 | `6f7333f` | francucchiari-code | 286 | 59 | 76% | 0.0% | 0 |
-| 5 | 2026-09-25 | `bdbdb04` | francucchiari-code | 937 | 66 | 92% | 0.0% | 0 |
-| 6 | 2026-10-02 | `fbb8e8c` | francucchiari-code | 1,647 | 64 | 96% | 0.0% | 0 |
-| 7 | 2026-10-16 | `6d00bd3` | francucchiari-code | 3,453 | 67 | 98% | 1.7% | 0 |
-| 8 | 2026-10-19 | `54c463a` | francucchiari-code | 5,932 | 70 | 99% | 3.6% | 0 |
-| 9 | 2026-10-30 | `ced6b32` | francucchiari-code | 6,129 | 70 | 99% | 3.5% | 0 |
-| 10 | 2026-11-02 | `89325b5` | Simulador ETEC | 7,136 | 82 | 99% | 0.6% | 0 |
-| 11 | 2026-11-07 | `78e89ac` | dqmdz-etec | 7,136 | 82 | 99% | 0.6% | 0 |
-| 12 | 2026-11-07 | `8a543a5` | dqmdz-etec | 7,136 | 82 | 99% | 0.6% | 0 |
-| 13 | 2026-11-07 | `33d96dd` | dqmdz-etec | 7,136 | 82 | 99% | 0.6% | 0 |
-| 14 | 2026-11-07 | `96ce9c6` | dqmdz-etec | 7,136 | 82 | 99% | 0.6% | 0 |
-| 15 | 2026-11-13 | `b5fd2c3` | Simulador ETEC | 7,113 | 85 | 99% | 0.6% | 0 |
-| 16 | 2026-11-13 | `eeb8386` | Simulador ETEC | 7,113 | 85 | 99% | 0.6% | 0 |
-| 17 | 2026-11-13 | `2a2f4a1` | dqmdz-etec | 7,113 | 85 | 99% | 0.6% | 0 |
-| 18 | 2026-11-14 | `0353746` | dqmdz-etec | 7,113 | 85 | 99% | 0.6% | 0 |
-
-<!-- actividad-clases:inicio -->
-## Actividad en días de clase
-
-> Período evaluado **2026-08-14 → 2026-11-16** · **22 clases** (lunes, viernes) · días de clase del calendario, extendidos hasta la fecha de corte.
->
-> `Commits` = commits de trabajo (no-merge); `Merges` = merges de PR (también son push). Los días sin actividad dicen **sin actividad**. El cuadro principal usa sólo las fechas de clase del calendario oficial.
->
-> **Aportes fuera del calendario:** cada alumno tiene un cuadro aparte con las fechas no lectivas con actividad, desde **2026-08-14** hasta **2026-11-16** (ventana de aportes). Esas fechas no forman parte del cuadro principal, pero se muestran para no perder trabajo hecho en fines de semana, feriados o después del período.
->
-> Se recorre `git log --all` sobre un mirror (todas las ramas y `refs/pull/*`), con deduplicación por commit. Fecha = fecha de autor en UTC-3. Los commits locales no pusheados no se ven. Si el trabajo fue en pareja y el commit es de otra persona, figura a nombre del autor del commit; para reflejarlo, usar `Co-authored-by` o una nota manual.
->
-> Sección informativa: no modifica el semáforo de aprobación.
-
-### francucchiari-code
-
-**12/22 clases con actividad** · 14 commits · 11 merges
-
-| Fecha | Marca | Repositorios | Commits / merges |
-|---|:--:|---|--:|
-| 2026-08-14 | **Sí** | simulador-caida-libre-francucchiari | 1 / 0 |
-| 2026-08-21 | No | sin actividad | 0 / 0 |
-| 2026-08-24 | No | sin actividad | 0 / 0 |
-| 2026-08-28 | No | sin actividad | 0 / 0 |
-| 2026-08-31 | **Sí** | simulador-caida-libre-francucchiari | 2 / 0 |
-| 2026-09-04 | **Sí** | simulador-caida-libre-francucchiari | 2 / 0 |
-| 2026-09-07 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
-| 2026-09-14 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
-| 2026-09-25 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
-| 2026-09-28 | No | sin actividad | 0 / 0 |
-| 2026-10-02 | **Sí** | simulador-caida-libre-francucchiari | 2 / 1 |
-| 2026-10-05 | No | sin actividad | 0 / 0 |
-| 2026-10-09 | No | sin actividad | 0 / 0 |
-| 2026-10-16 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
-| 2026-10-19 | **Sí** | simulador-caida-libre-francucchiari | 1 / 1 |
-| 2026-10-23 | No | sin actividad | 0 / 0 |
-| 2026-10-26 | No | sin actividad | 0 / 0 |
-| 2026-10-30 | **Sí** | simulador-caida-libre-francucchiari | 1 / 2 |
-| 2026-11-02 | **Sí** | simulador-caida-libre-francucchiari | 0 / 1 |
-| 2026-11-06 | No | sin actividad | 0 / 0 |
-| 2026-11-13 | **Sí** | simulador-caida-libre-francucchiari | 1 / 2 |
-| 2026-11-16 | No | sin actividad | 0 / 0 |
-
-#### Aportes fuera del calendario de clases — francucchiari-code
-
-**francucchiari-code — 2 fechas fuera del calendario** · 2 commits · 0 merges
-
-| Alumno | Fecha | Repositorios | Commits / merges |
-|---|---|---|---|
-| francucchiari-code (`francucchiari-code`) | 2026-11-01 | simulador-caida-libre-francucchiari | 1 / 0 |
-| francucchiari-code (`francucchiari-code`) | 2026-11-11 | simulador-caida-libre-francucchiari | 1 / 0 |
-
-<!-- actividad-clases:fin -->
+| 5 | 2026-09-25 | `bdbdb04` | francucchiari-code | 937 | 81 | 92% | 0.0% | 0 |
+| 6 | 2026-10-02 | `fbb8e8c` | francucchiari-code | 1,647 | 80 | 96% | 0.0% | 0 |
+| 7 | 2026-10-16 | `6d00bd3` | francucchiari-code | 3,453 | 77 | 98% | 1.7% | 0 |
+| 8 | 2026-10-19 | `54c463a` | francucchiari-code | 5,932 | 77 | 99% | 3.6% | 0 |
+| 9 | 2026-10-30 | `ced6b32` | francucchiari-code | 6,129 | 78 | 99% | 3.5% | 0 |
+| 10 | 2026-11-02 | `89325b5` | Simulador ETEC | 7,136 | 91 | 99% | 0.6% | 0 |
+| 11 | 2026-11-07 | `78e89ac` | dqmdz-etec | 7,136 | 91 | 99% | 0.6% | 0 |
+| 12 | 2026-11-07 | `8a543a5` | dqmdz-etec | 7,136 | 91 | 99% | 0.6% | 0 |
+| 13 | 2026-11-07 | `33d96dd` | dqmdz-etec | 7,136 | 91 | 99% | 0.6% | 0 |
+| 14 | 2026-11-07 | `96ce9c6` | dqmdz-etec | 7,136 | 91 | 99% | 0.6% | 0 |
+| 15 | 2026-11-13 | `b5fd2c3` | Simulador ETEC | 7,113 | 91 | 99% | 0.6% | 0 |
+| 16 | 2026-11-13 | `eeb8386` | Simulador ETEC | 7,113 | 91 | 99% | 0.6% | 0 |
+| 17 | 2026-11-13 | `2a2f4a1` | dqmdz-etec | 7,113 | 91 | 99% | 0.6% | 0 |
+| 18 | 2026-11-14 | `0353746` | dqmdz-etec | 7,113 | 91 | 99% | 0.6% | 0 |
+| 19 | 2026-11-16 | `82ec01d` | dqmdz-etec | 7,113 | 91 | 99% | 0.6% | 0 |
 
 ---
 _Informe generado por la cátedra. Los criterios y umbrales de medición corresponden al perfil `exigente` de `calidad.py`; el semáforo de aprobación, a `CRITERIOS-CALIDAD.md` (ver `README.md`). Ante dudas, revisá el archivo señalado._
