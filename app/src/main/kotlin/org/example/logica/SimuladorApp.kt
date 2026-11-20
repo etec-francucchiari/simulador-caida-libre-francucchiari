@@ -10,30 +10,22 @@ class SimuladorApp : Application() {
      * Aplicación JavaFX del simulador de caída libre.
      *
      * Se limita a configurar la ventana y a delegar la composición de servicios y
-     * la navegación en [ComposicionAplicacion] y [NavegadorPantallas] (SRP). No
-     * contiene `object` ni utilidades estáticas.
+     * la navegación en [NavegadorPantallas] (SRP / DIP).
      */
-    private val tituloVentana = "Simulador de Caída Libre"
-    private val anchoVentana = 1180.0
-    private val altoVentana = 780.0
-    private val anchoMinimo = 980.0
-    private val altoMinimo = 660.0
+
+    private val dimensiones = doubleArrayOf(1180.0, 780.0, 980.0, 660.0)
 
     override fun start(stage: Stage) {
-        stage.title = tituloVentana
-
+        stage.title = "Simulador de Caída Libre"
         val contenedorRaiz = StackPane()
         contenedorRaiz.style = "-fx-background-color: #f8fafc;"
-
-        val scene = Scene(contenedorRaiz, anchoVentana, altoVentana)
+        val scene = Scene(contenedorRaiz, dimensiones[0], dimensiones[1])
         scene.stylesheets.add(javaClass.getResource("/estilos.css")?.toExternalForm())
-
-        val navegador = NavegadorPantallas(contenedorRaiz, NucleoSimulacion())
+        val navegador = NavegadorPantallas(contenedorRaiz)
         navegador.mostrarSeleccionModo()
-
         stage.scene = scene
-        stage.minWidth = anchoMinimo
-        stage.minHeight = altoMinimo
+        stage.minWidth = dimensiones[2]
+        stage.minHeight = dimensiones[3]
         stage.isResizable = true
         stage.show()
     }

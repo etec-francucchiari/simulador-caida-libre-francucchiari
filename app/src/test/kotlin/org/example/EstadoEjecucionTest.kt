@@ -5,27 +5,14 @@ import kotlin.test.*
 class EstadoEjecucionTest {
     /**
      * Pruebas unitarias de la máquina de estados del ciclo de vida de la
-     * simulación (Patrón State):
-     * - [EstadoEjecucionEnCurso]
-     * - [EstadoEjecucionPausado]
-     * - [EstadoEjecucionReiniciado]
-     * - [EstadoEjecucionEnModoEjercicio]
-     *
-     * Verifica que cada estado concreto responda polimórficamente a las
-     * transiciones `iniciar()`, `pausar()`, `alternar()`, `reiniciar()` y
-     * `debeAvanzar(deltaSegundos)`.
+     * simulación (Patrón State).
      */
 
     private val nucleo = NucleoSimulacion()
 
-    /**
-     * El estado en curso debe reportarse activo, autorizar el avance para deltas
-     * positivos, transicionar a pausado al alternar y volver a en curso al
-     * alternar por segunda vez.
-     */
     @Test
     fun estadoEjecutandosePausaAlAlternar() {
-        val estado = EstadoEjecucionEnCurso()
+        val estado = nucleo.contexto().estadoEjecucion().iniciar()
         assertTrue(estado.esActiva())
         assertEquals("Ejecutándose", estado.nombre())
         assertTrue(estado.debeAvanzar(0.05))
@@ -38,13 +25,9 @@ class EstadoEjecucionTest {
         assertTrue(reanudado.debeAvanzar(0.05))
     }
 
-    /**
-     * El estado reiniciado comienza inactivo, no avanza fotogramas y pasa al
-     * estado en curso tanto al invocar `iniciar()` como `alternar()`.
-     */
     @Test
     fun estadoReiniciadoIniciaLaEjecucion() {
-        val reiniciado = EstadoEjecucionReiniciado()
+        val reiniciado = nucleo.contexto().estadoEjecucion().reiniciar()
         assertFalse(reiniciado.esActiva())
         assertEquals("Reiniciado", reiniciado.nombre())
         assertFalse(reiniciado.debeAvanzar(0.05))
@@ -57,10 +40,6 @@ class EstadoEjecucionTest {
         assertTrue(reiniciado.reiniciar().iniciar().esActiva())
     }
 
-    /**
-     * El estado en modo ejercicio conserva la referencia al desafío al pausarse
-     * y reanudarse durante la validación experimental.
-     */
     @Test
     fun estadoEnModoEjercicioPermitePausaYReanudaEnLaMismaFase() {
         val estado = EstadoEjecucionEnModoEjercicio(nucleo.desafio())

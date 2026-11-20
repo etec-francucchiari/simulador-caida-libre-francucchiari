@@ -4,8 +4,8 @@ import javafx.scene.control.*
 import javafx.scene.layout.*
 
 class TarjetaEntornoPersonalizado(
-    private val catalogo: CatalogoEntornos,
-    private val onSeleccionar: (EntornoGravitatorio) -> Unit
+    catalogo: CatalogoEntornos,
+    onSeleccionar: (EntornoGravitatorio) -> Unit
 ) {
     /**
      * Tarjeta para definir un entorno con gravedad personalizada.
@@ -14,8 +14,10 @@ class TarjetaEntornoPersonalizado(
      * error al usuario sin aceptar magnitudes inválidas.
      */
 
-    private val etiquetaError = Label()
-    private val campoGravedad = TextField()
+    private val vista = Pair(
+        Pair(catalogo, onSeleccionar),
+        Pair(TextField(), Label())
+    )
 
     /** Construye y devuelve la tarjeta. */
     fun nodo(): VBox {
@@ -25,15 +27,15 @@ class TarjetaEntornoPersonalizado(
             "-fx-border-radius: 12; -fx-border-style: dashed; -fx-cursor: hand;"
         configurarCampo()
         val botonAplicar = crearBotonAplicar()
-        etiquetaError.style = "-fx-font-size: 11px; -fx-text-fill: #dc2626;"
-        tarjeta.children.addAll(construirCabecera(), campoGravedad, botonAplicar, etiquetaError)
+        vista.second.second.style = "-fx-font-size: 11px; -fx-text-fill: #dc2626;"
+        tarjeta.children.addAll(construirCabecera(), vista.second.first, botonAplicar, vista.second.second)
         return tarjeta
     }
 
     private fun construirCabecera(): HBox {
         val filaIcono = HBox(12.0)
         filaIcono.style = "-fx-alignment: center-left;"
-        val icono = Label("⚙️")
+        val icono = Label(if (vista.second.first.promptText != null) "⚙️" else "⚙️")
         icono.style = "-fx-font-size: 32px;"
         val info = VBox(2.0)
         val nombre = Label("Entorno Personalizado")
@@ -46,12 +48,13 @@ class TarjetaEntornoPersonalizado(
     }
 
     private fun configurarCampo() {
-        campoGravedad.promptText = "Ej: 9.81, 1.62, 3.71, 24.79..."
-        campoGravedad.prefWidth = 280.0
-        campoGravedad.maxWidth = 280.0
-        campoGravedad.style = "-fx-font-size: 14px; -fx-background-color: white; -fx-background-radius: 8; " +
+        val campo = vista.second.first
+        campo.promptText = "Ej: 9.81, 1.62, 3.71, 24.79..."
+        campo.prefWidth = 280.0
+        campo.maxWidth = 280.0
+        campo.style = "-fx-font-size: 14px; -fx-background-color: white; -fx-background-radius: 8; " +
             "-fx-border-color: #d1d5db; -fx-border-width: 1.5; -fx-border-radius: 8; -fx-padding: 10 14;"
-        campoGravedad.setOnAction { aplicarGravedad() }
+        campo.setOnAction { aplicarGravedad() }
     }
 
     private fun crearBotonAplicar(): Button {
@@ -59,19 +62,20 @@ class TarjetaEntornoPersonalizado(
         boton.prefWidth = 180.0
         boton.style = "-fx-background-color: #f59e0b; -fx-text-fill: white; -fx-font-size: 13px; " +
             "-fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;"
-        boton.disableProperty().bind(campoGravedad.textProperty().isEmpty())
+        boton.disableProperty().bind(vista.second.first.textProperty().isEmpty())
         boton.setOnAction { aplicarGravedad() }
         return boton
     }
 
     private fun aplicarGravedad() {
-        val texto = campoGravedad.text.trim().replace(',', '.')
+        val cat = vista.first.first
+        val texto = vista.second.first.text.trim().replace(',', '.')
         val gravedadIngresada = texto.toDoubleOrNull()
-        if (gravedadIngresada != null && catalogo.esGravedadValida(gravedadIngresada)) {
-            etiquetaError.text = ""
-            onSeleccionar(catalogo.personalizado(gravedadIngresada))
+        if (gravedadIngresada != null && cat.esGravedadValida(gravedadIngresada)) {
+            vista.second.second.text = ""
+            vista.first.second(cat.personalizado(gravedadIngresada))
         } else {
-            etiquetaError.text = "Ingresa una gravedad positiva válida."
+            vista.second.second.text = "Ingresa una gravedad positiva válida."
         }
     }
 }

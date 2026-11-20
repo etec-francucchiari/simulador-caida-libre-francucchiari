@@ -1,9 +1,9 @@
 package org.example
 
 class SincronizadorEscenarioDesafio(
-    private val desafio: DesafioAvanzado,
-    private val comandos: ComandosSimulacion,
-    private val control: ControlReproduccion
+    desafio: DesafioAvanzado,
+    contexto: ContextoSimulacion,
+    control: ControlReproduccion
 ) {
     /**
      * Sincroniza el estado físico del simulador con el escenario del ejercicio
@@ -13,17 +13,19 @@ class SincronizadorEscenarioDesafio(
      * dominio de la disposición visual de la pantalla (SRP / DIP).
      */
 
+    private val datos = Triple(desafio, contexto, control)
+
     /**
      * Aplica el escenario del ejercicio vigente (planeta, altura y velocidad inicial)
      * al contexto de simulación y activa el bloqueo [EstadoEjecucionEnModoEjercicio].
      */
     fun sincronizar() {
-        val ejercicio = desafio.ejercicio()
-        comandos.establecerPlaneta(ejercicio.entorno())
-        comandos.establecerAlturaInicial(ejercicio.alturaInicial())
-        comandos.establecerVelocidadInicial(ejercicio.velocidadInicial())
-        control.reiniciar()
-        comandos.cambiarEstado(EstadoEjecucionEnModoEjercicio(desafio))
+        val ejercicio = datos.first.ejercicio()
+        datos.second.establecerPlaneta(ejercicio.entorno())
+        datos.second.establecerAlturaInicial(ejercicio.alturaInicial())
+        datos.second.establecerVelocidadInicial(ejercicio.velocidadInicial())
+        datos.third.reiniciar()
+        datos.second.cambiarEstado(EstadoEjecucionEnModoEjercicio(datos.first))
     }
 
     /**
@@ -31,8 +33,15 @@ class SincronizadorEscenarioDesafio(
      * desafío y sincroniza el estado físico con el nuevo escenario.
      */
     fun iniciarNuevoEjercicio() {
-        control.reiniciar()
-        desafio.nuevoEjercicio()
+        datos.third.reiniciar()
+        datos.first.nuevoEjercicio()
         sincronizar()
+    }
+
+    /**
+     * Construye la barra inferior de controles conectada al contexto y control activos.
+     */
+    fun crearBarraControles(): BarraControlesSimulacion {
+        return BarraControlesSimulacion(datos.second, datos.third)
     }
 }

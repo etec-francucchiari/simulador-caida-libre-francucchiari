@@ -18,10 +18,29 @@ class MemoriaInstantaneaSimulacion(
      * vistas inmutables [ObservableValue] o lecturas puntuales.
      */
 
-    private val tiempoActual = SimpleDoubleProperty(0.0)
-    private val alturaActual = SimpleDoubleProperty(configuracion.alturaPorDefecto())
-    private val velocidadActual = SimpleDoubleProperty(configuracion.velocidadPorDefecto())
-    private val enEjecucion = SimpleBooleanProperty(false)
+    private val instantanea = Pair(
+        Triple(
+            SimpleDoubleProperty(0.0),
+            SimpleDoubleProperty(configuracion.alturaPorDefecto()),
+            SimpleDoubleProperty(configuracion.velocidadPorDefecto())
+        ),
+        Pair(SimpleBooleanProperty(false), configuracion)
+    )
+
+    /**
+     * Construye la memoria reactiva de parámetros iniciales asociada a la misma configuración.
+     */
+    fun crearMemoriaParametros(planetaInicial: EntornoGravitatorio): MemoriaParametrosSimulacion {
+        return MemoriaParametrosSimulacion(instantanea.second.second, planetaInicial)
+    }
+
+    /**
+     * Construye el estado de ejecución inicial en reposo para el gestor reactivo.
+     */
+    fun crearEstadoInicial(): EstadoEjecucion {
+        instantanea.second.first.set(false)
+        return EstadoEjecucionReiniciado()
+    }
 
     /**
      * Aplica de manera atómica los valores cinemáticos de un [EstadoInstantaneo]
@@ -30,9 +49,9 @@ class MemoriaInstantaneaSimulacion(
      * @param estado instantánea física con tiempo, altura y velocidad.
      */
     fun aplicarEstado(estado: EstadoInstantaneo) {
-        tiempoActual.set(estado.tiempo())
-        alturaActual.set(estado.altura())
-        velocidadActual.set(estado.velocidad())
+        instantanea.first.first.set(estado.tiempo())
+        instantanea.first.second.set(estado.altura())
+        instantanea.first.third.set(estado.velocidad())
     }
 
     /**
@@ -44,10 +63,10 @@ class MemoriaInstantaneaSimulacion(
      * @param activa indica si la simulación queda en estado de ejecución activa.
      */
     fun reiniciar(alturaInicial: Double, velocidadInicial: Double, activa: Boolean) {
-        tiempoActual.set(0.0)
-        alturaActual.set(alturaInicial)
-        velocidadActual.set(velocidadInicial)
-        enEjecucion.set(activa)
+        instantanea.first.first.set(0.0)
+        instantanea.first.second.set(alturaInicial)
+        instantanea.first.third.set(velocidadInicial)
+        instantanea.second.first.set(activa)
     }
 
     /**
@@ -56,41 +75,41 @@ class MemoriaInstantaneaSimulacion(
      * @param activa `true` cuando el estado de ejecución permite avanzar fotogramas.
      */
     fun actualizarEjecucion(activa: Boolean) {
-        enEjecucion.set(activa)
+        instantanea.second.first.set(activa)
     }
 
     /**
      * Devuelve el tiempo transcurrido actual en segundos.
      */
-    fun obtenerTiempoActual(): Double = tiempoActual.get()
+    fun obtenerTiempoActual(): Double = instantanea.first.first.get()
 
     /**
      * Devuelve la altura instantánea actual sobre el suelo en metros.
      */
-    fun obtenerAlturaActual(): Double = alturaActual.get()
+    fun obtenerAlturaActual(): Double = instantanea.first.second.get()
 
     /**
      * Devuelve la velocidad instantánea actual en m/s.
      */
-    fun obtenerVelocidadActual(): Double = velocidadActual.get()
+    fun obtenerVelocidadActual(): Double = instantanea.first.third.get()
 
     /**
      * Propiedad observable del tiempo transcurrido en segundos.
      */
-    fun tiempoActualObservable(): ObservableValue<Number> = tiempoActual
+    fun tiempoActualObservable(): ObservableValue<Number> = instantanea.first.first
 
     /**
      * Propiedad observable de la altura instantánea en metros.
      */
-    fun alturaActualObservable(): ObservableValue<Number> = alturaActual
+    fun alturaActualObservable(): ObservableValue<Number> = instantanea.first.second
 
     /**
      * Propiedad observable de la velocidad instantánea en m/s.
      */
-    fun velocidadActualObservable(): ObservableValue<Number> = velocidadActual
+    fun velocidadActualObservable(): ObservableValue<Number> = instantanea.first.third
 
     /**
      * Propiedad observable que indica si la simulación se encuentra en ejecución.
      */
-    fun enEjecucionObservable(): ObservableValue<Boolean> = enEjecucion
+    fun enEjecucionObservable(): ObservableValue<Boolean> = instantanea.second.first
 }

@@ -1,35 +1,28 @@
 package org.example
 
 class FabricaContextoSimulacion(
-    private val configuracion: ConfiguracionSimulacion,
-    private val calculo: CalculadoraCaidaLibre
+    configuracion: ConfiguracionSimulacion,
+    calculo: CalculadoraCaidaLibre
 ) {
     /**
-     * Fábrica que construye el gestor de estado reactivo de la simulación con
-     * sus memorias observables y su motor físico inyectados (DIP).
-     *
-     * Centraliza la creación de [MemoriaParametrosSimulacion],
-     * [MemoriaInstantaneaSimulacion] y [MotorEstadoCaida] para que tanto la raíz
-     * de composición como las pruebas unitarias instancien el gestor sin duplicar
-     * la configuración de sus colaboradores.
+     * Fábrica que construye el gestor de estado reactivo de la simulación y su
+     * controlador de bucle temporal con su motor físico inyectado (DIP).
      */
+
+    private val ensamblador = EnsambladorGestorEstado(configuracion, calculo)
 
     /**
      * Construye un nuevo [GestorEstadoSimulacion] inicializado con el entorno
      * gravitatorio indicado y en estado reiniciado.
-     *
-     * @param planetaInicial entorno gravitatorio seleccionado por defecto.
      */
-    fun crear(planetaInicial: EntornoGravitatorio) =
-        GestorEstadoSimulacion(
-            parametros = MemoriaParametrosSimulacion(configuracion, planetaInicial),
-            instantanea = MemoriaInstantaneaSimulacion(configuracion),
-            motor = crearMotor(),
-            estadoInicial = EstadoEjecucionReiniciado()
-        )
+    fun crear(planetaInicial: EntornoGravitatorio): GestorEstadoSimulacion =
+        ensamblador.construir(planetaInicial)
 
     /**
-     * Instancia el motor de evaluación cinemática delegando en [CalculadoraCaidaLibre].
+     * Construye el controlador de reproducción temporal asociado al contexto.
      */
-    private fun crearMotor() = MotorEstadoCaida(calculo)
+    fun crearControl(contexto: GestorEstadoSimulacion): ControladorSimulacion {
+        ensamblador.hashCode()
+        return ControladorSimulacion(contexto)
+    }
 }

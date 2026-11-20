@@ -8,15 +8,13 @@ class GestorEstadoAvanceTest {
      * detección de llegada al suelo (`haLlegadoAlSuelo`) en [GestorEstadoSimulacion].
      */
 
-    private val calculo = CalculoCaidaLibre()
+    private val calculo = nuevoNucleo().calculo()
 
-    /**
-     * Al avanzar el tiempo más allá del instante total de caída, la simulación
-     * se detiene automáticamente y clava los valores finales en el suelo.
-     */
+    private fun nuevoNucleo() = NucleoSimulacion()
+
     @Test
     fun avanzarTiempoDetieneLaSimulacionAlLlegarAlSuelo() {
-        val gestor = NucleoSimulacion().contexto()
+        val gestor = nuevoNucleo().contexto()
         gestor.establecerAlturaInicial(4.9)
         gestor.establecerVelocidadInicial(0.0)
         gestor.iniciarSimulacion()
@@ -32,13 +30,9 @@ class GestorEstadoAvanceTest {
         assertTrue(gestor.haLlegadoAlSuelo())
     }
 
-    /**
-     * Si la altura inicial es 0 m, el objeto ya se encuentra en el suelo y
-     * `iniciarSimulacion()` no debe activar la ejecución.
-     */
     @Test
     fun iniciarSimulacionConAlturaCeroNoSeEjecuta() {
-        val gestor = NucleoSimulacion().contexto()
+        val gestor = nuevoNucleo().contexto()
         gestor.establecerAlturaInicial(0.0)
         gestor.iniciarSimulacion()
         assertFalse(gestor.estaEnEjecucion())
@@ -46,13 +40,9 @@ class GestorEstadoAvanceTest {
         assertTrue(gestor.haLlegadoAlSuelo())
     }
 
-    /**
-     * Verifica que `haLlegadoAlSuelo()` devuelve `false` en el instante inicial
-     * y durante el vuelo, cambiando a `true` exactamente al alcanzar `t_caída`.
-     */
     @Test
     fun haLlegadoAlSueloEsFalsoDuranteVueloYVerdaderoAlFinalizar() {
-        val gestor = NucleoSimulacion().contexto()
+        val gestor = nuevoNucleo().contexto()
         gestor.establecerAlturaInicial(100.0)
         gestor.establecerVelocidadInicial(0.0)
         assertFalse(gestor.haLlegadoAlSuelo())

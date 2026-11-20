@@ -1,9 +1,9 @@
 package org.example
 
 enum class ObjetivoEjercicio(
-    private val descripcionInterna: String,
-    private val variableInterna: String,
-    private val unidadInterna: String
+    descripcionInterna: String,
+    variableInterna: String,
+    unidadInterna: String
 ) {
     CALCULAR_POSICION(
         descripcionInterna = "calcular la posición (altura) del objeto",
@@ -28,33 +28,35 @@ enum class ObjetivoEjercicio(
      * - [CALCULAR_VELOCIDAD]: determinar la rapidez `v(t)` en metros por segundo.
      * - [CALCULAR_TIEMPO]: determinar el tiempo total de caída libre en segundos.
      *
-     * Conserva sus atributos como campos privados inmutables y ofrece predicados
+     * Conserva sus atributos como estado privado inmutable y ofrece predicados
      * de dominio ([esPosicion], [esVelocidad], [esTiempo]) para orientar la
      * generación de fórmulas y distractores sin condicionales acoplados.
      */
+
+    private val datos = listOf(descripcionInterna, variableInterna, unidadInterna)
 
     /**
      * Devuelve la descripción didáctica del objetivo para insertar en el
      * enunciado del problema.
      */
-    fun descripcion(): String = descripcionInterna
+    fun descripcion(): String = datos[0]
 
     /**
      * Devuelve el símbolo algebraico de la variable incógnita (`"y"`, `"v"` o `"t"`).
      */
-    fun variable(): String = variableInterna
+    fun variable(): String = datos[1]
 
     /**
      * Devuelve la unidad del Sistema Internacional asociada al resultado esperado.
      */
-    fun unidad(): String = unidadInterna
+    fun unidad(): String = datos[2]
 
     /**
      * Comportamiento de dominio: indica si la incógnita del ejercicio es la
      * posición vertical instantánea `y(t)`.
      */
     fun esPosicion(): Boolean {
-        return variableInterna == "y"
+        return datos[1] == "y"
     }
 
     /**
@@ -62,7 +64,7 @@ enum class ObjetivoEjercicio(
      * velocidad instantánea `v(t)`.
      */
     fun esVelocidad(): Boolean {
-        return variableInterna == "v"
+        return datos[1] == "v"
     }
 
     /**
@@ -70,13 +72,13 @@ enum class ObjetivoEjercicio(
      * tiempo total de caída hasta tocar el suelo.
      */
     fun esTiempo(): Boolean {
-        return variableInterna == "t"
+        return datos[1] == "t"
     }
 
     /**
      * Representación textual legible del objetivo de aprendizaje.
      */
     override fun toString(): String {
-        return descripcionInterna
+        return datos[0]
     }
 }

@@ -6,73 +6,56 @@ class ControladorSimulacionTest {
     /**
      * Pruebas unitarias de los controles de reproducción de [ControladorSimulacion]
      * (iniciar, pausar, alternar y reiniciar).
-     *
-     * Verifica las transiciones de estado del ciclo de vida de la simulación
-     * interactuando con el contexto reactivo provisto por [NucleoSimulacion].
      */
 
-    private val nucleo = NucleoSimulacion()
+    private val nucleo = crearNucleo()
 
-    /**
-     * Al instanciar el controlador sobre un contexto recién creado, la
-     * simulación debe encontrarse detenida.
-     */
+    private fun crearNucleo() = NucleoSimulacion()
+
     @Test
     fun instanciarControlador() {
-        val gestor = NucleoSimulacion().contexto()
-        val controlador = ControladorSimulacion(gestor)
+        val actual = crearNucleo()
+        val gestor = actual.contexto()
+        val controlador = actual.control()
         assertNotNull(controlador)
         assertFalse(gestor.estaEnEjecucion())
     }
 
-    /**
-     * El comando [ControladorSimulacion.iniciar] debe activar el estado de
-     * ejecución en el contexto cuando la altura inicial es positiva.
-     */
     @Test
     fun iniciarActivaEjecucion() {
-        val gestor = NucleoSimulacion().contexto()
-        val controlador = ControladorSimulacion(gestor)
+        val actual = crearNucleo()
+        val gestor = actual.contexto()
+        val controlador = actual.control()
         controlador.iniciar()
         assertTrue(gestor.estaEnEjecucion())
     }
 
-    /**
-     * El comando [ControladorSimulacion.pausar] debe detener inmediatamente la
-     * ejecución conservando el instante actual.
-     */
     @Test
     fun pausarDetieneEjecucion() {
-        val gestor = NucleoSimulacion().contexto()
-        val controlador = ControladorSimulacion(gestor)
+        val actual = crearNucleo()
+        val gestor = actual.contexto()
+        val controlador = actual.control()
         controlador.iniciar()
         assertTrue(gestor.estaEnEjecucion())
         controlador.pausar()
         assertFalse(gestor.estaEnEjecucion())
     }
 
-    /**
-     * El comando [ControladorSimulacion.alternarEjecucion] debe conmutar entre
-     * los estados en curso y pausado en llamadas sucesivas.
-     */
     @Test
     fun alternarEjecucionConmutaEntreIniciarYPausar() {
-        val gestor = NucleoSimulacion().contexto()
-        val controlador = ControladorSimulacion(gestor)
+        val actual = crearNucleo()
+        val gestor = actual.contexto()
+        val controlador = actual.control()
         controlador.alternarEjecucion()
         assertTrue(gestor.estaEnEjecucion())
         controlador.alternarEjecucion()
         assertFalse(gestor.estaEnEjecucion())
     }
 
-    /**
-     * El comando [ControladorSimulacion.reiniciar] debe detener el temporizador
-     * y restaurar t = 0, y = h₀ y v = v₀ tras haber avanzado varios fotogramas.
-     */
     @Test
     fun reiniciarRestableceEstadoAValoresIniciales() {
         val gestor = nucleo.contexto()
-        val controlador = ControladorSimulacion(gestor)
+        val controlador = nucleo.control()
         gestor.establecerAlturaInicial(100.0)
         gestor.establecerVelocidadInicial(10.0)
         controlador.iniciar()

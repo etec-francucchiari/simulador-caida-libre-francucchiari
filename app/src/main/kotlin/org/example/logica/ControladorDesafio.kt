@@ -1,83 +1,62 @@
 package org.example
 
 class ControladorDesafio(
-    private val generadorEjercicios: GeneradorDeEjercicios,
-    private val generadorOpcionesFormula: GeneradorDeFormulas,
-    private val generadorOpcionesRespuesta: GeneradorDeRespuestas
+    partidaInterna: PartidaDesafio,
+    evaluadorInterno: EvaluadorSustitucion = EvaluadorSustitucionFormula()
 ) : DesafioAvanzado {
+    constructor(
+        generadorEjercicios: GeneradorDeEjercicios
+    ) : this(PartidaDesafio(generadorEjercicios))
+
     /**
      * Controlador instanciable del desafío interactivo (Modo Avanzado).
      *
      * Orquesta la lógica pedagógica de las tres etapas (fórmula, sustitución y
-     * validación) delegando la generación de ejercicios y opciones en servicios
-     * inyectados por constructor (DIP).
+     * validación) delegando el estado de la partida en [PartidaDesafio] y la
+     * verificación algebraica en [EvaluadorSustitucion] (SRP / DIP / CBO).
      */
 
-    private val toleranciaSustitucion = 0.05
-    private var ejercicioActual = generadorEjercicios.generar()
-    private var opcionesFormulaActuales = generadorOpcionesFormula.generar(ejercicioActual)
-    private var opcionesRespuestaActuales = generadorOpcionesRespuesta.generar(ejercicioActual)
-    private var etapaActual = EtapaDesafio.entries.first()
-    private var resuelto = false
+    private val sesion = Pair(partidaInterna, evaluadorInterno)
 
-    override fun etapa(): EtapaDesafio = etapaActual
+    override fun etapa() = sesion.first.etapa()
 
-    override fun ejercicio() = ejercicioActual
+    override fun ejercicio() = sesion.first.ejercicio()
 
-    override fun opcionesFormula() = opcionesFormulaActuales
+    override fun opcionesFormula() = sesion.first.opcionesFormula()
 
-    override fun opcionesRespuesta() = opcionesRespuestaActuales
+    override fun opcionesRespuesta() = sesion.first.opcionesRespuesta()
 
-    override fun estaResuelto(): Boolean = resuelto
+    override fun estaResuelto(): Boolean = sesion.first.estaResuelto()
 
     override fun elegirFormula(indice: Int): Retroalimentacion {
-        if (!etapaActual.esFormula()) {
-            return crearRetroalimentacion(false, "Ya superaste la etapa de selección de fórmula.")
+        if (!sesion.first.etapa().esFormula()) {
+            return sesion.second.crearRetroalimentacion(false, "Ya superaste la etapa de selección de fórmula.")
         }
-        val opcion = opcionesFormulaActuales.getOrNull(indice)
-            ?: return crearRetroalimentacion(false, "Opción no válida.")
+        val opcion = sesion.first.opcionesFormula().getOrNull(indice)
+            ?: return sesion.second.crearRetroalimentacion(false, "Opción no válida.")
         if (opcion.esCorrecta()) {
-            etapaActual = etapaActual.siguiente()
+            sesion.first.avanzarEtapa()
         }
         return opcion.evaluarSeleccion()
     }
 
     override fun comprobarSustitucion(valoresIngresados: List<Double>): Retroalimentacion {
-        val campos = ejercicioActual.camposSustitucion()
-        if (valoresIngresados.size != campos.size) {
-            return crearRetroalimentacion(false, "Debes completar todos los campos de la fórmula.")
-        }
-        val incorrectos = campos.filterIndexed { indice, campo ->
-            !campo.esAcierto(valoresIngresados[indice], toleranciaSustitucion)
-        }
-        if (incorrectos.isEmpty()) {
-            return crearRetroalimentacion(true, "¡Sustitución correcta!", "Reemplazaste bien todos los datos en la fórmula.")
-        }
-        val detalle = "Revisa: " + incorrectos.joinToString(", ") { "${it.simbolo()} (esperado ${it.valorEsperado()} ${it.unidad()})" }
-        return crearRetroalimentacion(false, "Hay ${incorrectos.size} valor(es) incorrecto(s).", detalle)
+        return sesion.second.comprobar(sesion.first.ejercicio().camposSustitucion(), valoresIngresados)
     }
 
     override fun responder(indice: Int): Retroalimentacion {
-        if (!etapaActual.esSustitucion()) {
-            return crearRetroalimentacion(false, "Primero debes elegir la fórmula correcta.")
+        if (!sesion.first.etapa().esSustitucion()) {
+            return sesion.second.crearRetroalimentacion(false, "Primero debes elegir la fórmula correcta.")
         }
-        val opcion = opcionesRespuestaActuales.getOrNull(indice)
-            ?: return crearRetroalimentacion(false, "Opción no válida.")
+        val opcion = sesion.first.opcionesRespuesta().getOrNull(indice)
+            ?: return sesion.second.crearRetroalimentacion(false, "Opción no válida.")
         if (opcion.esCorrecta()) {
-            etapaActual = etapaActual.siguiente()
-            resuelto = true
+            sesion.first.marcarResuelto()
         }
         return opcion.evaluarRespuesta()
     }
 
     override fun nuevoEjercicio() {
-        ejercicioActual = generadorEjercicios.generar()
-        opcionesFormulaActuales = generadorOpcionesFormula.generar(ejercicioActual)
-        opcionesRespuestaActuales = generadorOpcionesRespuesta.generar(ejercicioActual)
-        etapaActual = etapaActual.reiniciar()
-        resuelto = false
+        sesion.first.reiniciar()
     }
-
-    private fun crearRetroalimentacion(correcta: Boolean, mensaje: String, detalle: String = ""): Retroalimentacion =
-        Retroalimentacion(correcta, mensaje, detalle)
 }

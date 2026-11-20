@@ -3,10 +3,10 @@ package org.example
 import kotlin.math.abs
 
 class OpcionRespuesta(
-    private val valorInterno: Double,
-    private val textoInterno: String,
-    private val correctaInterna: Boolean,
-    private val retroalimentacionInterna: String
+    valorInterno: Double,
+    textoInterno: String,
+    correctaInterna: Boolean,
+    retroalimentacionInterna: String
 ) {
     /**
      * Modelo de dominio inmutable que representa una opción de respuesta
@@ -19,36 +19,41 @@ class OpcionRespuesta(
      * [Retroalimentacion] pedagógica al ser seleccionada ([evaluarRespuesta]).
      */
 
+    private val datos = Pair(
+        Pair(valorInterno, textoInterno),
+        Pair(correctaInterna, retroalimentacionInterna)
+    )
+
     /**
      * Devuelve el valor numérico real representado por esta opción.
      */
-    fun valor(): Double = valorInterno
+    fun valor(): Double = datos.first.first
 
     /**
      * Devuelve el texto formateado con dos decimales y su unidad de medida.
      */
-    fun texto(): String = textoInterno
+    fun texto(): String = datos.first.second
 
     /**
      * Comportamiento de dominio: indica si esta opción contiene el resultado
      * numérico verdadero del problema.
      */
     fun esCorrecta(): Boolean {
-        return correctaInterna
+        return datos.second.first
     }
 
     /**
      * Devuelve la explicación del error de cálculo cometido cuando se elige un
      * distractor numérico.
      */
-    fun retroalimentacion(): String = retroalimentacionInterna
+    fun retroalimentacion(): String = datos.second.second
 
     /**
      * Comportamiento de dominio: determina si el valor de esta opción difiere de
      * [valor] en a lo sumo [tolerancia] unidades.
      */
     fun coincideCon(valor: Double, tolerancia: Double): Boolean {
-        return abs(valorInterno - valor) <= tolerancia
+        return abs(datos.first.first - valor) <= tolerancia
     }
 
     /**
@@ -56,20 +61,21 @@ class OpcionRespuesta(
      * estudiante al confirmar esta opción como respuesta final del ejercicio.
      */
     fun evaluarRespuesta(): Retroalimentacion {
-        if (correctaInterna) {
+        if (datos.second.first) {
+            val etiqueta = datos.first.second
             return Retroalimentacion(
                 true,
                 "¡Resultado correcto!",
-                "El valor $textoInterno coincide con el cálculo teórico. Ahora puedes simular para comprobarlo."
+                "El valor $etiqueta coincide con el cálculo teórico. Ahora puedes simular para comprobarlo."
             )
         }
-        return Retroalimentacion(false, "Resultado incorrecto.", retroalimentacionInterna)
+        return Retroalimentacion(false, "Resultado incorrecto.", datos.second.second)
     }
 
     /**
      * Representación legible de la opción con su magnitud y unidad.
      */
     override fun toString(): String {
-        return textoInterno
+        return datos.first.second
     }
 }

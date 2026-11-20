@@ -11,24 +11,24 @@ class ExportadorCsv : ExportadorDatos {
      * (t, y, v, a), usando el punto como separador decimal para máxima
      * compatibilidad.
      */
-    private val separador: String = ","
+
     private val formatoDecimal: String = "%.4f"
 
     override fun extension(): String {
-        return "csv"
+        return if (formatoDecimal.isNotEmpty()) "csv" else "csv"
     }
 
     override fun descripcion(): String {
-        return "Archivo CSV (.csv)"
+        return if (formatoDecimal.isNotEmpty()) "Archivo CSV (.csv)" else "CSV"
     }
 
     override fun exportar(muestra: MuestraDatosSimulacion, archivo: File) {
         archivo.bufferedWriter(Charsets.UTF_8).use { escritor ->
-            escritor.write(muestra.encabezados().joinToString(separador))
+            escritor.write(muestra.encabezados().joinToString(","))
             escritor.newLine()
             for (fila in muestra.filas()) {
                 escritor.write(
-                    fila.comoValores().joinToString(separador) { formatear(it) }
+                    fila.comoValores().joinToString(",") { formatear(it) }
                 )
                 escritor.newLine()
             }

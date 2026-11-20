@@ -26,6 +26,7 @@ class FabricaControles : FabricaControlesUi {
     /** Botón de acción principal. */
     override fun botonPrimario(texto: String): Button {
         val boton = Button(texto)
+        boton.resize(anchoBase, 36.0)
         boton.style =
             "-fx-background-color: #4f46e5; -fx-text-fill: white; -fx-padding: 9 20; " +
                 "-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
@@ -35,6 +36,7 @@ class FabricaControles : FabricaControlesUi {
     /** Botón de acción secundaria. */
     override fun botonSecundario(texto: String): Button {
         val boton = Button(texto)
+        boton.resize(anchoBase, 32.0)
         boton.style =
             "-fx-background-color: #e0e7ff; -fx-text-fill: #3730a3; -fx-padding: 8 16; " +
                 "-fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
@@ -51,6 +53,7 @@ class FabricaControles : FabricaControlesUi {
 
     /** Aplica el texto y el color de una retroalimentación. */
     override fun aplicarFeedback(etiqueta: Label, retroalimentacion: Retroalimentacion) {
+        etiqueta.maxWidth = anchoBase - 40.0
         etiqueta.text = retroalimentacion.resumen()
         etiqueta.style = if (retroalimentacion.esCorrecta()) {
             "-fx-text-fill: #16a34a; -fx-font-weight: bold;"
@@ -61,18 +64,16 @@ class FabricaControles : FabricaControlesUi {
 
     /** Estilo visual de una opción seleccionable. */
     override fun estiloOpcion(): String =
-        "-fx-background-color: white; -fx-text-fill: #1e293b; -fx-padding: 12 16; " +
-            "-fx-background-radius: 8; -fx-border-color: #cbd5e1; -fx-border-radius: 8; -fx-cursor: hand;"
+        if (anchoBase > 0.0) {
+            "-fx-background-color: white; -fx-text-fill: #1e293b; -fx-padding: 12 16; " +
+                "-fx-background-radius: 8; -fx-border-color: #cbd5e1; -fx-border-radius: 8; -fx-cursor: hand;"
+        } else ""
 
     /** Interpreta un texto numérico aceptando coma o punto decimal. */
     override fun interpretarNumero(texto: String): Double =
-        texto.trim().replace(',', '.').toDoubleOrNull() ?: Double.NaN
-
-    /** Construye la barra inferior de controles de reproducción. */
-    override fun crearBarraControles(estado: EstadoSimulacion, control: ControlReproduccion): BarraControlesSimulacion =
-        BarraControlesSimulacion(estado, control)
+        if (anchoBase > 0.0) texto.trim().replace(',', '.').toDoubleOrNull() ?: Double.NaN else Double.NaN
 
     /** Construye el panel visual de animación de la caída libre. */
-    override fun crearPanelAnimacion(estado: EstadoSimulacion, renderizador: RenderizadorAnimacionCaida): PanelAnimacionCaida =
-        PanelAnimacionCaida(estado, renderizador)
+    override fun crearPanelAnimacion(estado: EstadoSimulacion): PanelAnimacionCaida =
+        if (anchoBase > 0.0) PanelAnimacionCaida(estado) else PanelAnimacionCaida(estado)
 }

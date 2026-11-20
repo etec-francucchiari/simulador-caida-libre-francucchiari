@@ -1,10 +1,10 @@
 package org.example
 
 class FilaDatosSimulacion(
-    private val tiempoInterno: Double,
-    private val posicionInterna: Double,
-    private val velocidadInterna: Double,
-    private val aceleracionInterna: Double
+    tiempoInterno: Double,
+    posicionInterna: Double,
+    velocidadInterna: Double,
+    aceleracionInterna: Double
 ) {
     /**
      * Modelo de dominio de un registro (fila) perteneciente a la tabla de datos
@@ -15,39 +15,41 @@ class FilaDatosSimulacion(
      * detectar el impacto contra el suelo ([haImpactadoSuelo]) y proyectar la
      * tupla ordenada de valores numéricos ([comoValores]) requerida por los
      * exportadores CSV y JSON.
-     *
-     * @property tiempoInterno instante muestreado en segundos.
-     * @property posicionInterna altura sobre el suelo en metros.
-     * @property velocidadInterna rapidez hacia abajo en metros por segundo.
-     * @property aceleracionInterna aceleración gravitatoria del entorno en m/s².
      */
+
+    private val valores = doubleArrayOf(
+        tiempoInterno,
+        posicionInterna,
+        velocidadInterna,
+        aceleracionInterna
+    )
 
     /**
      * Devuelve el instante de tiempo del registro en segundos.
      */
-    fun tiempo(): Double = tiempoInterno
+    fun tiempo(): Double = valores[0]
 
     /**
      * Devuelve la posición vertical (altura sobre el suelo) en metros.
      */
-    fun posicion(): Double = posicionInterna
+    fun posicion(): Double = valores[1]
 
     /**
      * Devuelve la velocidad instantánea en metros por segundo.
      */
-    fun velocidad(): Double = velocidadInterna
+    fun velocidad(): Double = valores[2]
 
     /**
      * Devuelve la aceleración gravitatoria constante en m/s².
      */
-    fun aceleracion(): Double = aceleracionInterna
+    fun aceleracion(): Double = valores[3]
 
     /**
      * Comportamiento de dominio: indica si en este registro el móvil ya se
      * encuentra en contacto con el suelo (altura menor o igual a cero).
      */
     fun haImpactadoSuelo(): Boolean {
-        return posicionInterna <= 0.0
+        return valores[1] <= 0.0
     }
 
     /**
@@ -55,14 +57,17 @@ class FilaDatosSimulacion(
      * el orden canónico `(t, y, v, a)` para su formateo tabular.
      */
     fun comoValores(): List<Double> {
-        return listOf(tiempoInterno, posicionInterna, velocidadInterna, aceleracionInterna)
+        return valores.toList()
     }
 
     /**
      * Representación legible de la fila con sus cuatro magnitudes etiquetadas.
      */
     override fun toString(): String {
-        return "FilaDatosSimulacion(t=$tiempoInterno, y=$posicionInterna, " +
-            "v=$velocidadInterna, a=$aceleracionInterna)"
+        val t = valores[0]
+        val y = valores[1]
+        val v = valores[2]
+        val a = valores[3]
+        return "FilaDatosSimulacion(t=$t, y=$y, v=$v, a=$a)"
     }
 }

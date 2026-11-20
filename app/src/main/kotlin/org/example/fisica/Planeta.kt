@@ -1,8 +1,8 @@
 package org.example
 
 enum class Planeta(
-    private val nombreInterno: String,
-    private val gravedadInterna: Double
+    nombreInterno: String,
+    gravedadInterna: Double
 ) : EntornoGravitatorio {
     TIERRA(
         nombreInterno = "Tierra",
@@ -25,22 +25,28 @@ enum class Planeta(
      * Entornos gravitatorios predefinidos del sistema solar.
      *
      * Se modela como enumeración para garantizar un conjunto finito e inmutable de
-     * entornos. Cada entrada encapsula sus datos como campos [private]; el acceso
+     * entornos. Cada entrada encapsula sus datos como estado privado; el acceso
      * se realiza mediante los métodos del contrato [EntornoGravitatorio].
      */
 
-    override fun nombre(): String = nombreInterno
+    private val datos = Pair(nombreInterno, gravedadInterna)
 
-    override fun gravedad(): Double = gravedadInterna
+    override fun nombre(): String = datos.first
+
+    override fun gravedad(): Double = datos.second
 
     override fun descripcion(): String {
-        return "$nombreInterno (g = $gravedadInterna m/s²)"
+        val n = datos.first
+        val g = datos.second
+        return "$n (g = $g m/s²)"
     }
 
     /**
      * Comportamiento de dominio: una representación legible de cada entorno.
      */
     override fun toString(): String {
-        return "$nombreInterno ($gravedadInterna m/s²)"
+        val n = datos.first
+        val g = datos.second
+        return "$n ($g m/s²)"
     }
 }

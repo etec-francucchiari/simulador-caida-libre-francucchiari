@@ -24,5 +24,5 @@ interface ExportacionDatos {
      * @param exportador formato de salida (CSV, JSON, etc.).
      * @param archivo archivo de destino en el sistema de archivos local.
      */
-    fun exportar(exportador: ExportadorDatos, archivo: File)
+    fun exportar(exportador: ExportadorDatos = ExportadorCsv(), archivo: File)
 }

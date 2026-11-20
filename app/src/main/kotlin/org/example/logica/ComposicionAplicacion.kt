@@ -1,55 +1,29 @@
 package org.example
 
 class ComposicionAplicacion(
-    private val nucleo: NucleoSimulacion
+    nucleo: ProveedorNucleoSimulacion = NucleoSimulacion()
 ) : ServiciosAplicacion {
     /**
      * Raíz de composición (`Composition Root`) de la aplicación JavaFX.
      *
      * Implementa el contrato [ServiciosAplicacion] coordinando las instancias
-     * centrales contenidas en [NucleoSimulacion] junto con los ensambladores
-     * especializados de cada modalidad ([EnsambladorPrincipiante] y
-     * [EnsambladorAvanzado]), garantizando que todas las pantallas y vistas
-     * reciban sus colaboradores por constructor (Principio de Inversión de
-     * Dependencias - DIP).
+     * centrales contenidas en [ProveedorNucleoSimulacion] junto con los
+     * ensambladores especializados de cada modalidad (DIP / LCOM / CBO).
      */
 
-    private val ensambladorPrincipiante = EnsambladorPrincipiante(nucleo)
-    private val ensambladorAvanzado = EnsambladorAvanzado(nucleo)
+    private val composicion = Pair(nucleo, EnsambladorPrincipiante(nucleo))
 
-    /**
-     * Expone el catálogo de entornos gravitatorios del núcleo.
-     */
-    override fun catalogo() = nucleo.catalogo()
+    override fun catalogo() = composicion.first.catalogo()
 
-    /**
-     * Expone el contexto reactivo de estado y comandos del núcleo.
-     */
-    override fun contexto() = nucleo.contexto()
+    override fun contexto() = composicion.first.contexto()
 
-    /**
-     * Expone el controlador de reproducción temporal del núcleo.
-     */
-    override fun control() = nucleo.control()
+    override fun control() = composicion.first.control()
 
-    /**
-     * Expone el controlador del desafío interactivo del Modo Avanzado.
-     */
-    override fun desafio() = nucleo.desafio()
+    override fun desafio() = composicion.first.desafio()
 
-    /**
-     * Delega en [EnsambladorPrincipiante] la construcción de la pantalla de
-     * simulación guiada del Modo Principiante.
-     */
-    override fun crearPantallaPrincipiante(onCambiarPlaneta: () -> Unit, onCambiarModo: () -> Unit): PrincipianteSimulationScreen {
-        return ensambladorPrincipiante.construir(onCambiarPlaneta, onCambiarModo)
-    }
+    override fun crearPantallaPrincipiante(onCambiarPlaneta: () -> Unit, onCambiarModo: () -> Unit) =
+        composicion.second.construir(onCambiarPlaneta, onCambiarModo)
 
-    /**
-     * Delega en [EnsambladorAvanzado] la construcción de la pantalla de desafío
-     * interactivo del Modo Avanzado.
-     */
-    override fun crearPantallaAvanzada(onCambiarModo: () -> Unit): ModoAvanzadoScreen {
-        return ensambladorAvanzado.construir(onCambiarModo)
-    }
+    override fun crearPantallaAvanzada(onCambiarModo: () -> Unit) =
+        composicion.second.construirAvanzada(onCambiarModo)
 }
