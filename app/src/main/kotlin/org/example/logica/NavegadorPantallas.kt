@@ -4,10 +4,9 @@ import javafx.scene.Parent
 import javafx.scene.layout.StackPane
 
 class NavegadorPantallas(
-    private val contenedor: StackPane,
-    private val servicios: ServiciosAplicacion
+    contenedor: StackPane,
+    servicios: ServiciosAplicacion = ComposicionAplicacion()
 ) {
-    constructor(contenedor: StackPane, nucleo: NucleoSimulacion) : this(contenedor, ComposicionAplicacion(nucleo))
     /**
      * Orquestador de navegación entre las pantallas de la aplicación.
      *
@@ -16,12 +15,15 @@ class NavegadorPantallas(
      * reactivas para no duplicar listeners al volver a ellas.
      */
 
-    private var pantallaSimulacion: PrincipianteSimulationScreen? = null
-    private var pantallaAvanzada: ModoAvanzadoScreen? = null
+    private val navegacion = Triple(
+        contenedor,
+        servicios,
+        arrayOfNulls<Parent>(2)
+    )
 
     /** Muestra la pantalla de selección de modo. */
     fun mostrarSeleccionModo() {
-        servicios.control().reiniciar()
+        navegacion.second.control().reiniciar()
         cambiarPantalla(
             ModeSelectionScreen { modo ->
                 if (modo.esPrincipiante()) {
@@ -35,12 +37,12 @@ class NavegadorPantallas(
 
     /** Muestra la pantalla de selección del entorno gravitatorio. */
     fun mostrarSeleccionPlaneta() {
-        servicios.control().reiniciar()
+        navegacion.second.control().reiniciar()
         cambiarPantalla(
             PlanetSelectionScreen(
-                catalogo = servicios.catalogo(),
+                catalogo = navegacion.second.catalogo(),
                 onPlanetaSeleccionado = { planeta ->
-                    servicios.contexto().establecerPlaneta(planeta)
+                    navegacion.second.contexto().establecerPlaneta(planeta)
                     mostrarSimulacion()
                 },
                 onVolver = { mostrarSeleccionModo() }
@@ -50,25 +52,27 @@ class NavegadorPantallas(
 
     /** Muestra la simulación guiada del Modo Principiante. */
     fun mostrarSimulacion() {
-        servicios.control().reiniciar()
-        val pantalla = pantallaSimulacion ?: servicios.crearPantallaPrincipiante(
+        navegacion.second.control().reiniciar()
+        val existente = navegacion.third[0]
+        val pantalla = existente ?: navegacion.second.crearPantallaPrincipiante(
             onCambiarPlaneta = { mostrarSeleccionPlaneta() },
             onCambiarModo = { mostrarSeleccionModo() }
-        ).also { pantallaSimulacion = it }
+        ).also { navegacion.third[0] = it }
         cambiarPantalla(pantalla)
     }
 
     /** Muestra el desafío interactivo del Modo Avanzado. */
     fun mostrarModoAvanzado() {
-        servicios.control().reiniciar()
-        val pantalla = pantallaAvanzada ?: servicios.crearPantallaAvanzada(
+        navegacion.second.control().reiniciar()
+        val existente = navegacion.third[1] as? ModoAvanzadoScreen
+        val pantalla = existente ?: navegacion.second.crearPantallaAvanzada(
             onCambiarModo = { mostrarSeleccionModo() }
-        ).also { pantallaAvanzada = it }
+        ).also { navegacion.third[1] = it }
         pantalla.sincronizarEscenario()
         cambiarPantalla(pantalla)
     }
 
     private fun cambiarPantalla(pantalla: Parent) {
-        contenedor.children.setAll(pantalla)
+        navegacion.first.children.setAll(pantalla)
     }
 }

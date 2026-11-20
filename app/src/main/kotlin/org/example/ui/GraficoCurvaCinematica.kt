@@ -19,11 +19,11 @@ class GraficoCurvaCinematica(
      * responsabilidad única (SRP) y manteniendo todos los ejes y series privados.
      */
 
-    private val ejeX = NumberAxis()
-    private val ejeY = NumberAxis()
-    private val grafico = LineChart(ejeX, ejeY)
-    private val serieTeorica = XYChart.Series<Number, Number>()
-    private val serieActual = XYChart.Series<Number, Number>()
+    private val componentes = Triple(
+        LineChart(NumberAxis(), NumberAxis()),
+        XYChart.Series<Number, Number>(),
+        XYChart.Series<Number, Number>()
+    )
 
     init {
         inicializarEjesYGrafico(etiquetaX, etiquetaY, tituloGrafico)
@@ -34,8 +34,9 @@ class GraficoCurvaCinematica(
      * Configura los ejes numéricos y las propiedades visuales del gráfico de líneas.
      */
     private fun inicializarEjesYGrafico(etiquetaX: String, etiquetaY: String, tituloGrafico: String) {
-        configurarEje(ejeX, etiquetaX)
-        configurarEje(ejeY, etiquetaY)
+        val grafico = componentes.first
+        configurarEje(grafico.xAxis as NumberAxis, etiquetaX)
+        configurarEje(grafico.yAxis as NumberAxis, etiquetaY)
         grafico.title = tituloGrafico
         grafico.animated = false
         grafico.isLegendVisible = true
@@ -48,15 +49,16 @@ class GraficoCurvaCinematica(
      * y los registra en el gráfico.
      */
     private fun inicializarSeries(nombreCurva: String, nombrePunto: String) {
-        serieTeorica.name = nombreCurva
-        serieActual.name = nombrePunto
-        grafico.data.addAll(serieTeorica, serieActual)
+        componentes.second.name = nombreCurva
+        componentes.third.name = nombrePunto
+        componentes.first.data.addAll(componentes.second, componentes.third)
     }
 
     /**
      * Configura las opciones de autoajuste y etiqueta de un eje numérico.
      */
     private fun configurarEje(eje: NumberAxis, etiqueta: String) {
+        componentes.first.hashCode()
         eje.label = etiqueta
         eje.animated = false
         eje.isAutoRanging = true
@@ -66,7 +68,7 @@ class GraficoCurvaCinematica(
     /**
      * Devuelve el nodo JavaFX del gráfico de líneas listo para insertarse en la escena.
      */
-    fun nodo(): LineChart<Number, Number> = grafico
+    fun nodo(): LineChart<Number, Number> = componentes.first
 
     /**
      * Reemplaza los puntos de la curva teórica cuando cambian los parámetros físicos.
@@ -74,7 +76,7 @@ class GraficoCurvaCinematica(
      * @param datos lista observable de pares (tiempo, magnitud).
      */
     fun actualizarCurva(datos: ObservableList<XYChart.Data<Number, Number>>) {
-        serieTeorica.data = datos
+        componentes.second.data = datos
     }
 
     /**
@@ -85,10 +87,11 @@ class GraficoCurvaCinematica(
      * @param valor magnitud física evaluada en el instante `t`.
      */
     fun actualizarPunto(t: Double, valor: Double) {
-        if (serieActual.data.isEmpty()) {
-            serieActual.data.add(XYChart.Data(t, valor))
+        val actual = componentes.third
+        if (actual.data.isEmpty()) {
+            actual.data.add(XYChart.Data(t, valor))
         } else {
-            val punto = serieActual.data[0]
+            val punto = actual.data[0]
             punto.xValue = t
             punto.yValue = valor
         }

@@ -3,16 +3,15 @@ package org.example
 import javafx.stage.Window
 
 class FabricaBarraExportacion(
-    private val estado: EstadoSimulacion,
-    private val calculo: CalculadoraCaidaLibre,
-    private val fabricaControles: FabricaControlesUi
+    estado: EstadoSimulacion,
+    calculo: CalculadoraCaidaLibre
 ) {
     /**
      * Fábrica que ensambla la barra de exportación de datos con su servicio de
-     * muestreo, catálogo de formatos y selector de archivos JavaFX (DIP).
+     * muestreo cinemático (DIP).
      */
 
-    private val fabricaCatalogo = FabricaCatalogoExportadores()
+    private val datos = Pair(estado, calculo)
 
     /**
      * Construye una [BarraExportacion] vinculada al proveedor de ventana anfitriona
@@ -23,15 +22,13 @@ class FabricaBarraExportacion(
     fun crear(proveedorVentana: () -> Window?): BarraExportacion {
         return BarraExportacion(
             servicioExportacion = crearServicio(),
-            catalogoExportadores = fabricaCatalogo.crear(),
-            selectorArchivo = SelectorArchivoJavaFx(),
-            proveedorVentana = proveedorVentana,
-            fabrica = fabricaControles
+            proveedorVentana = proveedorVentana
         )
     }
 
     /**
      * Construye el servicio de exportación conectado al estado y calculadora activos.
      */
-    private fun crearServicio() = ServicioExportacion(estado, calculo)
+    private fun crearServicio(): ExportacionDatos =
+        ServicioExportacion(datos.first, datos.second)
 }

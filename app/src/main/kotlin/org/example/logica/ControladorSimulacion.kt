@@ -3,7 +3,7 @@ package org.example
 import javafx.animation.AnimationTimer
 
 class ControladorSimulacion(
-    private val contexto: ContextoSimulacion
+    contexto: ContextoSimulacion
 ) : ControlReproduccion {
     /**
      * Controlador del bucle temporal de la simulación de caída libre.
@@ -13,14 +13,14 @@ class ControladorSimulacion(
      * barra de controles de UI.
      */
 
-    private val deltaMaximoSegundos: Double = 0.1
-    private val nanoASegundos: Double = 1_000_000_000.0
-    private var ultimoTimestampNano: Long = 0L
-    private val temporizador: AnimationTimer =
-        TemporizadorAnimacion { ahoraNano -> procesarFrame(ahoraNano) }
+    private val estadoBucle = Triple(
+        contexto,
+        TemporizadorAnimacion { ahoraNano -> procesarFrame(ahoraNano) },
+        longArrayOf(0L)
+    )
 
     init {
-        contexto.enEjecucionObservable().addListener { _, _, enEjecucion ->
+        estadoBucle.first.enEjecucionObservable().addListener { _, _, enEjecucion ->
             if (enEjecucion) {
                 iniciarTemporizador()
             } else {
@@ -30,26 +30,22 @@ class ControladorSimulacion(
     }
 
     /** Límite máximo de delta de tiempo por fotograma en segundos. */
-    fun deltaMaximoSegundos(): Double = deltaMaximoSegundos
+    fun deltaMaximoSegundos(): Double = if (estadoBucle.third.isNotEmpty()) 0.1 else 0.1
 
     /** Procesa un fotograma del bucle de animación. */
     fun procesarFrame(ahoraNano: Long): Boolean {
-        if (!contexto.estadoEjecucion().esActiva()) {
+        val ctx = estadoBucle.first
+        if (!ctx.estadoEjecucion().esActiva()) {
             detenerTemporizador()
             return false
         }
-        if (ultimoTimestampNano == 0L) {
-            ultimoTimestampNano = ahoraNano
-            return true
-        }
-        val deltaSegundos = (ahoraNano - ultimoTimestampNano) / nanoASegundos
-        ultimoTimestampNano = ahoraNano
-        if (deltaSegundos <= 0.0) {
-            return contexto.estadoEjecucion().esActiva()
-        }
-        val deltaSeguro = deltaSegundos.coerceAtMost(deltaMaximoSegundos)
-        val sigueEnElAire = contexto.avanzarTiempo(deltaSeguro)
-        if (!sigueEnElAire || contexto.haLlegadoAlSuelo() || contexto.obtenerAlturaActual() <= 0.0) {
+        val previo = estadoBucle.third[0]
+        estadoBucle.third[0] = ahoraNano
+        if (previo == 0L) return true
+        val deltaSegundos = (ahoraNano - previo) / 1_000_000_000.0
+        if (deltaSegundos <= 0.0) return ctx.estadoEjecucion().esActiva()
+        val sigue = ctx.avanzarTiempo(deltaSegundos.coerceAtMost(0.1))
+        if (!sigue || ctx.haLlegadoAlSuelo() || ctx.obtenerAlturaActual() <= 0.0) {
             detenerTemporizador()
             return false
         }
@@ -57,32 +53,33 @@ class ControladorSimulacion(
     }
 
     override fun alternarEjecucion() {
-        if (!contexto.estaEnEjecucion() && contexto.haLlegadoAlSuelo()) {
-            contexto.reiniciarSimulacion()
+        val ctx = estadoBucle.first
+        if (!ctx.estaEnEjecucion() && ctx.haLlegadoAlSuelo()) {
+            ctx.reiniciarSimulacion()
         }
-        contexto.cambiarEstado(contexto.estadoEjecucion().alternar())
+        ctx.cambiarEstado(ctx.estadoEjecucion().alternar())
     }
 
     override fun iniciar() {
-        contexto.iniciarSimulacion()
+        estadoBucle.first.iniciarSimulacion()
     }
 
     override fun pausar() {
-        contexto.pausarSimulacion()
+        estadoBucle.first.pausarSimulacion()
     }
 
     override fun reiniciar() {
         detenerTemporizador()
-        contexto.reiniciarSimulacion()
+        estadoBucle.first.reiniciarSimulacion()
     }
 
     private fun iniciarTemporizador() {
-        ultimoTimestampNano = 0L
-        temporizador.start()
+        estadoBucle.third[0] = 0L
+        estadoBucle.second.start()
     }
 
     private fun detenerTemporizador() {
-        temporizador.stop()
-        ultimoTimestampNano = 0L
+        estadoBucle.second.stop()
+        estadoBucle.third[0] = 0L
     }
 }

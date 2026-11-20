@@ -1,6 +1,8 @@
 package org.example
 
 class ValidacionExitosa(private val parametrosInternos: ParametrosIniciales) : ResultadoValidacion {
+    constructor(altura: Double, velocidad: Double) : this(ParametrosIniciales(altura, velocidad))
+
     /**
      * Representación polimórfica de un resultado exitoso al validar los
      * parámetros iniciales de lanzamiento ([ResultadoValidacion]).
@@ -24,6 +26,6 @@ class ValidacionExitosa(private val parametrosInternos: ParametrosIniciales) : R
      * Confirma que la validación de los campos de entrada fue satisfactoria.
      */
     override fun esValido(): Boolean {
-        return true
+        return parametrosInternos.alturaInicial().isFinite()
     }
 }

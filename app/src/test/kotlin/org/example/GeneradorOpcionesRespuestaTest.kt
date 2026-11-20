@@ -7,25 +7,18 @@ class GeneradorOpcionesRespuestaTest {
     /**
      * Pruebas unitarias del generador de opciones de respuesta numérica
      * ([GeneradorOpcionesRespuesta]) empleado en la Etapa 2 del Modo Avanzado.
-     *
-     * Verifica la unicidad de los valores propuestos, la presencia exacta de la
-     * respuesta verdadera y la existencia de diagnósticos de error en cada
-     * distractor numérico.
      */
 
-    private val generadorEjercicios = GeneradorEjercicios(CatalogoPlanetas(), CalculoCaidaLibre(), Random(4))
+    private val generadorEjercicios = GeneradorEjercicios(Random(4))
 
-    /**
-     * Para cualquiera de los tres objetivos de aprendizaje, se deben generar
-     * tres opciones numéricas distintas entre sí, donde exactamente una sea
-     * correcta y coincida con `ejercicio.valorCorrecto()`.
-     */
+    private fun crearGenerador(semilla: Long) = GeneradorOpcionesRespuesta(Random(semilla))
+
     @Test
     fun generaUnaRespuestaCorrectaYDistractoresDistintos() {
         val tierra = Planeta.entries.first()
         for (objetivo in ObjetivoEjercicio.entries) {
             val ejercicio = generadorEjercicios.generarConfigurado(tierra, 50.0, 4.0, objetivo)
-            val opciones = GeneradorOpcionesRespuesta(Random(9)).generar(ejercicio)
+            val opciones = crearGenerador(9).generar(ejercicio)
             assertEquals(3, opciones.size)
             assertEquals(1, opciones.count { it.esCorrecta() })
             assertEquals(ejercicio.valorCorrecto(), opciones.first { it.esCorrecta() }.valor(), 1e-6)
@@ -33,10 +26,6 @@ class GeneradorOpcionesRespuestaTest {
         }
     }
 
-    /**
-     * Cada distractor numérico debe explicar el error de cálculo habitual que
-     * conduce a ese resultado (por ejemplo, omitir la raíz cuadrada o el factor ½).
-     */
     @Test
     fun losDistractoresDescribenErroresDeCalculo() {
         val ejercicio = generadorEjercicios.generarConfigurado(
@@ -45,7 +34,7 @@ class GeneradorOpcionesRespuestaTest {
             4.0,
             ObjetivoEjercicio.CALCULAR_TIEMPO
         )
-        val distractores = GeneradorOpcionesRespuesta(Random(2))
+        val distractores = crearGenerador(2)
             .generar(ejercicio)
             .filter { !it.esCorrecta() }
         assertEquals(2, distractores.size)

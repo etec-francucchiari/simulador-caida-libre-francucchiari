@@ -6,8 +6,18 @@ import javafx.scene.layout.BorderPane
 
 class PrincipianteSimulationScreen(
     pestanaFormulas: Node,
-    pestanaSimulacion: Node
+    pestanaSimulacion: Node,
+    private val nucleoOpcional: ProveedorNucleoSimulacion? = null
 ) : BorderPane() {
+    constructor(
+        pestanaFormulas: Node,
+        nucleo: ProveedorNucleoSimulacion
+    ) : this(
+        pestanaFormulas = pestanaFormulas,
+        pestanaSimulacion = VistaPestanaSimulacion(nucleo.contexto(), nucleo.calculo()).construir(),
+        nucleoOpcional = nucleo
+    )
+
     /**
      * Pantalla 3 - Simulación del Modo Principiante.
      *
@@ -23,19 +33,20 @@ class PrincipianteSimulationScreen(
      * Configura la cabecera de navegación y la barra de controles de reproducción.
      */
     fun configurarBarras(
-        estado: EstadoSimulacion,
-        control: ControlReproduccion,
         onCambiarPlaneta: () -> Unit,
         onCambiarModo: () -> Unit
     ) {
-        top = EncabezadoSimulacion(estado, onCambiarPlaneta, onCambiarModo)
-        bottom = BarraControlesSimulacion(estado, control)
+        val nuc = nucleoOpcional ?: return
+        val encabezado = EncabezadoSimulacion(nuc.contexto(), onCambiarPlaneta, onCambiarModo)
+        top = encabezado
+        bottom = encabezado.crearBarraControles(nuc.control())
     }
 
     private fun construirPanelCentral(pestanaFormulas: Node, pestanaSimulacion: Node): TabPane {
+        val tituloSim = if (nucleoOpcional != null) "🎬 Simulación" else "🎬 Simulación"
         val tabFormulas = Tab("📐 Fórmulas paso a paso", pestanaFormulas)
         tabFormulas.isClosable = false
-        val tabSimulacion = Tab("🎬 Simulación", pestanaSimulacion)
+        val tabSimulacion = Tab(tituloSim, pestanaSimulacion)
         tabSimulacion.isClosable = false
         val tabPane = TabPane(tabFormulas, tabSimulacion)
         tabPane.style = "-fx-background-color: #ffffff;"

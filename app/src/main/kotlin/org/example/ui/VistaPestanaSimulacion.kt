@@ -1,20 +1,18 @@
 package org.example
 
-import javafx.scene.layout.*
+import javafx.scene.layout.VBox
 
 class VistaPestanaSimulacion(
-    private val estado: EstadoSimulacion,
-    private val calculo: CalculadoraCaidaLibre,
-    private val renderizador: RenderizadorAnimacionCaida
+    estado: EstadoSimulacion,
+    calculo: CalculadoraCaidaLibre
 ) {
     /**
      * Construye el contenido de la pestaña de simulación en tiempo real del Modo
-     * Principiante, integrando los valores instantáneos, el lienzo de animación y
-     * las curvas cinemáticas.
-     *
-     * Depende exclusivamente de los contratos [EstadoSimulacion], [CalculadoraCaidaLibre]
-     * y [RenderizadorAnimacionCaida] inyectados por constructor (DIP).
+     * Principiante, integrando los valores instantáneos y la fila de visualización
+     * cinemática (SRP / DIP).
      */
+
+    private val base = Pair(estado, FilaVisualizacionSimulacion(estado, calculo))
 
     /**
      * Construye y devuelve el contenedor vertical principal de la pestaña de
@@ -23,23 +21,8 @@ class VistaPestanaSimulacion(
     fun construir(): VBox {
         val contenedor = VBox(12.0)
         contenedor.style = "-fx-padding: 14;"
-        val panelValores = PanelValoresInstantaneos(estado)
-        contenedor.children.addAll(panelValores, construirFilaVisualizacion())
+        val panelValores = PanelValoresInstantaneos(base.first)
+        contenedor.children.addAll(panelValores, base.second.construir())
         return contenedor
-    }
-
-    /**
-     * Construye la fila central que dispone en paralelo el lienzo de caída libre
-     * y el panel de gráficos cinemáticos.
-     */
-    private fun construirFilaVisualizacion(): HBox {
-        val panelAnimacion = PanelAnimacionCaida(estado, renderizador)
-        panelAnimacion.prefWidth = 300.0
-        panelAnimacion.minWidth = 280.0
-        val panelGraficos = PanelGraficosSimulacion(estado, calculo)
-        panelGraficos.prefWidth = 760.0
-        val filaVisualizacion = HBox(12.0, panelAnimacion, panelGraficos)
-        filaVisualizacion.style = "-fx-alignment: top-center;"
-        return filaVisualizacion
     }
 }

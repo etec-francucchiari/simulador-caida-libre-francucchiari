@@ -1,10 +1,10 @@
 package org.example
 
 class ConfiguracionFisica(
-    private val alturaPorDefectoInterna: Double = 100.0,
-    private val velocidadPorDefectoInterna: Double = 0.0,
-    private val alturaMinimaInterna: Double = 0.0,
-    private val velocidadMinimaInterna: Double = 0.0
+    alturaPorDefectoInterna: Double = 100.0,
+    velocidadPorDefectoInterna: Double = 0.0,
+    alturaMinimaInterna: Double = 0.0,
+    velocidadMinimaInterna: Double = 0.0
 ) : ConfiguracionSimulacion {
     /**
      * Implementación de dominio de la configuración física del simulador de
@@ -14,39 +14,41 @@ class ConfiguracionFisica(
      * cotas mínimas físicamente admisibles para la altura y la velocidad
      * inicial, proporcionando reglas de validación, ajuste al rango permitido y
      * generación de resúmenes descriptivos.
-     *
-     * @property alturaPorDefectoInterna altura inicial por defecto en metros (100.0 m).
-     * @property velocidadPorDefectoInterna velocidad inicial por defecto en m/s (0.0 m/s).
-     * @property alturaMinimaInterna cota inferior permitida para la altura (0.0 m).
-     * @property velocidadMinimaInterna cota inferior permitida para la velocidad (0.0 m/s).
      */
+
+    private val parametrosConfigurados = doubleArrayOf(
+        alturaPorDefectoInterna,
+        velocidadPorDefectoInterna,
+        alturaMinimaInterna,
+        velocidadMinimaInterna
+    )
 
     /**
      * Devuelve la altura inicial por defecto expresada en metros.
      */
-    override fun alturaPorDefecto(): Double = alturaPorDefectoInterna
+    override fun alturaPorDefecto(): Double = parametrosConfigurados[0]
 
     /**
      * Devuelve la velocidad inicial por defecto expresada en metros por segundo.
      */
-    override fun velocidadPorDefecto(): Double = velocidadPorDefectoInterna
+    override fun velocidadPorDefecto(): Double = parametrosConfigurados[1]
 
     /**
      * Devuelve la altura mínima permitida por el modelo físico (nivel del suelo).
      */
-    override fun alturaMinima(): Double = alturaMinimaInterna
+    override fun alturaMinima(): Double = parametrosConfigurados[2]
 
     /**
      * Devuelve la velocidad inicial mínima permitida en caída hacia abajo.
      */
-    override fun velocidadMinima(): Double = velocidadMinimaInterna
+    override fun velocidadMinima(): Double = parametrosConfigurados[3]
 
     /**
      * Comprueba si una [altura] es un número real finito mayor o igual que la
      * cota mínima configurada.
      */
     override fun esAlturaValida(altura: Double): Boolean {
-        return altura.isFinite() && altura >= alturaMinimaInterna
+        return altura.isFinite() && altura >= parametrosConfigurados[2]
     }
 
     /**
@@ -54,7 +56,7 @@ class ConfiguracionFisica(
      * la cota mínima configurada.
      */
     override fun esVelocidadValida(velocidad: Double): Boolean {
-        return velocidad.isFinite() && velocidad >= velocidadMinimaInterna
+        return velocidad.isFinite() && velocidad >= parametrosConfigurados[3]
     }
 
     /**
@@ -62,7 +64,7 @@ class ConfiguracionFisica(
      * la altura mínima admisible.
      */
     fun ajustarAltura(altura: Double): Double {
-        return if (esAlturaValida(altura)) altura else alturaMinimaInterna
+        return if (esAlturaValida(altura)) altura else parametrosConfigurados[2]
     }
 
     /**
@@ -70,7 +72,7 @@ class ConfiguracionFisica(
      * por la velocidad mínima admisible.
      */
     fun ajustarVelocidad(velocidad: Double): Double {
-        return if (esVelocidadValida(velocidad)) velocidad else velocidadMinimaInterna
+        return if (esVelocidadValida(velocidad)) velocidad else parametrosConfigurados[3]
     }
 
     /**
@@ -78,8 +80,12 @@ class ConfiguracionFisica(
      * valores por defecto y los límites configurados.
      */
     fun resumen(): String {
-        return "Altura por defecto: $alturaPorDefectoInterna m; " +
-            "velocidad por defecto: $velocidadPorDefectoInterna m/s; " +
-            "mínimos: $alturaMinimaInterna m y $velocidadMinimaInterna m/s."
+        val hDef = parametrosConfigurados[0]
+        val vDef = parametrosConfigurados[1]
+        val hMin = parametrosConfigurados[2]
+        val vMin = parametrosConfigurados[3]
+        return "Altura por defecto: $hDef m; " +
+            "velocidad por defecto: $vDef m/s; " +
+            "mínimos: $hMin m y $vMin m/s."
     }
 }

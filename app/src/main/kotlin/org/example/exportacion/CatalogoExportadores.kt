@@ -1,7 +1,7 @@
 package org.example
 
 class CatalogoExportadores(
-    private val exportadores: List<ExportadorDatos>
+    private val exportadores: List<ExportadorDatos> = listOf(ExportadorCsv(), ExportadorJson())
 ) : CatalogoDeExportadores {
     /**
      * Implementación instanciable del catálogo de formatos de exportación de

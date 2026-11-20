@@ -1,13 +1,13 @@
 package org.example
 
 enum class ModoSimulacion(
-    private val tituloInterno: String,
-    private val descripcionInterna: String,
-    private val nombreTarjetaInterno: String,
-    private val resumenTarjetaInterno: String,
-    private val colorBordeInterno: String,
-    private val colorFondoInterno: String,
-    private val iconoInterno: String
+    tituloInterno: String,
+    descripcionInterna: String,
+    nombreTarjetaInterno: String,
+    resumenTarjetaInterno: String,
+    colorBordeInterno: String,
+    colorFondoInterno: String,
+    iconoInterno: String
 ) {
     PRINCIPIANTE(
         tituloInterno = "Modo Principiante (Fórmulas paso a paso)",
@@ -41,47 +41,57 @@ enum class ModoSimulacion(
      * evitar comparaciones de constantes en la interfaz gráfica.
      */
 
+    private val atributos = listOf(
+        tituloInterno,
+        descripcionInterna,
+        nombreTarjetaInterno,
+        resumenTarjetaInterno,
+        colorBordeInterno,
+        colorFondoInterno,
+        iconoInterno
+    )
+
     /**
      * Devuelve el título completo del modo de simulación.
      */
-    fun titulo(): String = tituloInterno
+    fun titulo(): String = atributos[0]
 
     /**
      * Devuelve la descripción pedagógica detallada de la modalidad.
      */
-    fun descripcion(): String = descripcionInterna
+    fun descripcion(): String = atributos[1]
 
     /**
      * Devuelve el nombre corto mostrado en la cabecera de la tarjeta selectora.
      */
-    fun nombreTarjeta(): String = nombreTarjetaInterno
+    fun nombreTarjeta(): String = atributos[2]
 
     /**
      * Devuelve el resumen multilínea presentado en la pantalla de bienvenida.
      */
-    fun resumenTarjeta(): String = resumenTarjetaInterno
+    fun resumenTarjeta(): String = atributos[3]
 
     /**
      * Devuelve el color hexadecimal del borde y acentos de la tarjeta.
      */
-    fun colorBorde(): String = colorBordeInterno
+    fun colorBorde(): String = atributos[4]
 
     /**
      * Devuelve el color hexadecimal de fondo suave de la tarjeta.
      */
-    fun colorFondo(): String = colorFondoInterno
+    fun colorFondo(): String = atributos[5]
 
     /**
      * Devuelve el icono representativo de la modalidad.
      */
-    fun icono(): String = iconoInterno
+    fun icono(): String = atributos[6]
 
     /**
      * Comportamiento de dominio: indica si corresponde al modo guiado para
      * principiantes.
      */
     fun esPrincipiante(): Boolean {
-        return iconoInterno == "📚"
+        return atributos[6] == "📚"
     }
 
     /**
@@ -89,13 +99,13 @@ enum class ModoSimulacion(
      * avanzado / estándar.
      */
     fun esAvanzado(): Boolean {
-        return iconoInterno == "🔬"
+        return atributos[6] == "🔬"
     }
 
     /**
      * Devuelve el título legible como representación textual por defecto.
      */
     override fun toString(): String {
-        return tituloInterno
+        return atributos[0]
     }
 }

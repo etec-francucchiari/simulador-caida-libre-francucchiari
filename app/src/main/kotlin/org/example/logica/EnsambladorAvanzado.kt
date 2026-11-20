@@ -1,17 +1,18 @@
 package org.example
 
 class EnsambladorAvanzado(
-    private val nucleo: NucleoSimulacion
+    nucleo: ProveedorNucleoSimulacion,
+    controles: FabricaControlesUi = FabricaControles()
 ) {
     /**
      * Ensambla la pantalla del Modo Avanzado a partir de las dependencias
-     * provistas por el [NucleoSimulacion].
+     * provistas por [ProveedorNucleoSimulacion].
      *
-     * Coordina [FabricaControles] y [FabricaPantallaAvanzada] para inyectar
+     * Coordina [FabricaControlesUi] y [FabricaPantallaAvanzada] para inyectar
      * cada colaborador por constructor (DIP).
      */
 
-    private val fabricaControles = FabricaControles()
+    private val fabrica = FabricaPantallaAvanzada(nucleo, controles)
 
     /**
      * Construye la pantalla completa del Modo Avanzado vinculada a la acción de
@@ -20,7 +21,6 @@ class EnsambladorAvanzado(
      * @param onCambiarModo callback para regresar a la selección de modo.
      */
     fun construir(onCambiarModo: () -> Unit): ModoAvanzadoScreen {
-        val fabrica = FabricaPantallaAvanzada(nucleo, fabricaControles)
         return fabrica.crear(onCambiarModo)
     }
 }

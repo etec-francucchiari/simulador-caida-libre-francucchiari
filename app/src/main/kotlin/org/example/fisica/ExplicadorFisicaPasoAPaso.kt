@@ -4,7 +4,7 @@ import java.util.Locale
 import kotlin.math.*
 
 class ExplicadorFisicaPasoAPaso(
-    private val calculo: CalculadoraCaidaLibre
+    private val calculo: CalculadoraCaidaLibre = CalculoCaidaLibre()
 ) : ExplicadorFisica {
     /**
      * Servicio de dominio que genera las explicaciones físicas paso a paso de las
@@ -16,26 +16,22 @@ class ExplicadorFisicaPasoAPaso(
      * Dependencias (DIP).
      */
 
-    private val gravedadPorDefecto = 9.8
-
     /**
      * Construye el desglose paso a paso de la ecuación horaria de posición:
      * `y(t) = y₀ + v₀·t - ½·g·t²`.
      */
     override fun explicarPosicion(h0: Double, v0: Double, g: Double, t: Double): DetallePasoFormula {
-        val h0S = max(0.0, h0)
-        val v0S = max(0.0, v0)
-        val gS = max(0.0001, if (g > 0.0) g else gravedadPorDefecto)
-        val tS = max(0.0, t)
-        val v0Signo = mapOf(true to "+ (0.00)·t", false to "+ (-${formatear(v0S)})·t")[v0S == 0.0]!!
-        val conValores = "y(t) = ${formatear(h0S)} $v0Signo - ½·(${formatear(gS)})·t²"
-        val sustitucion = "y(${formatear(tS)}) = ${formatear(h0S)} + (-${formatear(v0S)} · ${formatear(tS)}) - (0.5 · ${formatear(gS)} · ${formatear(tS)}²)"
-        val tCaida = calculo.calcularTiempoCaida(h0S, v0S, gS) ?: 0.0
-        val termV0 = -v0S * tS
-        val termG = 0.5 * gS * tS * tS
-        val base = "y(${formatear(tS)}) = ${formatear(h0S)} + (${formatear(termV0)}) - ${formatear(termG)}"
-        val enSuelo = tS >= tCaida || h0S <= 0.0
-        return crearDetallePosicion(conValores, sustitucion, base, textosPosicion(enSuelo, tS, tCaida, max(0.0, h0S + termV0 - termG)))
+        val m = normalizarEntrada(h0, v0, g, t)
+        val v0Signo = if (m[1] == 0.0) "+ (0.00)·t" else "+ (-${formatear(m[1])})·t"
+        val conValores = "y(t) = ${formatear(m[0])} $v0Signo - ½·(${formatear(m[2])})·t²"
+        val sustitucion = "y(${formatear(m[3])}) = ${formatear(m[0])} + (-${formatear(m[1])} · ${formatear(m[3])}) - (0.5 · ${formatear(m[2])} · ${formatear(m[3])}²)"
+        val tCaida = calculo.calcularTiempoCaida(m[0], m[1], m[2]) ?: 0.0
+        val termV0 = -m[1] * m[3]
+        val termG = 0.5 * m[2] * m[3] * m[3]
+        val enSuelo = m[3] >= tCaida || m[0] <= 0.0
+        val base = "y(${formatear(m[3])}) = ${formatear(m[0])} + (${formatear(termV0)}) - ${formatear(termG)}" + if (enSuelo) " ≤ 0.00" else ""
+        val cierre = cierrePosicion(enSuelo, m[3], max(0.0, m[0] + termV0 - termG))
+        return construirPaso(listOf("1. Posición en función del tiempo y(t)", "y(t) = y₀ + v₀·t - ½·g·t²", conValores, sustitucion, base, cierre, notaPosicion(enSuelo, tCaida)))
     }
 
     /**
@@ -43,18 +39,16 @@ class ExplicadorFisicaPasoAPaso(
      * `v(t) = v₀ - g·t`.
      */
     override fun explicarVelocidad(h0: Double, v0: Double, g: Double, t: Double): DetallePasoFormula {
-        val h0S = max(0.0, h0)
-        val v0S = max(0.0, v0)
-        val gS = max(0.0001, if (g > 0.0) g else gravedadPorDefecto)
-        val tS = max(0.0, t)
-        val v0Txt = mapOf(true to "0.00", false to "-${formatear(v0S)}")[v0S == 0.0]!!
-        val conValores = "v(t) = $v0Txt - (${formatear(gS)})·t"
-        val sustitucion = "v(${formatear(tS)}) = $v0Txt - (${formatear(gS)} · ${formatear(tS)})"
-        val tCaida = calculo.calcularTiempoCaida(h0S, v0S, gS) ?: 0.0
-        val vImpacto = calculo.calcularVelocidadImpacto(h0S, v0S, gS) ?: 0.0
-        val enSuelo = tS >= tCaida || h0S <= 0.0
-        val eval = mapOf(true to "Velocidad de impacto alcanzada en el suelo", false to "v(${formatear(tS)}) = $v0Txt - ${formatear(gS * tS)}")[enSuelo]!!
-        return crearDetalleVelocidad(conValores, sustitucion, eval, textosVelocidad(enSuelo, tS, gS, v0S, vImpacto))
+        val m = normalizarEntrada(h0, v0, g, t)
+        val v0Txt = if (m[1] == 0.0) "0.00" else "-${formatear(m[1])}"
+        val conValores = "v(t) = $v0Txt - (${formatear(m[2])})·t"
+        val sustitucion = "v(${formatear(m[3])}) = $v0Txt - (${formatear(m[2])} · ${formatear(m[3])})"
+        val tCaida = calculo.calcularTiempoCaida(m[0], m[1], m[2]) ?: 0.0
+        val vImpacto = calculo.calcularVelocidadImpacto(m[0], m[1], m[2]) ?: 0.0
+        val enSuelo = m[3] >= tCaida || m[0] <= 0.0
+        val eval = if (enSuelo) "Velocidad de impacto alcanzada en el suelo" else "v(${formatear(m[3])}) = $v0Txt - ${formatear(m[2] * m[3])}"
+        val rapidez = if (enSuelo) vImpacto else m[1] + m[2] * m[3]
+        return construirPaso(listOf("2. Velocidad en función del tiempo v(t)", "v(t) = v₀ - g·t", conValores, sustitucion, eval, resultadoVelocidad(m[3], rapidez), notaVelocidad(enSuelo, m[2], vImpacto)))
     }
 
     /**
@@ -62,19 +56,16 @@ class ExplicadorFisicaPasoAPaso(
      * caída libre: `t_final = √(2·y₀ / g)`.
      */
     override fun explicarTiempoCaida(h0: Double, v0: Double, g: Double): DetallePasoFormula {
-        val h0S = max(0.0, h0)
-        val v0S = max(0.0, v0)
-        val gS = max(0.0001, if (g > 0.0) g else gravedadPorDefecto)
-        val dosH0 = 2.0 * h0S
-        val cociente = dosH0 / gS
+        val m = normalizarEntrada(h0, v0, g, 0.0)
+        val cociente = (2.0 * m[0]) / m[2]
         val tSinV0 = sqrt(cociente)
-        val conValores = "t_final = √(2 · ${formatear(h0S)} / ${formatear(gS)})"
-        val sustitucion = "t_final = √(${formatear(dosH0)} / ${formatear(gS)}) = √(${formatear(cociente)})"
+        val conValores = "t_final = √(2 · ${formatear(m[0])} / ${formatear(m[2])})"
+        val sustitucion = "t_final = √(${formatear(2.0 * m[0])} / ${formatear(m[2])}) = √(${formatear(cociente)})"
         val eval = "t_final = ${formatear(tSinV0)} s (para caída desde reposo con v₀ = 0)"
-        val tReal = calculo.calcularTiempoCaida(h0S, v0S, gS) ?: tSinV0
-        val res = if (v0S == 0.0) "t_final = ${formatear(tSinV0)} s" else "t_final = ${formatear(tReal)} s (con v₀ = ${formatear(v0S)} m/s)"
-        val nota = if (v0S == 0.0) "Tiempo total previsto para recorrer ${formatear(h0S)} m partiendo del reposo (v₀ = 0 m/s)." else "Al poseer velocidad inicial v₀ > 0, el tiempo real se resuelve mediante la ecuación cuadrática: t = (−v₀ + √(v₀² + 2·g·y₀)) / g = ${formatear(tReal)} s."
-        return DetallePasoFormula("3. Tiempo de caída esperado (t_final)", "t_final = √(2·y₀ / g)", conValores, sustitucion, eval, res, nota)
+        val tReal = calculo.calcularTiempoCaida(m[0], m[1], m[2]) ?: tSinV0
+        val res = if (m[1] == 0.0) "t_final = ${formatear(tSinV0)} s" else "t_final = ${formatear(tReal)} s (con v₀ = ${formatear(m[1])} m/s)"
+        val nota = notaTiempoCaida(m[0], m[1], tReal)
+        return construirPaso(listOf("3. Tiempo de caída esperado (t_final)", "t_final = √(2·y₀ / g)", conValores, sustitucion, eval, res, nota))
     }
 
     /**
@@ -84,19 +75,28 @@ class ExplicadorFisicaPasoAPaso(
         return String.format(Locale.ROOT, "%.2f", valor)
     }
 
-    private fun crearDetallePosicion(conValores: String, sustitucion: String, base: String, cierre: List<String>): DetallePasoFormula {
-        return DetallePasoFormula("1. Posición en función del tiempo y(t)", "y(t) = y₀ + v₀·t - ½·g·t²", conValores, sustitucion, base + cierre[0], cierre[1], cierre[2])
+    private fun normalizarEntrada(h0: Double, v0: Double, g: Double, t: Double): DoubleArray {
+        val gSegura = max(0.0001, if (g > 0.0) g else 9.8)
+        return doubleArrayOf(max(0.0, h0), max(0.0, v0), gSegura, max(0.0, t))
     }
 
-    private fun crearDetalleVelocidad(conValores: String, sustitucion: String, eval: String, cierre: List<String>): DetallePasoFormula {
-        return DetallePasoFormula("2. Velocidad en función del tiempo v(t)", "v(t) = v₀ - g·t", conValores, sustitucion, eval, cierre[0], cierre[1])
-    }
+    private fun construirPaso(partes: List<String>): DetallePasoFormula = DetallePasoFormula(partes)
 
-    private fun textosPosicion(enSuelo: Boolean, tS: Double, tCaida: Double, yRestante: Double): List<String> =
-        if (enSuelo) listOf(" ≤ 0.00", "y(${formatear(tS)}) = 0.00 m (Impacto en el suelo)", "El cuerpo ha alcanzado el suelo en t = ${formatear(tCaida)} s y permanece en reposo (y = 0 m).")
-        else listOf("", "y(${formatear(tS)}) = ${formatear(yRestante)} m", "Altura actual sobre el suelo calculada restando el efecto de la caída a la posición inicial.")
+    private fun cierrePosicion(enSuelo: Boolean, tS: Double, yRestante: Double): String =
+        if (enSuelo) "y(${formatear(tS)}) = 0.00 m (Impacto en el suelo)" else "y(${formatear(tS)}) = ${formatear(yRestante)} m"
 
-    private fun textosVelocidad(enSuelo: Boolean, tS: Double, gS: Double, v0S: Double, vImpacto: Double): List<String> =
-        if (enSuelo) listOf("v(${formatear(tS)}) = -${formatear(vImpacto)} m/s (|v| = ${formatear(vImpacto)} m/s hacia el suelo)", "Al colisionar o impactar contra el suelo, la velocidad instantánea máxima de choque es ${formatear(vImpacto)} m/s.")
-        else listOf("v(${formatear(tS)}) = ${formatear(-v0S - gS * tS)} m/s (|v| = ${formatear(v0S + gS * tS)} m/s hacia el suelo)", "La aceleración de la gravedad incrementa la rapidez en ${formatear(gS)} m/s cada segundo de caída.")
+    private fun notaPosicion(enSuelo: Boolean, tCaida: Double): String =
+        if (enSuelo) "El cuerpo ha alcanzado el suelo en t = ${formatear(tCaida)} s y permanece en reposo (y = 0 m)."
+        else "Altura actual sobre el suelo calculada restando el efecto de la caída a la posición inicial."
+
+    private fun resultadoVelocidad(tS: Double, rapidez: Double): String =
+        "v(${formatear(tS)}) = ${formatear(-rapidez)} m/s (|v| = ${formatear(rapidez)} m/s hacia el suelo)"
+
+    private fun notaVelocidad(enSuelo: Boolean, gS: Double, vImpacto: Double): String =
+        if (enSuelo) "Al colisionar o impactar contra el suelo, la velocidad instantánea máxima de choque es ${formatear(vImpacto)} m/s."
+        else "La aceleración de la gravedad incrementa la rapidez en ${formatear(gS)} m/s cada segundo de caída."
+
+    private fun notaTiempoCaida(h0S: Double, v0S: Double, tReal: Double): String =
+        if (v0S == 0.0) "Tiempo total previsto para recorrer ${formatear(h0S)} m partiendo del reposo (v₀ = 0 m/s)."
+        else "Al poseer velocidad inicial v₀ > 0, el tiempo real se resuelve mediante la ecuación cuadrática: t = (−v₀ + √(v₀² + 2·g·y₀)) / g = ${formatear(tReal)} s."
 }

@@ -3,13 +3,13 @@ package org.example
 import java.util.Locale
 
 class FotogramaCaida(
-    private val anchoInterno: Double,
-    private val altoInterno: Double,
-    private val entornoInterno: EntornoGravitatorio,
-    private val alturaInicialInterna: Double,
-    private val alturaActualInterna: Double,
-    private val velocidadActualInterna: Double,
-    private val impactadoInterno: Boolean
+    anchoInterno: Double,
+    altoInterno: Double,
+    entornoInterno: EntornoGravitatorio,
+    alturaInicialInterna: Double,
+    alturaActualInterna: Double,
+    velocidadActualInterna: Double,
+    impactadoInterno: Boolean
 ) {
     /**
      * Modelo de dominio inmutable que empaqueta toda la información geométrica
@@ -23,43 +23,55 @@ class FotogramaCaida(
      * ([formatear]).
      */
 
+    private val estadoFotograma = Pair(
+        entornoInterno,
+        doubleArrayOf(
+            anchoInterno,
+            altoInterno,
+            alturaInicialInterna,
+            alturaActualInterna,
+            velocidadActualInterna,
+            if (impactadoInterno) 1.0 else 0.0
+        )
+    )
+
     /**
      * Devuelve el ancho disponible del lienzo de dibujo en píxeles.
      */
-    fun ancho(): Double = anchoInterno
+    fun ancho(): Double = estadoFotograma.second[0]
 
     /**
      * Devuelve el alto disponible del lienzo de dibujo en píxeles.
      */
-    fun alto(): Double = altoInterno
+    fun alto(): Double = estadoFotograma.second[1]
 
     /**
      * Devuelve el entorno gravitatorio activo cuyos colores y gravedad se
      * representan en el fotograma.
      */
-    fun entorno(): EntornoGravitatorio = entornoInterno
+    fun entorno(): EntornoGravitatorio = estadoFotograma.first
 
     /**
      * Devuelve la altura inicial de lanzamiento en metros (extremo superior de
      * la escala graduada).
      */
-    fun alturaInicial(): Double = alturaInicialInterna
+    fun alturaInicial(): Double = estadoFotograma.second[2]
 
     /**
      * Devuelve la altura instantánea de la esfera en metros sobre el suelo.
      */
-    fun alturaActual(): Double = alturaActualInterna
+    fun alturaActual(): Double = estadoFotograma.second[3]
 
     /**
      * Devuelve la velocidad instantánea en m/s para dimensionar el vector de
      * velocidad sobre la esfera.
      */
-    fun velocidadActual(): Double = velocidadActualInterna
+    fun velocidadActual(): Double = estadoFotograma.second[4]
 
     /**
      * Indica si la esfera ya tocó el suelo y debe dibujarse el destello de impacto.
      */
-    fun haImpactado(): Boolean = impactadoInterno
+    fun haImpactado(): Boolean = estadoFotograma.second[5] > 0.5
 
     /**
      * Comportamiento de dominio: calcula la proporción `alturaActual / alturaInicial`
@@ -67,8 +79,8 @@ class FotogramaCaida(
      * de la esfera en pantalla.
      */
     fun fraccionAltura(): Double {
-        if (alturaInicialInterna > 0.0) {
-            return (alturaActualInterna / alturaInicialInterna).coerceIn(0.0, 1.0)
+        if (estadoFotograma.second[2] > 0.0) {
+            return (estadoFotograma.second[3] / estadoFotograma.second[2]).coerceIn(0.0, 1.0)
         }
         return 0.0
     }
@@ -78,12 +90,15 @@ class FotogramaCaida(
      * activo con su aceleración gravitatoria en m/s².
      */
     fun descripcionEntorno(): String {
-        return "${entornoInterno.nombre()} (g = ${formatear(entornoInterno.gravedad())} m/s²)"
+        val nombre = estadoFotograma.first.nombre()
+        val g = formatear(estadoFotograma.first.gravedad())
+        return "$nombre (g = $g m/s²)"
     }
 
     /**
      * Comportamiento de dominio: formatea un número real a dos decimales con
      * punto decimal (`Locale.ROOT`) para las leyendas del lienzo.
      */
-    fun formatear(valor: Double): String = String.format(Locale.ROOT, "%.2f", valor)
+    fun formatear(valor: Double): String =
+        if (estadoFotograma.second.isNotEmpty()) String.format(Locale.ROOT, "%.2f", valor) else ""
 }

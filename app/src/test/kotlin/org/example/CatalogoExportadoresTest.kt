@@ -11,7 +11,7 @@ class CatalogoExportadoresTest {
      * [ExportadorJson], la consulta de extensiones soportadas y la búsqueda
      * insensible a mayúsculas/minúsculas o al punto inicial.
      */
-    private val catalogo = CatalogoExportadores(listOf(ExportadorCsv(), ExportadorJson()))
+    private val catalogo = CatalogoExportadores()
 
     /**
      * Verifica que el catálogo exponga los dos formatos inyectados y liste sus

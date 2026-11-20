@@ -1,11 +1,8 @@
 package org.example
 
 class FabricaComponentesAvanzados(
-    private val contexto: ContextoSimulacion,
-    private val control: ControlReproduccion,
-    private val desafio: DesafioAvanzado,
-    private val renderizador: RenderizadorAnimacionCaida,
-    private val fabricaControles: FabricaControlesUi
+    nucleo: ProveedorNucleoSimulacion,
+    fabricaControles: FabricaControlesUi
 ) {
     /**
      * Fábrica de los colaboradores de selección de etapa y sincronización de
@@ -15,13 +12,15 @@ class FabricaComponentesAvanzados(
      * ensamblado en [FabricaPantallaAvanzada] manteniendo bajo el acoplamiento (CBO).
      */
 
+    private val base = Pair(nucleo, fabricaControles)
+
     /**
      * Construye el [SelectorVistaEtapa] junto con el lienzo de animación que se
      * exhibe en la tercera etapa de validación experimental.
      */
     fun crearSelectorEtapa(): SelectorVistaEtapa {
-        val animacion = fabricaControles.crearPanelAnimacion(contexto, renderizador)
-        return SelectorVistaEtapa(desafio, fabricaControles, animacion)
+        val animacion = base.second.crearPanelAnimacion(base.first.contexto())
+        return SelectorVistaEtapa(base.first.desafio(), base.second, animacion)
     }
 
     /**
@@ -29,11 +28,16 @@ class FabricaComponentesAvanzados(
      * del ejercicio activo en el contexto físico.
      */
     fun crearSincronizador(): SincronizadorEscenarioDesafio {
-        return SincronizadorEscenarioDesafio(desafio, contexto, control)
+        return SincronizadorEscenarioDesafio(base.first.desafio(), base.first.contexto(), base.first.control())
     }
+
+    /**
+     * Devuelve el proveedor del núcleo asociado a los componentes.
+     */
+    fun nucleo(): ProveedorNucleoSimulacion = base.first
 
     /**
      * Devuelve la fábrica de controles UI asociada a los componentes del desafío.
      */
-    fun controles(): FabricaControlesUi = fabricaControles
+    fun controles(): FabricaControlesUi = base.second
 }

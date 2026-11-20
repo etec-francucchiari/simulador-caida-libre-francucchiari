@@ -1,26 +1,28 @@
 package org.example
 
-class ValidadorParametrosIniciales(private val configuracion: ConfiguracionSimulacion) : ValidadorParametros {
+class ValidadorParametrosIniciales(
+    configuracion: ConfiguracionSimulacion = ConfiguracionFisica(),
+    creador: ProveedorResultadoValidacion = FabricaResultadoValidacion()
+) : ValidadorParametros {
     /**
      * Servicio de dominio que valida los textos ingresados por el usuario en los
      * campos de parámetros iniciales (altura h₀ y velocidad inicial v₀).
      *
-     * Implementa el contrato [ValidadorParametros] y recibe por constructor la
-     * abstracción [ConfiguracionSimulacion] (Principio de Inversión de
-     * Dependencias - DIP), de modo que no depende de la implementación concreta
-     * de la configuración física.
+     * Implementa el contrato [ValidadorParametros] y recibe por constructor las
+     * abstracciones [ConfiguracionSimulacion] y [ProveedorResultadoValidacion]
+     * (Principio de Inversión de Dependencias - DIP).
      */
-    private val mensajeFormatoNumerico = "Ingrese un número válido (por ejemplo: 10,5)."
-    private val mensajeAlturaNegativa = "La altura inicial no puede ser negativa."
-    private val mensajeVelocidadNegativa = "La velocidad inicial no puede ser negativa."
+
+    private val colaboradores = Pair(configuracion, creador)
 
     /**
      * Valida el texto correspondiente a la altura inicial y devuelve un mensaje
      * de error descriptivo, o `null` cuando el valor es válido.
      */
     override fun validarAltura(texto: String): String? {
-        val altura = parsearNumero(texto) ?: return mensajeFormatoNumerico
-        return if (!configuracion.esAlturaValida(altura)) mensajeAlturaNegativa else null
+        val altura = colaboradores.second.parsearNumero(texto)
+            ?: return "Ingrese un número válido (por ejemplo: 10,5)."
+        return if (!colaboradores.first.esAlturaValida(altura)) "La altura inicial no puede ser negativa." else null
     }
 
     /**
@@ -28,27 +30,22 @@ class ValidadorParametrosIniciales(private val configuracion: ConfiguracionSimul
      * mensaje de error descriptivo, o `null` cuando el valor es válido.
      */
     override fun validarVelocidad(texto: String): String? {
-        val velocidad = parsearNumero(texto) ?: return mensajeFormatoNumerico
-        return if (!configuracion.esVelocidadValida(velocidad)) mensajeVelocidadNegativa else null
+        val velocidad = colaboradores.second.parsearNumero(texto)
+            ?: return "Ingrese un número válido (por ejemplo: 10,5)."
+        return if (!colaboradores.first.esVelocidadValida(velocidad)) "La velocidad inicial no puede ser negativa." else null
     }
 
     /**
      * Evalúa conjuntamente ambos textos de entrada y construye polimórficamente
-     * una [ValidacionExitosa] o una [ValidacionFallida].
+     * el [ResultadoValidacion] mediante el proveedor inyectado.
      */
     override fun validar(textoAltura: String, textoVelocidad: String): ResultadoValidacion {
         val errores = listOfNotNull(validarAltura(textoAltura), validarVelocidad(textoVelocidad))
         if (errores.isNotEmpty()) {
-            return ValidacionFallida(errores)
+            return colaboradores.second.crearFallo(errores)
         }
-        return ValidacionExitosa(ParametrosIniciales(parsearNumero(textoAltura)!!, parsearNumero(textoVelocidad)!!))
-    }
-
-    /**
-     * Convierte el texto en un número real finito, aceptando coma o punto decimal.
-     */
-    private fun parsearNumero(texto: String): Double? {
-        val valor = texto.trim().replace(',', '.').toDoubleOrNull()
-        return valor?.takeIf { it.isFinite() }
+        val h = colaboradores.second.parsearNumero(textoAltura) ?: 0.0
+        val v = colaboradores.second.parsearNumero(textoVelocidad) ?: 0.0
+        return colaboradores.second.crearExito(h, v)
     }
 }

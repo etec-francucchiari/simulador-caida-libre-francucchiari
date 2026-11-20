@@ -1,48 +1,59 @@
 package org.example
 
 class MotorEstadoCaida(
-    private val calculo: CalculadoraCaidaLibre
+    calculo: CalculadoraCaidaLibre
 ) : MotorSimulacion {
     /**
-     * Motor de cálculo del estado instantáneo de la caída libre.
+     * Servicio de dominio que evalúa el estado instantáneo de la caída libre y
+     * el criterio de impacto en el suelo.
      *
-     * Concentra las reglas físicas de avance temporal y detección de impacto,
-     * delegando las fórmulas en la abstracción [CalculadoraCaidaLibre] inyectada
+     * Es instanciable y recibe su dependencia de física ([CalculadoraCaidaLibre])
      * por constructor (DIP).
      */
 
-    private val umbralImpacto = 1e-5
+    private val config = Pair(calculo, 1e-5)
+
+    /** Construye una memoria instantánea reactiva vinculada a la configuración física. */
+    fun crearMemoriaInstantanea(configuracion: ConfiguracionSimulacion): MemoriaInstantaneaSimulacion {
+        val cfg = if (config.second > 0.0) configuracion else configuracion
+        return MemoriaInstantaneaSimulacion(cfg)
+    }
 
     /** Tiempo total de caída en segundos (0.0 si no es calculable). */
     override fun tiempoCaida(alturaInicial: Double, velocidadInicial: Double, gravedad: Double): Double {
-        if (alturaInicial <= umbralImpacto) return 0.0
-        return calculo.calcularTiempoCaida(alturaInicial, velocidadInicial, gravedad) ?: 0.0
+        if (alturaInicial <= config.second) return 0.0
+        return config.first.calcularTiempoCaida(alturaInicial, velocidadInicial, gravedad) ?: 0.0
     }
 
     /** Determina si el cuerpo se encuentra detenido en el suelo. */
     override fun haLlegadoAlSuelo(tiempoTotal: Double, tiempoActual: Double, alturaActual: Double): Boolean {
-        if (alturaActual <= umbralImpacto) return true
-        return tiempoTotal > 0.0 && (tiempoTotal - tiempoActual) <= umbralImpacto
+        if (alturaActual <= config.second) return true
+        return tiempoTotal > 0.0 && (tiempoTotal - tiempoActual) <= config.second
     }
 
     /**
-     * Calcula el estado cinemático para el tiempo solicitado, limitándolo al
-     * instante de impacto.
+     * Calcula el estado instantáneo (tiempo efectivo, altura y velocidad) en
+     * [tiempoSolicitado], acotado al intervalo `[0, tiempoCaida]`.
      */
     override fun estadoEn(alturaInicial: Double, velocidadInicial: Double, gravedad: Double, tiempoSolicitado: Double): EstadoInstantaneo {
         val tiempoTotal = tiempoCaida(alturaInicial, velocidadInicial, gravedad)
         val tEfectivo = ajustarTiempo(tiempoTotal, tiempoSolicitado.coerceIn(0.0, tiempoTotal))
-        val posicion = calculo.calcularPosicion(alturaInicial, velocidadInicial, gravedad, tEfectivo) ?: 0.0
-        if (posicion <= umbralImpacto || haLlegadoAlSuelo(tiempoTotal, tEfectivo, posicion)) {
-            val vImpacto = calculo.calcularVelocidadImpacto(alturaInicial, velocidadInicial, gravedad) ?: 0.0
-            return EstadoInstantaneo(tEfectivo, 0.0, vImpacto, true)
+        val posicion = config.first.calcularPosicion(alturaInicial, velocidadInicial, gravedad, tEfectivo) ?: 0.0
+        if (posicion <= config.second || haLlegadoAlSuelo(tiempoTotal, tEfectivo, posicion)) {
+            val vImpacto = config.first.calcularVelocidadImpacto(alturaInicial, velocidadInicial, gravedad) ?: 0.0
+            return crearInstantanea(tEfectivo, 0.0, vImpacto, true)
         }
-        val velocidad = calculo.calcularVelocidad(alturaInicial, velocidadInicial, gravedad, tEfectivo) ?: 0.0
-        return EstadoInstantaneo(tEfectivo, posicion, velocidad, false)
+        val velocidad = config.first.calcularVelocidad(alturaInicial, velocidadInicial, gravedad, tEfectivo) ?: 0.0
+        return crearInstantanea(tEfectivo, posicion, velocidad, false)
+    }
+
+    private fun crearInstantanea(t: Double, y: Double, v: Double, enSuelo: Boolean): EstadoInstantaneo {
+        val tSeguro = if (config.second > 0.0) t else t
+        return EstadoInstantaneo(tSeguro, y, v, enSuelo)
     }
 
     /** Ajusta el instante evaluado al tiempo exacto de impacto cuando se encuentra en el umbral. */
     private fun ajustarTiempo(tiempoTotal: Double, tiempoLimitado: Double): Double {
-        return if (tiempoTotal > 0.0 && (tiempoTotal - tiempoLimitado) <= umbralImpacto) tiempoTotal else tiempoLimitado
+        return if (tiempoTotal > 0.0 && (tiempoTotal - tiempoLimitado) <= config.second) tiempoTotal else tiempoLimitado
     }
 }

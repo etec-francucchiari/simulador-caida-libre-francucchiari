@@ -5,28 +5,30 @@ import javafx.scene.control.Label
 import javafx.scene.layout.*
 
 class VistaEtapaValidacion(
-    private val desafio: DesafioAvanzado,
-    private val fabrica: FabricaControlesUi,
-    private val nodoAnimacion: Node
+    desafio: DesafioAvanzado,
+    fabrica: FabricaControlesUi,
+    nodoAnimacion: Node
 ) {
     /**
      * Vista de la Etapa 3 del desafío: resultado validado y simulación en vivo.
      */
 
+    private val datos = Triple(desafio, fabrica, nodoAnimacion)
+
     /** Construye y devuelve el nodo de la etapa. */
     fun construir(): Node {
-        val columna = fabrica.columnaBase()
+        val columna = datos.second.columnaBase()
         val titulo = Label("Etapa 3 · ¡Ejercicio resuelto! 🎉")
         titulo.style = "-fx-text-fill: #166534; -fx-font-size: 16px; -fx-font-weight: bold;"
-        val contenedorAnimacion = HBox(nodoAnimacion)
+        val contenedorAnimacion = HBox(datos.third)
         contenedorAnimacion.style = "-fx-alignment: center;"
         columna.children.addAll(titulo, construirTarjetaResumen(), contenedorAnimacion)
         return columna
     }
 
     private fun construirTarjetaResumen(): VBox {
-        val ejercicio = desafio.ejercicio()
-        val respuestaCorrecta = desafio.opcionesRespuesta().firstOrNull { it.esCorrecta() }
+        val ejercicio = datos.first.ejercicio()
+        val respuestaCorrecta = datos.first.opcionesRespuesta().firstOrNull { it.esCorrecta() }
         val valorTexto = respuestaCorrecta?.texto() ?: ejercicio.textoResultado()
         val tarjeta = VBox(6.0)
         tarjeta.style = "-fx-padding: 14; -fx-background-color: #f0fdf4; -fx-background-radius: 10; " +

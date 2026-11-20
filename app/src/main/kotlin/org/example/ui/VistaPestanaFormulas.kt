@@ -4,9 +4,9 @@ import javafx.scene.control.ScrollPane
 import javafx.scene.layout.VBox
 
 class VistaPestanaFormulas(
-    private val contexto: ContextoSimulacion,
-    private val calculo: CalculadoraCaidaLibre,
-    private val configuracion: ConfiguracionSimulacion
+    contexto: ContextoSimulacion,
+    calculo: CalculadoraCaidaLibre,
+    configuracion: ConfiguracionSimulacion
 ) {
     /**
      * Construye el contenido desplazable de la pestaña didáctica de fórmulas paso a paso
@@ -14,9 +14,10 @@ class VistaPestanaFormulas(
      *
      * Recibe por constructor únicamente abstracciones ([ContextoSimulacion],
      * [CalculadoraCaidaLibre] y [ConfiguracionSimulacion]) cumpliendo con el principio de
-     * inversión de dependencias (DIP) y liberando a [PrincipianteSimulationScreen]
-     * de conocer los paneles internos de configuración y desglose algebraico.
+     * inversión de dependencias (DIP).
      */
+
+    private val datos = Triple(contexto, calculo, configuracion)
 
     /**
      * Construye y devuelve el contenedor con desplazamiento vertical para la pestaña
@@ -34,8 +35,8 @@ class VistaPestanaFormulas(
      * explicaciones físicas paso a paso.
      */
     private fun construirContenedor(): VBox {
-        val panelParametros = PanelParametrosIniciales(contexto, configuracion)
-        val panelExplicacion = PanelExplicacionFisica(contexto, calculo)
+        val panelParametros = PanelParametrosIniciales(datos.first, datos.third)
+        val panelExplicacion = PanelExplicacionFisica(datos.first, datos.second)
         val contenedor = VBox(16.0, panelParametros, panelExplicacion)
         contenedor.style = "-fx-padding: 18; -fx-alignment: top-center;"
         contenedor.maxWidth = 720.0
